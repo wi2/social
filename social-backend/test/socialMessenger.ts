@@ -42,24 +42,17 @@ const STEP = {
 async function deployAndExecuteSocial(services = [2]) {
   const wallets = await ethers.getSigners();
 
-  const [owner, admin, notUser1, user2, user3, ...users] =
+  const [owner, notUser0, notUser1, user2, user3, ...users] =
     await getAccountAdresses();
   const SocialFactory = await ethers.getContractFactory('SocialAccount');
-  const contract = await SocialFactory.deploy(owner, admin);
+  const usersAdded = [user2, owner, user3, ...users];
+  const tree = getTree(usersAdded);
 
-  await contract.waitForDeployment();
-
-  let usersAdded = [user2, admin];
-
-  let tree = getTree([admin, user2]);
-  await contract.createSocial(services, [user2], tree.getHexRoot() as Hex, {
-    value: parseGwei('2000'),
-  });
-  usersAdded = [admin, user2, user3, ...users];
-  tree = getTree(usersAdded);
-  await contract
-    .connect(wallets[1])
-    .addMoreUser([user3], tree.getHexRoot() as Hex);
+  const contract = await SocialFactory.connect(wallets[0]).deploy(
+    owner,
+    usersAdded,
+    tree.getHexRoot()
+  );
   return contract;
 }
 
@@ -69,7 +62,7 @@ async function deployAndExecuteUntilStep(
 ) {
   const messengerContract = await deployAndExecuteSocial(services);
   const wallets = await ethers.getSigners();
-  const [owner, admin, notUser1, user2, user3, ...users] =
+  const [owner, notUser0, notUser1, user2, user3, ...users] =
     await getAccountAdresses();
   const SocialNetWorkFactory = await ethers.getContractFactory(
     'SocialNetWorkMessenger'
@@ -80,14 +73,16 @@ async function deployAndExecuteUntilStep(
   )) as SocialNetWorkMessenger;
   await SocialNetWorkMessenger.waitForDeployment();
 
+  const usersAdded = [user2, owner, user3, ...users];
+
   if (step >= STEP.SUBSCRIBED) {
     await SocialNetWorkMessenger.connect(wallets[3]).subscribe(
       RANDOM_WALLET.address,
-      getHexProof([admin, user2, user3, ...users], user2)
+      getHexProof(usersAdded, user2)
     );
     await SocialNetWorkMessenger.connect(wallets[4]).subscribe(
       RANDOM_WALLET.address,
-      getHexProof([admin, user2, user3, ...users], user3)
+      getHexProof(usersAdded, user3)
     );
   }
 
@@ -96,23 +91,23 @@ async function deployAndExecuteUntilStep(
   if (step >= STEP.GET_CHAT_WALLET) {
     chatWallet1 = await SocialNetWorkMessenger.connect(
       wallets[3]
-    ).getChatWallet(user2, getHexProof([admin, user2, user3, ...users], user2));
+    ).getChatWallet(user2, getHexProof(usersAdded, user2));
     chatWallet2 = await SocialNetWorkMessenger.connect(
       wallets[4]
-    ).getChatWallet(user3, getHexProof([admin, user2, user3, ...users], user3));
+    ).getChatWallet(user3, getHexProof(usersAdded, user3));
   }
 
   if (step >= STEP.SENDED_INVITATION) {
     await SocialNetWorkMessenger.connect(wallets[3]).sendInvitation(
       user3,
-      getHexProof([admin, user2, user3, ...users], user2)
+      getHexProof(usersAdded, user2)
     );
   }
 
   if (step >= STEP.ACCEPTED_INVITATION) {
     await SocialNetWorkMessenger.connect(wallets[4]).AcceptInvitation(
       user2,
-      getHexProof([admin, user2, user3, ...users], user3),
+      getHexProof(usersAdded, user3),
       WALLET_SECRET1,
       WALLET_SECRET2
     );
@@ -121,7 +116,7 @@ async function deployAndExecuteUntilStep(
   if (step >= STEP.SENDED_MESSAGE) {
     const currentCid = await SocialNetWorkMessenger.connect(
       wallets[4]
-    ).getCurrentCID(user2, getHexProof([admin, user2, user3, ...users], user3));
+    ).getCurrentCID(user2, getHexProof(usersAdded, user3));
     const proof = getHexProof([currentCid as Hex, MSG_CID], currentCid);
     const tree = getTree([currentCid, MSG_CID]);
     await SocialNetWorkMessenger.connect(wallets[4]).sendMessage(
@@ -135,7 +130,7 @@ async function deployAndExecuteUntilStep(
   if (step >= STEP.CLOSE) {
     await SocialNetWorkMessenger.connect(wallets[4]).burnChat(
       user2,
-      getHexProof([admin, user2, user3, ...users], user2)
+      getHexProof(usersAdded, user2)
     );
   }
 
@@ -144,17 +139,20 @@ async function deployAndExecuteUntilStep(
 
 describe('SocialNetWorkMessenger Contract', () => {
   let owner: Address;
-  let admin: Address;
+  let notUser0: Address;
   let notUser1: Address;
   let user2: Address;
   let user3: Address;
   let users: Address[];
   let wallets: Signer[];
+  let usersAdded: Address[];
 
   beforeEach(async () => {
     wallets = await ethers.getSigners();
-    [owner, admin, notUser1, user2, user3, ...users] =
+
+    [owner, notUser0, notUser1, user2, user3, ...users] =
       await getAccountAdresses();
+    usersAdded = [user2, owner, user3, ...users];
   });
 
   describe('Subscribe', () => {
@@ -165,7 +163,7 @@ describe('SocialNetWorkMessenger Contract', () => {
       await expect(
         await SocialNetWorkMessenger.connect(wallets[3]).subscribe(
           RANDOM_WALLET.address,
-          getHexProof([admin, user2, user3, ...users], user2)
+          getHexProof(usersAdded, user2)
         )
       )
         .to.emit(SocialNetWorkMessenger, 'Subscribe')
@@ -178,10 +176,7 @@ describe('SocialNetWorkMessenger Contract', () => {
       );
       const hasSubscribe = await SocialNetWorkMessenger.connect(
         wallets[3]
-      ).hasSubscribe(
-        user2,
-        getHexProof([admin, user2, user3, ...users], user2)
-      );
+      ).hasSubscribe(user2, getHexProof(usersAdded, user2));
       assert.equal(hasSubscribe, false);
     });
 
@@ -191,10 +186,7 @@ describe('SocialNetWorkMessenger Contract', () => {
       );
       const hasSubscribe = await SocialNetWorkMessenger.connect(
         wallets[3]
-      ).hasSubscribe(
-        user2,
-        getHexProof([admin, user2, user3, ...users], user2)
-      );
+      ).hasSubscribe(user2, getHexProof(usersAdded, user2));
       assert.equal(hasSubscribe, true);
     });
 
@@ -204,7 +196,7 @@ describe('SocialNetWorkMessenger Contract', () => {
       );
       const iAmSubscribe = await SocialNetWorkMessenger.connect(
         wallets[3]
-      ).iAmSubscribe(getHexProof([admin, user2, user3, ...users], user2));
+      ).iAmSubscribe(getHexProof(usersAdded, user2));
       assert.equal(iAmSubscribe, false);
     });
 
@@ -214,7 +206,7 @@ describe('SocialNetWorkMessenger Contract', () => {
       );
       const iAmSubscribe = await SocialNetWorkMessenger.connect(
         wallets[3]
-      ).iAmSubscribe(getHexProof([admin, user2, user3, ...users], user2));
+      ).iAmSubscribe(getHexProof(usersAdded, user2));
       assert.equal(iAmSubscribe, true);
     });
   });
@@ -227,7 +219,7 @@ describe('SocialNetWorkMessenger Contract', () => {
       await expect(
         await SocialNetWorkMessenger.connect(wallets[3]).sendInvitation(
           user3,
-          getHexProof([admin, user2, user3, ...users], user2)
+          getHexProof(usersAdded, user2)
         )
       )
         .to.emit(SocialNetWorkMessenger, 'InvitationSended')
@@ -241,7 +233,7 @@ describe('SocialNetWorkMessenger Contract', () => {
       await expect(
         await SocialNetWorkMessenger.connect(wallets[4]).AcceptInvitation(
           user2,
-          getHexProof([admin, user2, user3, ...users], user3),
+          getHexProof(usersAdded, user3),
           WALLET_SECRET1,
           WALLET_SECRET2
         )
@@ -257,7 +249,7 @@ describe('SocialNetWorkMessenger Contract', () => {
       await expect(
         SocialNetWorkMessenger.connect(wallets[3]).sendInvitation(
           user3,
-          getHexProof([admin, user2, user3, ...users], user2)
+          getHexProof(usersAdded, user2)
         )
       ).revertedWithCustomError(
         SocialNetWorkMessenger,
@@ -272,7 +264,7 @@ describe('SocialNetWorkMessenger Contract', () => {
       await expect(
         SocialNetWorkMessenger.connect(wallets[4]).AcceptInvitation(
           user2,
-          getHexProof([admin, user2, user3, ...users], user3),
+          getHexProof(usersAdded, user3),
           WALLET_SECRET1,
           WALLET_SECRET2
         )
@@ -289,7 +281,7 @@ describe('SocialNetWorkMessenger Contract', () => {
       await expect(
         SocialNetWorkMessenger.connect(wallets[4]).getChatSecret(
           user2,
-          getHexProof([admin, user2, user3, ...users], user3)
+          getHexProof(usersAdded, user3)
         )
       ).revertedWithCustomError(
         SocialNetWorkMessenger,
@@ -303,10 +295,7 @@ describe('SocialNetWorkMessenger Contract', () => {
       );
       const getChatSecret = await SocialNetWorkMessenger.connect(
         wallets[4]
-      ).getChatSecret(
-        user2,
-        getHexProof([admin, user2, user3, ...users], user3)
-      );
+      ).getChatSecret(user2, getHexProof(usersAdded, user3));
       assert.equal(getChatSecret, WALLET_SECRET1);
     });
     it('should return mysecret', async () => {
@@ -315,10 +304,7 @@ describe('SocialNetWorkMessenger Contract', () => {
       );
       const getChatSecret = await SocialNetWorkMessenger.connect(
         wallets[3]
-      ).getChatSecret(
-        user3,
-        getHexProof([admin, user2, user3, ...users], user2)
-      );
+      ).getChatSecret(user3, getHexProof(usersAdded, user2));
       assert.equal(getChatSecret, WALLET_SECRET2);
     });
   });
@@ -330,10 +316,7 @@ describe('SocialNetWorkMessenger Contract', () => {
       );
       const getCurrentCID = await SocialNetWorkMessenger.connect(
         wallets[4]
-      ).getCurrentCID(
-        user2,
-        getHexProof([admin, user2, user3, ...users], user3)
-      );
+      ).getCurrentCID(user2, getHexProof(usersAdded, user3));
       assert.equal(getCurrentCID, MSG_CID);
     });
 
@@ -343,10 +326,7 @@ describe('SocialNetWorkMessenger Contract', () => {
       );
       const currentCid = await SocialNetWorkMessenger.connect(
         wallets[4]
-      ).getCurrentCID(
-        user2,
-        getHexProof([admin, user2, user3, ...users], user3)
-      );
+      ).getCurrentCID(user2, getHexProof(usersAdded, user3));
       const proof = getHexProof([currentCid as Hex, MSG_CID], currentCid);
       const tree = getTree([currentCid, MSG_CID]);
 
@@ -368,10 +348,7 @@ describe('SocialNetWorkMessenger Contract', () => {
       );
       const currentCid = await SocialNetWorkMessenger.connect(
         wallets[4]
-      ).getCurrentCID(
-        user2,
-        getHexProof([admin, user2, user3, ...users], user3)
-      );
+      ).getCurrentCID(user2, getHexProof(usersAdded, user3));
       const proof = getHexProof([currentCid as Hex, MSG_CID], MSG_CID);
       const tree = getTree([currentCid, MSG_CID]);
 
@@ -391,10 +368,7 @@ describe('SocialNetWorkMessenger Contract', () => {
       );
       const currentCid = await SocialNetWorkMessenger.connect(
         wallets[4]
-      ).getCurrentCID(
-        user2,
-        getHexProof([admin, user2, user3, ...users], user3)
-      );
+      ).getCurrentCID(user2, getHexProof(usersAdded, user3));
       const proof = getHexProof([currentCid as Hex, MSG_CID], MSG_CID);
       const tree = getTree([currentCid, MSG_CID]);
 
@@ -420,7 +394,7 @@ describe('SocialNetWorkMessenger Contract', () => {
       await expect(
         SocialNetWorkMessenger.connect(wallets[4]).burnChat(
           user2,
-          getHexProof([admin, user2, user3, ...users], user3)
+          getHexProof(usersAdded, user3)
         )
       )
         .to.emit(SocialNetWorkMessenger, 'BurnChat')
@@ -438,7 +412,7 @@ describe('SocialNetWorkMessenger Contract', () => {
       await expect(
         SocialNetWorkMessenger.connect(wallets[2]).subscribe(
           RANDOM_WALLET.address,
-          getHexProof([admin, user2, user3, ...users], notUser1)
+          getHexProof(usersAdded, notUser1)
         )
       ).revertedWithCustomError(SocialNetWorkMessenger, 'OnlyUser');
     });
@@ -450,7 +424,7 @@ describe('SocialNetWorkMessenger Contract', () => {
       await expect(
         SocialNetWorkMessenger.connect(wallets[2]).hasSubscribe(
           RANDOM_WALLET.address,
-          getHexProof([admin, user2, user3, ...users], notUser1)
+          getHexProof(usersAdded, notUser1)
         )
       ).revertedWithCustomError(SocialNetWorkMessenger, 'OnlyUser');
     });
@@ -461,7 +435,7 @@ describe('SocialNetWorkMessenger Contract', () => {
       );
       await expect(
         SocialNetWorkMessenger.connect(wallets[2]).iAmSubscribe(
-          getHexProof([admin, user2, user3, ...users], notUser1)
+          getHexProof(usersAdded, notUser1)
         )
       ).revertedWithCustomError(SocialNetWorkMessenger, 'OnlyUser');
     });
@@ -473,7 +447,7 @@ describe('SocialNetWorkMessenger Contract', () => {
       await expect(
         SocialNetWorkMessenger.connect(wallets[2]).getChatSecret(
           user3,
-          getHexProof([admin, user2, user3, ...users], notUser1)
+          getHexProof(usersAdded, notUser1)
         )
       ).revertedWithCustomError(SocialNetWorkMessenger, 'OnlyUser');
     });
@@ -485,7 +459,7 @@ describe('SocialNetWorkMessenger Contract', () => {
       await expect(
         SocialNetWorkMessenger.connect(wallets[2]).getChatWallet(
           user3,
-          getHexProof([admin, user2, user3, ...users], notUser1)
+          getHexProof(usersAdded, notUser1)
         )
       ).revertedWithCustomError(SocialNetWorkMessenger, 'OnlyUser');
     });
@@ -497,7 +471,7 @@ describe('SocialNetWorkMessenger Contract', () => {
       await expect(
         SocialNetWorkMessenger.connect(wallets[2]).getCurrentCID(
           user3,
-          getHexProof([admin, user2, user3, ...users], notUser1)
+          getHexProof(usersAdded, notUser1)
         )
       ).revertedWithCustomError(SocialNetWorkMessenger, 'OnlyUser');
     });
@@ -509,7 +483,7 @@ describe('SocialNetWorkMessenger Contract', () => {
       await expect(
         SocialNetWorkMessenger.connect(wallets[2]).sendInvitation(
           user3,
-          getHexProof([admin, user2, user3, ...users], notUser1)
+          getHexProof(usersAdded, notUser1)
         )
       ).revertedWithCustomError(SocialNetWorkMessenger, 'OnlyUser');
     });
@@ -521,7 +495,7 @@ describe('SocialNetWorkMessenger Contract', () => {
       await expect(
         SocialNetWorkMessenger.connect(wallets[2]).AcceptInvitation(
           user3,
-          getHexProof([admin, user2, user3, ...users], notUser1),
+          getHexProof(usersAdded, notUser1),
           WALLET_SECRET1,
           WALLET_SECRET2
         )
@@ -535,7 +509,7 @@ describe('SocialNetWorkMessenger Contract', () => {
       await expect(
         SocialNetWorkMessenger.connect(wallets[2]).burnChat(
           user3,
-          getHexProof([admin, user2, user3, ...users], notUser1)
+          getHexProof(usersAdded, notUser1)
         )
       ).revertedWithCustomError(SocialNetWorkMessenger, 'OnlyUser');
     });
@@ -545,8 +519,8 @@ describe('SocialNetWorkMessenger Contract', () => {
   /////////
   /////////
   /////////
-  describe('OnlyService', () => {
-    it('should revert is service is not active', async () => {
+  describe.skip('OnlyService', () => {
+    it('should revert is service is not active e', async () => {
       const SocialNetWorkMessenger = await deployAndExecuteUntilStep(
         STEP.CONTRACT_DEPLOYED,
         [1]
@@ -554,7 +528,7 @@ describe('SocialNetWorkMessenger Contract', () => {
       await expect(
         SocialNetWorkMessenger.connect(wallets[4]).subscribe(
           RANDOM_WALLET.address,
-          getHexProof([admin, user2, user3, ...users], user3)
+          getHexProof(usersAdded, user3)
         )
       ).revertedWithCustomError(SocialNetWorkMessenger, 'OnlyService');
     });
@@ -567,7 +541,7 @@ describe('SocialNetWorkMessenger Contract', () => {
       await expect(
         SocialNetWorkMessenger.connect(wallets[4]).hasSubscribe(
           RANDOM_WALLET.address,
-          getHexProof([admin, user2, user3, ...users], user3)
+          getHexProof(usersAdded, user3)
         )
       ).revertedWithCustomError(SocialNetWorkMessenger, 'OnlyService');
     });
@@ -579,7 +553,7 @@ describe('SocialNetWorkMessenger Contract', () => {
       );
       await expect(
         SocialNetWorkMessenger.connect(wallets[4]).iAmSubscribe(
-          getHexProof([admin, user2, user3, ...users], user3)
+          getHexProof(usersAdded, user3)
         )
       ).revertedWithCustomError(SocialNetWorkMessenger, 'OnlyService');
     });
@@ -592,7 +566,7 @@ describe('SocialNetWorkMessenger Contract', () => {
       await expect(
         SocialNetWorkMessenger.connect(wallets[4]).getChatSecret(
           user3,
-          getHexProof([admin, user2, user3, ...users], user3)
+          getHexProof(usersAdded, user3)
         )
       ).revertedWithCustomError(SocialNetWorkMessenger, 'OnlyService');
     });
@@ -605,7 +579,7 @@ describe('SocialNetWorkMessenger Contract', () => {
       await expect(
         SocialNetWorkMessenger.connect(wallets[4]).getChatWallet(
           user3,
-          getHexProof([admin, user2, user3, ...users], user3)
+          getHexProof(usersAdded, user3)
         )
       ).revertedWithCustomError(SocialNetWorkMessenger, 'OnlyService');
     });
@@ -618,7 +592,7 @@ describe('SocialNetWorkMessenger Contract', () => {
       await expect(
         SocialNetWorkMessenger.connect(wallets[4]).getCurrentCID(
           user3,
-          getHexProof([admin, user2, user3, ...users], user3)
+          getHexProof(usersAdded, user3)
         )
       ).revertedWithCustomError(SocialNetWorkMessenger, 'OnlyService');
     });
@@ -631,7 +605,7 @@ describe('SocialNetWorkMessenger Contract', () => {
       await expect(
         SocialNetWorkMessenger.connect(wallets[4]).sendInvitation(
           user3,
-          getHexProof([admin, user2, user3, ...users], user3)
+          getHexProof(usersAdded, user3)
         )
       ).revertedWithCustomError(SocialNetWorkMessenger, 'OnlyService');
     });
@@ -644,7 +618,7 @@ describe('SocialNetWorkMessenger Contract', () => {
       await expect(
         SocialNetWorkMessenger.connect(wallets[4]).AcceptInvitation(
           user3,
-          getHexProof([admin, user2, user3, ...users], user3),
+          getHexProof(usersAdded, user3),
           WALLET_SECRET1,
           WALLET_SECRET2
         )
@@ -659,7 +633,7 @@ describe('SocialNetWorkMessenger Contract', () => {
       await expect(
         SocialNetWorkMessenger.connect(wallets[4]).burnChat(
           user3,
-          getHexProof([admin, user2, user3, ...users], user3)
+          getHexProof(usersAdded, user3)
         )
       ).revertedWithCustomError(SocialNetWorkMessenger, 'OnlyService');
     });

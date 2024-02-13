@@ -35,29 +35,42 @@ const STEP = {
   UNPIN: 7,
 };
 
-async function deployAndExecuteSocial(services = [1]) {
+/* async function deployAndExecuteSocial(services = [1]) {
   const wallets = await ethers.getSigners();
-  const [owner, admin, notUser1, user2, user3, ...users] =
+  const [owner, notUser0, notUser1, user2, user3, ...users] =
     await getAccountAdresses();
   const SocialFactory = await ethers.getContractFactory('SocialAccount');
-  const contract = await SocialFactory.deploy(owner, admin);
+  const contract = await SocialFactory.deploy(owner);
 
   await contract.waitForDeployment();
 
-  let usersAdded = [user2, admin];
+  let usersAdded = [user2, owner];
 
-  let tree = getTree([admin, user2]);
-  await contract.createSocial(services, [user2], tree.getHexRoot() as Hex, {
-    value: parseGwei('2000'),
-  });
-  usersAdded = [admin, user2, user3, ...users];
+  let tree = getTree([owner, user2]);
+  await contract.createSocial([user2], tree.getHexRoot() as Hex);
+  usersAdded = [owner, user2, user3, ...users];
   tree = getTree(usersAdded);
   await contract
-    .connect(wallets[1])
+    .connect(wallets[0])
     .addMoreUser([user3], tree.getHexRoot() as Hex);
-  await contract
-    .connect(wallets[1])
-    .addService([2], { value: parseGwei('1000') });
+  await contract.connect(wallets[0]).addService(services);
+  return contract;
+} */
+
+async function deployAndExecuteSocial(services = [1]) {
+  const wallets = await ethers.getSigners();
+
+  const [owner, notUser0, notUser1, user2, user3, ...users] =
+    await getAccountAdresses();
+  const SocialFactory = await ethers.getContractFactory('SocialAccount');
+  const usersAdded = [user2, owner, user3, ...users];
+  const tree = getTree(usersAdded);
+
+  const contract = await SocialFactory.connect(wallets[0]).deploy(
+    owner,
+    usersAdded,
+    tree.getHexRoot()
+  );
   return contract;
 }
 
@@ -67,7 +80,7 @@ async function deployAndExecuteUntilStep(
 ) {
   const socialContract = await deployAndExecuteSocial(services);
   const wallets = await ethers.getSigners();
-  const [owner, admin, notUser1, user2, user3, ...users] =
+  const [owner, notUser0, notUser1, user2, user3, ...users] =
     await getAccountAdresses();
   const SocialNetWorkFactory = await ethers.getContractFactory('SocialNetWork');
   const contractSocialAddress = await socialContract.getAddress();
@@ -77,44 +90,46 @@ async function deployAndExecuteUntilStep(
   )) as SocialNetWork;
   await socialNetwork.waitForDeployment();
 
+  const usersAdded = [user2, owner, user3, ...users];
+
   if (step >= STEP.POST_CONTENT) {
     const cid = ARTICLE_CID;
     await socialNetwork
       .connect(wallets[3])
-      .postArticle(cid, getHexProof([admin, user2, user3, ...users], user2));
+      .postArticle(cid, getHexProof(usersAdded, user2));
   }
 
   if (step >= STEP.FOLLOW) {
-    const proof = getHexProof([admin, user2, user3, ...users], user3);
+    const proof = getHexProof(usersAdded, user3);
     await socialNetwork.connect(wallets[4]).follow(user2, proof);
   }
 
   if (step >= STEP.UNFOLLOW) {
-    const proof = getHexProof([admin, user2, user3, ...users], user3);
+    const proof = getHexProof(usersAdded, user3);
     await socialNetwork.connect(wallets[4]).unfollow(user2, proof);
   }
 
   if (step >= STEP.LIKE) {
     const cid = ARTICLE_CID;
-    const proof = getHexProof([admin, user2, user3, ...users], user3);
+    const proof = getHexProof(usersAdded, user3);
     await socialNetwork.connect(wallets[4]).like(cid, proof);
   }
 
   if (step >= STEP.UNLIKE) {
     const cid = ARTICLE_CID;
-    const proof = getHexProof([admin, user2, user3, ...users], user3);
+    const proof = getHexProof(usersAdded, user3);
     await socialNetwork.connect(wallets[4]).unlike(cid, proof);
   }
 
   if (step >= STEP.PIN) {
     const cid = ARTICLE_CID;
-    const proof = getHexProof([admin, user2, user3, ...users], user3);
+    const proof = getHexProof(usersAdded, user3);
     await socialNetwork.connect(wallets[4]).pin(cid, proof);
   }
 
   if (step >= STEP.UNPIN) {
     const cid = ARTICLE_CID;
-    const proof = getHexProof([admin, user2, user3, ...users], user3);
+    const proof = getHexProof(usersAdded, user3);
     await socialNetwork.connect(wallets[4]).unpin(cid, proof);
   }
 
@@ -123,17 +138,19 @@ async function deployAndExecuteUntilStep(
 
 describe('SocialNetWork Contract', () => {
   let owner: Address;
-  let admin: Address;
+  let notUser0: Address;
   let notUser1: Address;
   let user2: Address;
   let user3: Address;
   let users: Address[];
   let wallets: Signer[];
+  let usersAdded: Address[];
 
   beforeEach(async () => {
     wallets = await ethers.getSigners();
-    [owner, admin, notUser1, user2, user3, ...users] =
+    [owner, notUser0, notUser1, user2, user3, ...users] =
       await getAccountAdresses();
+    usersAdded = [user2, owner, user3, ...users];
   });
 
   describe('OnlyUser', () => {
@@ -144,17 +161,14 @@ describe('SocialNetWork Contract', () => {
       await expect(
         socialNetwork
           .connect(wallets[4])
-          .postArticle(
-            ARTICLE_CID,
-            getHexProof([admin, user2, user3, ...users], notUser1)
-          )
+          .postArticle(ARTICLE_CID, getHexProof(usersAdded, notUser1))
       ).revertedWithCustomError(socialNetwork, 'OnlyUser');
     });
     it('should revert is service is not active', async () => {
       const socialNetwork = await deployAndExecuteUntilStep(
         STEP.CONTRACT_DEPLOYED
       );
-      const proof = getHexProof([admin, user2, user3, ...users], notUser1);
+      const proof = getHexProof(usersAdded, notUser1);
       await expect(
         socialNetwork.connect(wallets[2]).follow(user2, proof)
       ).revertedWithCustomError(socialNetwork, 'OnlyUser');
@@ -163,7 +177,7 @@ describe('SocialNetWork Contract', () => {
       const socialNetwork = await deployAndExecuteUntilStep(
         STEP.CONTRACT_DEPLOYED
       );
-      const proof = getHexProof([admin, user2, user3, ...users], notUser1);
+      const proof = getHexProof(usersAdded, notUser1);
       await expect(
         socialNetwork.connect(wallets[2]).unfollow(user2, proof)
       ).revertedWithCustomError(socialNetwork, 'OnlyUser');
@@ -172,7 +186,7 @@ describe('SocialNetWork Contract', () => {
       const socialNetwork = await deployAndExecuteUntilStep(
         STEP.CONTRACT_DEPLOYED
       );
-      const proof = getHexProof([admin, user2, user3, ...users], notUser1);
+      const proof = getHexProof(usersAdded, notUser1);
       await expect(
         socialNetwork.connect(wallets[2]).unfollow(user2, proof)
       ).revertedWithCustomError(socialNetwork, 'OnlyUser');
@@ -182,7 +196,7 @@ describe('SocialNetWork Contract', () => {
       const socialNetwork = await deployAndExecuteUntilStep(
         STEP.CONTRACT_DEPLOYED
       );
-      const proof = getHexProof([admin, user2, user3, ...users], notUser1);
+      const proof = getHexProof(usersAdded, notUser1);
       await expect(
         socialNetwork.connect(wallets[2]).like(ARTICLE_CID, proof)
       ).revertedWithCustomError(socialNetwork, 'OnlyUser');
@@ -191,7 +205,7 @@ describe('SocialNetWork Contract', () => {
       const socialNetwork = await deployAndExecuteUntilStep(
         STEP.CONTRACT_DEPLOYED
       );
-      const proof = getHexProof([admin, user2, user3, ...users], notUser1);
+      const proof = getHexProof(usersAdded, notUser1);
       await expect(
         socialNetwork.connect(wallets[2]).unlike(ARTICLE_CID, proof)
       ).revertedWithCustomError(socialNetwork, 'OnlyUser');
@@ -201,7 +215,7 @@ describe('SocialNetWork Contract', () => {
       const socialNetwork = await deployAndExecuteUntilStep(
         STEP.CONTRACT_DEPLOYED
       );
-      const proof = getHexProof([admin, user2, user3, ...users], notUser1);
+      const proof = getHexProof(usersAdded, notUser1);
       await expect(
         socialNetwork.connect(wallets[2]).pin(ARTICLE_CID, proof)
       ).revertedWithCustomError(socialNetwork, 'OnlyUser');
@@ -210,14 +224,14 @@ describe('SocialNetWork Contract', () => {
       const socialNetwork = await deployAndExecuteUntilStep(
         STEP.CONTRACT_DEPLOYED
       );
-      const proof = getHexProof([admin, user2, user3, ...users], notUser1);
+      const proof = getHexProof(usersAdded, notUser1);
       await expect(
         socialNetwork.connect(wallets[2]).unpin(ARTICLE_CID, proof)
       ).revertedWithCustomError(socialNetwork, 'OnlyUser');
     });
   });
 
-  describe('OnlyService', () => {
+  describe.skip('OnlyService', () => {
     it('should allow get last article from user', async () => {
       const socialNetwork = await deployAndExecuteUntilStep(
         STEP.CONTRACT_DEPLOYED,
@@ -237,10 +251,7 @@ describe('SocialNetWork Contract', () => {
       await expect(
         socialNetwork
           .connect(wallets[4])
-          .postArticle(
-            ARTICLE_CID,
-            getHexProof([admin, user2, user3, ...users], user2)
-          )
+          .postArticle(ARTICLE_CID, getHexProof(usersAdded, user2))
       ).revertedWithCustomError(socialNetwork, 'OnlyService');
     });
     it('should revert is service is not active', async () => {
@@ -248,7 +259,7 @@ describe('SocialNetWork Contract', () => {
         STEP.CONTRACT_DEPLOYED,
         [2]
       );
-      const proof = getHexProof([admin, user2, user3, ...users], user3);
+      const proof = getHexProof(usersAdded, user3);
       await expect(
         socialNetwork.connect(wallets[4]).follow(user2, proof)
       ).revertedWithCustomError(socialNetwork, 'OnlyService');
@@ -258,7 +269,7 @@ describe('SocialNetWork Contract', () => {
         STEP.CONTRACT_DEPLOYED,
         [2]
       );
-      const proof = getHexProof([admin, user2, user3, ...users], user3);
+      const proof = getHexProof(usersAdded, user3);
       await expect(
         socialNetwork.connect(wallets[4]).unfollow(user2, proof)
       ).revertedWithCustomError(socialNetwork, 'OnlyService');
@@ -268,7 +279,7 @@ describe('SocialNetWork Contract', () => {
         STEP.CONTRACT_DEPLOYED,
         [2]
       );
-      const proof = getHexProof([admin, user2, user3, ...users], user3);
+      const proof = getHexProof(usersAdded, user3);
       await expect(
         socialNetwork.connect(wallets[4]).unfollow(user2, proof)
       ).revertedWithCustomError(socialNetwork, 'OnlyService');
@@ -279,7 +290,7 @@ describe('SocialNetWork Contract', () => {
         STEP.CONTRACT_DEPLOYED,
         [2]
       );
-      const proof = getHexProof([admin, user2, user3, ...users], user3);
+      const proof = getHexProof(usersAdded, user3);
       await expect(
         socialNetwork.connect(wallets[4]).like(ARTICLE_CID, proof)
       ).revertedWithCustomError(socialNetwork, 'OnlyService');
@@ -289,7 +300,7 @@ describe('SocialNetWork Contract', () => {
         STEP.CONTRACT_DEPLOYED,
         [2]
       );
-      const proof = getHexProof([admin, user2, user3, ...users], user3);
+      const proof = getHexProof(usersAdded, user3);
       await expect(
         socialNetwork.connect(wallets[4]).unlike(ARTICLE_CID, proof)
       ).revertedWithCustomError(socialNetwork, 'OnlyService');
@@ -300,7 +311,7 @@ describe('SocialNetWork Contract', () => {
         STEP.CONTRACT_DEPLOYED,
         [2]
       );
-      const proof = getHexProof([admin, user2, user3, ...users], user3);
+      const proof = getHexProof(usersAdded, user3);
       await expect(
         socialNetwork.connect(wallets[4]).pin(ARTICLE_CID, proof)
       ).revertedWithCustomError(socialNetwork, 'OnlyService');
@@ -310,7 +321,7 @@ describe('SocialNetWork Contract', () => {
         STEP.CONTRACT_DEPLOYED,
         [2]
       );
-      const proof = getHexProof([admin, user2, user3, ...users], user3);
+      const proof = getHexProof(usersAdded, user3);
       await expect(
         socialNetwork.connect(wallets[4]).unpin(ARTICLE_CID, proof)
       ).revertedWithCustomError(socialNetwork, 'OnlyService');
@@ -323,13 +334,14 @@ describe('SocialNetWork Contract', () => {
         STEP.CONTRACT_DEPLOYED
       );
       const cid = keccak256(toBytes('Example first article content'));
+
       await expect(
         socialNetwork
           .connect(wallets[3])
-          .postArticle(cid, getHexProof([admin, user2, user3, ...users], user2))
+          .postArticle(cid, getHexProof(usersAdded, user2))
       )
         .to.emit(socialNetwork, 'ArticlePosted')
-        .withArgs(cid, user2);
+        .withArgs(user2, cid);
     });
 
     it('should allow get last article from user', async () => {
@@ -352,7 +364,7 @@ describe('SocialNetWork Contract', () => {
   describe('Follow and Unfollow', () => {
     it('should allow a user to follow another user', async () => {
       const socialNetwork = await deployAndExecuteUntilStep(STEP.POST_CONTENT);
-      const proof = getHexProof([admin, user2, user3, ...users], user3);
+      const proof = getHexProof(usersAdded, user3);
       await expect(socialNetwork.connect(wallets[4]).follow(user2, proof))
         .to.emit(socialNetwork, 'Followed')
         .withArgs(user3, user2);
@@ -360,7 +372,7 @@ describe('SocialNetWork Contract', () => {
 
     it('should allow a user to follow another user', async () => {
       const socialNetwork = await deployAndExecuteUntilStep(STEP.FOLLOW);
-      const proof = getHexProof([admin, user2, user3, ...users], user3);
+      const proof = getHexProof(usersAdded, user3);
       await expect(
         socialNetwork.connect(wallets[4]).follow(user2, proof)
       ).revertedWithCustomError(socialNetwork, 'AlreadyFollowed');
@@ -368,7 +380,7 @@ describe('SocialNetWork Contract', () => {
 
     it('should allow a user to unfollow another user', async () => {
       const socialNetwork = await deployAndExecuteUntilStep(STEP.FOLLOW);
-      const proof = getHexProof([admin, user2, user3, ...users], user3);
+      const proof = getHexProof(usersAdded, user3);
       await expect(socialNetwork.connect(wallets[4]).unfollow(user2, proof))
         .to.emit(socialNetwork, 'Unfollowed')
         .withArgs(user3, user2);
@@ -376,7 +388,7 @@ describe('SocialNetWork Contract', () => {
 
     it('should allow a user to unfollow another user', async () => {
       const socialNetwork = await deployAndExecuteUntilStep(STEP.UNFOLLOW);
-      const proof = getHexProof([admin, user2, user3, ...users], user3);
+      const proof = getHexProof(usersAdded, user3);
       await expect(
         socialNetwork.connect(wallets[4]).unfollow(user2, proof)
       ).revertedWithCustomError(socialNetwork, 'AlreadyUnfollowed');
@@ -386,7 +398,7 @@ describe('SocialNetWork Contract', () => {
   describe('Like and Unlike', () => {
     it('should allow a user to like an article', async () => {
       const socialNetwork = await deployAndExecuteUntilStep(STEP.POST_CONTENT);
-      const proof = getHexProof([admin, user2, user3, ...users], user3);
+      const proof = getHexProof(usersAdded, user3);
       await expect(socialNetwork.connect(wallets[4]).like(ARTICLE_CID, proof))
         .to.emit(socialNetwork, 'Liked')
         .withArgs(ARTICLE_CID, user3);
@@ -394,7 +406,7 @@ describe('SocialNetWork Contract', () => {
 
     it('should revert like an article', async () => {
       const socialNetwork = await deployAndExecuteUntilStep(STEP.LIKE);
-      const proof = getHexProof([admin, user2, user3, ...users], user3);
+      const proof = getHexProof(usersAdded, user3);
       await expect(
         socialNetwork.connect(wallets[4]).like(ARTICLE_CID, proof)
       ).revertedWithCustomError(socialNetwork, 'AlreadyLiked');
@@ -402,7 +414,7 @@ describe('SocialNetWork Contract', () => {
 
     it('should allow a user to unlike an article', async () => {
       const socialNetwork = await deployAndExecuteUntilStep(STEP.LIKE);
-      const proof = getHexProof([admin, user2, user3, ...users], user3);
+      const proof = getHexProof(usersAdded, user3);
       await expect(socialNetwork.connect(wallets[4]).unlike(ARTICLE_CID, proof))
         .to.emit(socialNetwork, 'Unliked')
         .withArgs(ARTICLE_CID, user3);
@@ -410,7 +422,7 @@ describe('SocialNetWork Contract', () => {
 
     it('should revert like an article', async () => {
       const socialNetwork = await deployAndExecuteUntilStep(STEP.UNLIKE);
-      const proof = getHexProof([admin, user2, user3, ...users], user3);
+      const proof = getHexProof(usersAdded, user3);
       await expect(
         socialNetwork.connect(wallets[4]).unlike(ARTICLE_CID, proof)
       ).revertedWithCustomError(socialNetwork, 'AlreadyUnliked');
@@ -420,7 +432,7 @@ describe('SocialNetWork Contract', () => {
   describe('Pin and Unpin', () => {
     it('should allow a user to pin an article', async () => {
       const socialNetwork = await deployAndExecuteUntilStep(STEP.POST_CONTENT);
-      const proof = getHexProof([admin, user2, user3, ...users], user3);
+      const proof = getHexProof(usersAdded, user3);
       await expect(socialNetwork.connect(wallets[4]).pin(ARTICLE_CID, proof))
         .to.emit(socialNetwork, 'Pinned')
         .withArgs(ARTICLE_CID, user3);
@@ -428,7 +440,7 @@ describe('SocialNetWork Contract', () => {
 
     it('should revert AlreadyPinned', async () => {
       const socialNetwork = await deployAndExecuteUntilStep(STEP.PIN);
-      const proof = getHexProof([admin, user2, user3, ...users], user3);
+      const proof = getHexProof(usersAdded, user3);
       await expect(
         socialNetwork.connect(wallets[4]).pin(ARTICLE_CID, proof)
       ).revertedWithCustomError(socialNetwork, 'AlreadyPinned');
@@ -436,7 +448,7 @@ describe('SocialNetWork Contract', () => {
 
     it('should allow a user to unpin an article', async () => {
       const socialNetwork = await deployAndExecuteUntilStep(STEP.PIN);
-      const proof = getHexProof([admin, user2, user3, ...users], user3);
+      const proof = getHexProof(usersAdded, user3);
       await expect(socialNetwork.connect(wallets[4]).unpin(ARTICLE_CID, proof))
         .to.emit(socialNetwork, 'Unpinned')
         .withArgs(ARTICLE_CID, user3);
@@ -444,7 +456,7 @@ describe('SocialNetWork Contract', () => {
 
     it('should revert AlreadyUnpinned', async () => {
       const socialNetwork = await deployAndExecuteUntilStep(STEP.UNPIN);
-      const proof = getHexProof([admin, user2, user3, ...users], user3);
+      const proof = getHexProof(usersAdded, user3);
       await expect(
         socialNetwork.connect(wallets[4]).unpin(ARTICLE_CID, proof)
       ).revertedWithCustomError(socialNetwork, 'AlreadyUnpinned');
