@@ -3,14 +3,14 @@ import verify from '../utils/verify';
 
 async function main() {
   const Social = await ethers.deployContract('Social', []);
-
+  await Social.waitForDeployment();
   console.log(`Social deployed to ${Social.target}`);
 
-  await Social.deploymentTransaction()?.wait(
-    network.name.includes('localhost') ? 1 : 6
-  );
   // eventual verification
   if (!network.name.includes('localhost') && process.env.POLYGONSCAN_API_KEY) {
+    await Social.deploymentTransaction()?.wait(
+      network.name.includes('localhost') ? 1 : 6
+    );
     console.log('Verifying...');
     await verify(Social.target, []);
   }
