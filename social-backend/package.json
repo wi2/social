@@ -1,16 +1,20 @@
 {
   "name": "hardhat-project",
   "devDependencies": {
+    "@helia/dag-cbor": "^3.0.0",
     "@nomicfoundation/hardhat-chai-matchers": "^2.0.4",
     "@nomicfoundation/hardhat-ethers": "^3.0.5",
     "@nomicfoundation/hardhat-toolbox": "^4.0.0",
     "@nomicfoundation/hardhat-toolbox-viem": "^2.0.0",
     "@nomicfoundation/hardhat-viem": "^1.0.3",
     "@openzeppelin/contracts": "^5.0.1",
+    "bs58": "^5.0.0",
     "chai": "^4.4.1",
+    "cross-env": "^7.0.3",
     "dotenv": "^16.4.1",
     "hardhat": "^2.19.5",
     "merkletreejs": "^0.3.11",
+    "@pinata/sdk": "^2.1.0",
     "viem": "^1.21.4"
   }
 }
