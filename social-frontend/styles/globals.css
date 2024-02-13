@@ -1,0 +1,14 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+
+.background-halo {
+  background: radial-gradient(circle, rgba(255,255,255,0.1) 1%, transparent 70%);
+  background-color: #111; /* pour le thème sombre */
+}
+
+.background-halo.light {
+  background: radial-gradient(circle, rgba(0,0,0,0.1) 1%, transparent 70%);
+  background-color: #fff; /* pour le thème clair */
+}
