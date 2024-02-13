@@ -32,7 +32,6 @@ export async function getEvents<S>(client: P, event: any, cb: any) {
     fromBlock: BigInt(0),
     toBlock: 'latest', // Pas besoin valeur par défaut
   })) as CustomLogType<S>[];
-  console.log('>>>', event, logs);
   cb(logs);
 }
 

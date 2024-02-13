@@ -19,7 +19,6 @@ export default function useWatch<CustomLogArgsType>(abiJSON: any) {
 
   useEffect(() => {
     if (abiJSON) {
-      console.log(abiJSON);
       getEvents<CustomLogArgsType>(client, abiJSON, setLogs);
     }
   }, [JSON.stringify(abiJSON)]);
