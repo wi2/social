@@ -11,7 +11,7 @@ abstract contract SocialNetWorkArticle {
     /// @notice Event emitted when an article is posted.
     /// @param _cid Content identifier of the posted article.
     /// @param _author Address of the author who posted the article.
-    event ArticlePosted(bytes32 indexed _cid, address indexed _author);
+    event ArticlePosted(address indexed _author, bytes32 indexed _cid);
 
     /// @notice Retrieves the last article posted by the message sender.
     /// @return The content identifier (CID) of the last article posted by the sender.
@@ -34,6 +34,6 @@ abstract contract SocialNetWorkArticle {
     /// @param _cid Content identifier of the article being posted.
     function _postArticle(bytes32 _cid) internal {
         articles[msg.sender] = _cid;
-        emit ArticlePosted(_cid, msg.sender);
+        emit ArticlePosted(msg.sender, _cid);
     }
 }

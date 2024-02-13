@@ -16,13 +16,13 @@ abstract contract SocialNetWorkFollowers {
 
     /// @notice Event emitted when a user follows another user.
     /// @param _me The address of the user who initiates the follow.
-    /// @param userFollow The address of the user being followed.
-    event Followed(address indexed _me, address userFollow);
+    /// @param _userFollow The address of the user being followed.
+    event Followed(address indexed _me, address _userFollow);
 
     /// @notice Event emitted when a user unfollows another user.
     /// @param _me The address of the user who initiates the unfollow.
-    /// @param userFollow The address of the user being unfollowed.
-    event Unfollowed(address indexed _me, address userFollow);
+    /// @param _userFollow The address of the user being unfollowed.
+    event Unfollowed(address indexed _me, address _userFollow);
 
     /// @notice Modifier to ensure the specified user is not already followed by the sender.
     modifier onlyUnfollowed(address _user) {
