@@ -9,17 +9,12 @@
     "lint": "next lint"
   },
   "dependencies": {
-    "@helia/dag-cbor": "^3.0.0",
-    "@helia/dag-json": "^3.0.0",
-    "@helia/json": "^3.0.0",
     "@pinata/sdk": "^2.1.0",
     "@rainbow-me/rainbowkit": "1.3.3",
     "bs58": "^5.0.0",
     "daisyui": "^4.6.1",
-    "helia": "^4.0.1",
     "merkletreejs": "^0.3.11",
     "next": "^14.0.4",
-    "nft.storage": "^7.1.1",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
     "viem": "~1.21.4",
