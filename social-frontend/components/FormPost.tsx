@@ -9,8 +9,10 @@ import { article } from '../constants/ipfs';
 import { Address, useAccount } from 'wagmi';
 import usePost from '../hooks/usePost';
 import { ArticleTemplate } from '../constants/type';
+import { useRouter } from 'next/router';
 
 export default function FormPost() {
+  const { query } = useRouter();
   const { address } = useAccount();
   const { isConnected } = useContract();
   const { setCid } = usePost();
@@ -43,40 +45,48 @@ export default function FormPost() {
     },
     [articles?.length, setCid]
   );
+
   return (
-    <form className="flex flex-col w-full pl-4" onSubmit={onSubmit}>
-      <h2 className="text-4xl font-bold">Create Article</h2>
-
-      <div className="mr-4">
-        <div className="divider lg:divider-vertical" />
+    <div className="bg-neutral bg-opacity-80 rounded mr-4 pb-4 pt-4">
+      <div className="flex justify-end pr-4">
+        <a href={`/project?_slug=${query._slug}`} className="btn btn-primary">
+          Back
+        </a>
       </div>
+      <form className="flex flex-col w-full pl-4" onSubmit={onSubmit}>
+        <h2 className="text-4xl font-bold">Create Article</h2>
 
-      <div className="flex gap-1">
-        <Input
-          name="titleArticle"
-          placeholder="title"
-          disabled={!isConnected}
-        />
-      </div>
+        <div className="mr-4">
+          <div className="divider lg:divider-vertical" />
+        </div>
 
-      <div className="mr-4">
-        <div className="divider lg:divider-vertical" />
-      </div>
+        <div className="flex gap-1">
+          <Input
+            name="titleArticle"
+            placeholder="title"
+            disabled={!isConnected}
+          />
+        </div>
 
-      <label>Content</label>
-      <div className="mr-4">
-        <Textarea name="content" disabled={!isConnected}></Textarea>
-      </div>
+        <div className="mr-4">
+          <div className="divider lg:divider-vertical" />
+        </div>
 
-      <div className="mr-4">
-        <div className="divider lg:divider-vertical" />
-      </div>
+        <label>Content</label>
+        <div className="mr-4">
+          <Textarea name="content" disabled={!isConnected}></Textarea>
+        </div>
 
-      <div>
-        <button className="btn" disabled={!isConnected}>
-          Create
-        </button>
-      </div>
-    </form>
+        <div className="mr-4">
+          <div className="divider lg:divider-vertical" />
+        </div>
+
+        <div>
+          <button className="btn" disabled={!isConnected}>
+            Create
+          </button>
+        </div>
+      </form>
+    </div>
   );
 }

@@ -22,7 +22,7 @@ Drawer.Side = ({ children }: { children: ReactNode }) => (
       aria-label="close sidebar"
       className="drawer-overlay"
     ></label>
-    <ul className="menu p-4 w-80 min-h-full bg-base-200 text-base-content pb-20 pt-20">
+    <ul className="menu p-4 w-80 min-h-full bg-base-300 lg:bg-transparent text-base-content pb-20 pt-20">
       {children}
     </ul>
   </div>

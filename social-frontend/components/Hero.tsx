@@ -1,7 +1,7 @@
 export default function Hero() {
   return (
     <div className="hero min-h-screen bg-base-600">
-      <div className="hero-content flex-col lg:flex-row">
+      <div className="bg-primary-content bg-opacity-70 hero-content flex-col lg:flex-row">
         <img
           src="https://daisyui.com/images/stock/photo-1635805737707-575885ab0820.jpg"
           className="max-w-sm rounded-lg shadow-2xl"
