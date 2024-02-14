@@ -25,7 +25,6 @@ import {
 } from '../utils/contract';
 import { useAccount } from 'wagmi';
 import useWatchAll from '../hooks/useWatchAll';
-import useGetArticle from '../hooks/useGetArticle';
 
 interface ContractContextType {
   isConnected: boolean;
