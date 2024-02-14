@@ -8,8 +8,12 @@ import useContract from '../context/Contract';
 import useGetProject from '../hooks/useGetProject';
 import { displayAdress } from '../utils/common';
 import Accordion from './Accordion';
+import { useRouter } from 'next/router';
+import useIsUser from '../hooks/useIsUser';
 
 export default function Layout({ children }: { children: ReactNode }) {
+  const isUser = useIsUser();
+  const { query } = useRouter();
   const { theme } = useTheme();
   const project = useGetProject();
 
@@ -20,31 +24,39 @@ export default function Layout({ children }: { children: ReactNode }) {
     <div className={`w-full background-halo ${theme}`}>
       <Header />
 
-      {project.data?.name ? (
+      {project.data?.name && isUser.data ? (
         <Drawer>
           <Drawer.Content>{children}</Drawer.Content>
           <Drawer.Side>
-            <Accordion name="accordion-side" title="Follow" checked>
-              {follows?.map((user) => (
-                <li key={user?.args._userFollow}>
-                  <a>
-                    <Avatar name={user?.args._userFollow} />
-                    {displayAdress(user?.args._userFollow)}
-                  </a>
-                </li>
-              ))}
-            </Accordion>
+            {follows?.length ? (
+              <Accordion name="accordion-side" title="Follow" checked>
+                {follows?.map((user) => (
+                  <li key={`follow-${user?.args._userFollow}`}>
+                    <a
+                      href={`/project/messenger?_slug=${query._slug}&_to=${user?.args._userFollow}`}
+                    >
+                      <Avatar name={user?.args._userFollow} />
+                      {displayAdress(user?.args._userFollow)}
+                    </a>
+                  </li>
+                ))}
+              </Accordion>
+            ) : null}
 
-            <Accordion name="accordion-side" title="All users">
-              {allUsers?.map((user) => (
-                <li key={user}>
-                  <a>
-                    <Avatar name={user} />
-                    {displayAdress(user)}
-                  </a>
-                </li>
-              ))}
-            </Accordion>
+            {allUsers?.length && (
+              <Accordion name="accordion-side" title="All users">
+                {allUsers?.map((user) => (
+                  <li key={`users-${user}`}>
+                    <a
+                      href={`/project/messenger?_slug=${query._slug}&_to=${user}`}
+                    >
+                      <Avatar name={user} />
+                      {displayAdress(user)}
+                    </a>
+                  </li>
+                ))}
+              </Accordion>
+            )}
           </Drawer.Side>
         </Drawer>
       ) : (

@@ -3,11 +3,9 @@ import Head from 'next/head';
 import Layout from '../../components/Layout';
 import Content from '../../components/Content';
 import Articles from '../../components/Articles';
-import { useRouter } from 'next/router';
+import Authorize from '../../components/Authorize';
 
 const Home: NextPage = () => {
-  const { query } = useRouter();
-
   return (
     <div>
       <Head>
@@ -17,15 +15,9 @@ const Home: NextPage = () => {
 
       <Layout>
         <Content>
-          <div className="flex justify-end pr-4">
-            <a
-              href={`/project/posts?_slug=${query._slug}`}
-              className="btn btn-primary"
-            >
-              Add
-            </a>
-          </div>
-          <Articles />
+          <Authorize>
+            <Articles />
+          </Authorize>
         </Content>
       </Layout>
     </div>
