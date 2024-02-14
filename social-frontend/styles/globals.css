@@ -6,6 +6,8 @@
 .background-halo {
   background: radial-gradient(circle, rgba(255,255,255,0.1) 1%, transparent 70%);
   background-color: #111; /* pour le thème sombre */
+  background-position: center center;
+  background-image:url('https://red-glamorous-bonobo-190.mypinata.cloud/ipfs/QmW2XjWNV71op9MzoGiLqWE7bJpxH3huTej2axQVEiAtb7');
 }
 
 .background-halo.light {
