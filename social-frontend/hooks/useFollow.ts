@@ -4,15 +4,11 @@ import useWrite from './useWrite';
 import useToasts from './useToasts';
 import { Address } from 'viem';
 import useProof from './useProof';
-import { CustomLogType, CustomLogUserArgsType } from '../constants/type';
 import { JSON_FILES } from '../constants/contract';
 import { displayAdress } from '../utils/common';
 
-export default function useFollow(
-  users: CustomLogType<CustomLogUserArgsType>[] | undefined,
-  _userFollow: Address | undefined
-) {
-  const proof = useProof(users || []);
+export default function useFollow(_userFollow: Address | undefined) {
+  const proof = useProof();
   const [isFollow, setFollow] = useState<boolean | undefined>(undefined);
   const { toastSuccess } = useToasts();
 

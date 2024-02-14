@@ -5,13 +5,11 @@ import useToasts from './useToasts';
 import { Address, fromBytes } from 'viem';
 import { JSON_FILES } from '../constants/contract';
 import useProof from './useProof';
-import useContract from '../context/Contract';
 import { displayAdress } from '../utils/common';
 import base58 from 'bs58';
 
 export default function usePost() {
-  const { users } = useContract();
-  const proof = useProof(users || []);
+  const proof = useProof();
   const [cid, setCid] = useState<Address | undefined>(); // use type { name, slug, services[], adresses[] }
   const { toastSuccess } = useToasts();
 

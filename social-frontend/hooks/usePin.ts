@@ -9,11 +9,8 @@ import { CustomLogType, CustomLogUserArgsType } from '../constants/type';
 import { JSON_FILES } from '../constants/contract';
 import { displayAdress } from '../utils/common';
 
-export default function usePin(
-  users: CustomLogType<CustomLogUserArgsType>[] | undefined,
-  _cid: Address
-) {
-  const proof = useProof(users || []);
+export default function usePin(_cid: Address) {
+  const proof = useProof();
   const project = useGetProject();
   const [pin, setPin] = useState<boolean | undefined>(undefined);
   const { toastSuccess } = useToasts();

@@ -9,11 +9,8 @@ import { CustomLogType, CustomLogUserArgsType } from '../constants/type';
 import { JSON_FILES } from '../constants/contract';
 import { displayAdress } from '../utils/common';
 
-export default function useLike(
-  users: CustomLogType<CustomLogUserArgsType>[] | undefined,
-  _cid: Address
-) {
-  const proof = useProof(users || []);
+export default function useLike(_cid: Address) {
+  const proof = useProof();
   const project = useGetProject();
   const [like, setLike] = useState<boolean | undefined>(undefined);
   const { toastSuccess } = useToasts();
