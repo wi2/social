@@ -12,7 +12,7 @@ export default function ({
   checked?: boolean;
 }) {
   return (
-    <div className="collapse collapse-arrow bg-base-200">
+    <div className="collapse collapse-arrow bg-base-200 bg-opacity-80 mb-4 rounded">
       <input
         type="radio"
         name={name}

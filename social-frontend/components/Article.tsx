@@ -50,7 +50,7 @@ export default function Article({ cid }: { cid: any }) {
   }, [cid, setArticle]);
 
   return (
-    <div className="card card-compact bg-base-100 shadow-xl rounded mr-4 ml-4">
+    <div className="card card-compact bg-base-100 bg-opacity-80 shadow-xl rounded mr-4 ml-4">
       <div className="card-body">
         <h2 className="card-title">
           <span className="flex-1">
@@ -61,7 +61,7 @@ export default function Article({ cid }: { cid: any }) {
         </h2>
         <p>{article?.content || <Loader />}</p>
       </div>
-      <div className="flex card-actions bg-base-200 rounded-none p-2 rounded-b">
+      <div className="flex card-actions bg-base-200 bg-opacity-50 rounded-none p-2 rounded-b">
         <div className="flex-1">
           {dateFormat(article?.metadata.timestamp)?.toLocaleDateString()}
         </div>
