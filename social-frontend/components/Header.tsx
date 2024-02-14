@@ -12,9 +12,11 @@ import { useRouter } from 'next/router';
 import { useAccount } from 'wagmi';
 import useIsConnected from '../hooks/useIsConnected';
 import Loader from './Loader';
+import useIsUser from '../hooks/useIsUser';
 
 export default function Header({ children }: { children?: ReactNode }) {
   const isConnected = useIsConnected();
+  const isUser = useIsUser();
   const { address } = useAccount();
   const { query } = useRouter();
   const { theme, toggleTheme } = useTheme();
@@ -36,9 +38,9 @@ export default function Header({ children }: { children?: ReactNode }) {
   ];
 
   return (
-    <div className={`navbar fixed bg-base-300 z-10`}>
+    <div className={`navbar fixed bg-base-100 bg-opacity-70 z-10`}>
       <div className="navbar-start">
-        {project.data?.name && (
+        {project.data?.name && isUser.data ? (
           <div className="dropdown">
             <div
               tabIndex={0}
@@ -59,28 +61,30 @@ export default function Header({ children }: { children?: ReactNode }) {
               ))}
             </ul>
           </div>
-        )}
+        ) : null}
       </div>
       <div className="navbar-center">
         <a className="btn btn-ghost text-xl">
           {project.data?.name || 'dsnMaker'}
         </a>
       </div>
-      <div className="navbar-end gap-2">
-        <Drawer.Toggle>Open</Drawer.Toggle>
-        <button
-          className="bg-base-200 rounded-full p-1 h-7 w-7"
-          onClick={handleToggleTheme}
-        >
-          <Swap active={theme === Theme.dark}>
-            <Icons icon="moon" />
-            <Icons icon="sun" />
-          </Swap>
-        </button>
-        <button className="btn btn-ghost btn-circle">
-          {!isConnected ? <Loader /> : <Avatar name={address} />}
-        </button>
-      </div>
+      {isUser.data ? (
+        <div className="navbar-end gap-2">
+          <Drawer.Toggle>Open</Drawer.Toggle>
+          <button
+            className="bg-neutral rounded-full p-1 h-7 w-7"
+            onClick={handleToggleTheme}
+          >
+            <Swap active={theme === Theme.dark}>
+              <Icons icon="moon" />
+              <Icons icon="sun" />
+            </Swap>
+          </button>
+          <button className="btn btn-ghost btn-circle">
+            {!isConnected ? <Loader /> : <Avatar name={address} />}
+          </button>
+        </div>
+      ) : null}
     </div>
   );
 }
