@@ -6,7 +6,7 @@ import { Address, isAddress } from 'viem';
 export default function useGetProfile() {
   const { address } = useAccount();
   const contract = useConfigContractProject(JSON_FILES.profile);
-  console.log(address);
+
   return useContractRead({
     ...contract,
     functionName: 'getMyProfile',

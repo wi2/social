@@ -1,4 +1,4 @@
-import { Address, fromBytes, keccak256 } from 'viem';
+import { Address, fromBytes, isAddress, keccak256 } from 'viem';
 import MerkleTree from 'merkletreejs';
 import {
   CustomError,
@@ -38,7 +38,9 @@ export async function getEvents<S>(client: P, event: any, cb: any) {
 }
 
 export function getTree(users: Address[]) {
-  const leaves = users.map((address) => keccak256(address));
+  const leaves = users
+    .filter((address) => isAddress(address))
+    .map((address) => keccak256(address));
   return new MerkleTree(leaves, keccak256, { sort: true });
 }
 

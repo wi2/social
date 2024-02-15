@@ -5,8 +5,10 @@ import useToasts from './useToasts';
 import { CreateProjectType } from '../constants/type';
 import { getTree } from '../utils/contract';
 import { Address } from 'viem';
+import { useAccount } from 'wagmi';
 
 export default function useCreateProject() {
+  const { address } = useAccount();
   const [project, setProject] = useState<CreateProjectType | null>(); // use type { name, slug, services[], adresses[] }
   const { toastSuccess } = useToasts();
 
@@ -15,11 +17,18 @@ export default function useCreateProject() {
   };
   const onSuccess = () => {
     setProject(null);
-    toastSuccess(`create ${project} success`);
+    toastSuccess(`create ${project?.name} success`);
+    setTimeout(() => {
+      window.location.href = '/project?_slug=' + project?.slug;
+    }, 500);
   };
 
   const allAdresses = project?.adresses?.split(',') || [];
-  const enabled = Boolean(project?.name && project?.slug && allAdresses.length);
+  allAdresses.push(address as string);
+  const uniqAddress = allAdresses.filter(
+    (item, index) => allAdresses.indexOf(item) === index
+  );
+  const enabled = Boolean(project?.name && project?.slug && uniqAddress.length);
 
   const { isLoading, isSuccess, isFetching, isError } = useWrite(
     {
@@ -27,8 +36,8 @@ export default function useCreateProject() {
       args: [
         project?.name,
         project?.slug,
-        allAdresses,
-        getTree(allAdresses as Address[]).getHexRoot(),
+        uniqAddress,
+        getTree(uniqAddress as Address[]).getHexRoot(),
       ],
       enabled,
     },

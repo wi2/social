@@ -3,6 +3,7 @@ import { useAccount, useContractRead } from 'wagmi';
 import useConfigContractProject from './useConfigContractProject';
 import { JSON_FILES } from '../constants/contract';
 import useProof from './useProof';
+import useContract from '../context/Contract';
 
 /**
  * @notice Vérifie si l'utilisateur actuel est le propriétaire du contrat.
@@ -10,6 +11,7 @@ import useProof from './useProof';
  */
 export default function useIsUser() {
   const proof = useProof();
+  const { users } = useContract();
 
   const contract = useConfigContractProject(JSON_FILES.account);
   const { address } = useAccount();
@@ -18,6 +20,6 @@ export default function useIsUser() {
     ...contract,
     functionName: 'isUser',
     args: [address, proof],
-    enabled: Boolean(address),
+    enabled: Boolean(address) && Boolean(users?.length),
   });
 }

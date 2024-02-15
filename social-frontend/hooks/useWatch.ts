@@ -3,6 +3,7 @@ import { getPublicClient } from '@wagmi/core';
 
 import { CustomLogType } from '../constants/type';
 import { getEvents } from '../utils/contract';
+import useGetProject from './useGetProject';
 
 /**
  * @notice Hook personnalisé pour surveiller les événements du contrat.
@@ -14,8 +15,18 @@ import { getEvents } from '../utils/contract';
  */
 export default function useWatch<CustomLogArgsType>(abiJSON: any) {
   const [logs, setLogs] = useState<CustomLogType<CustomLogArgsType>[]>([]);
+  const project = useGetProject();
 
   const client = getPublicClient();
+
+  const logFiltered = logs.filter((item) => {
+    return [
+      parseInt(project.data?.account),
+      parseInt(project.data?.messenger),
+      parseInt(project.data?.profile),
+      parseInt(project.data?.network),
+    ].includes(parseInt(item?.address as string));
+  });
 
   useEffect(() => {
     if (abiJSON) {
@@ -23,5 +34,5 @@ export default function useWatch<CustomLogArgsType>(abiJSON: any) {
     }
   }, [JSON.stringify(abiJSON)]);
 
-  return logs;
+  return logFiltered;
 }
