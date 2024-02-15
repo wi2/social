@@ -1,5 +1,3 @@
-const axios = require('axios');
-const FormData = require('form-data');
 const fs = require('fs');
 require('dotenv/config');
 
@@ -20,39 +18,6 @@ async function writeCIDsFile(data, pathname) {
   });
 }
 
-/* const pinFileToIPFS = async (src, name) => {
-  const formData = new FormData();
-  //  const src = 'path/to/file.png';
-
-  const file = fs.createReadStream(src);
-  formData.append('file', file);
-
-  const pinataMetadata = JSON.stringify({ name: name || 'File name' });
-  formData.append('pinataMetadata', pinataMetadata);
-
-  const pinataOptions = JSON.stringify({ cidVersion: 0 });
-  formData.append('pinataOptions', pinataOptions);
-
-  try {
-    const res = await axios.post(
-      'https://api.pinata.cloud/pinning/pinFileToIPFS',
-      formData,
-      {
-        maxBodyLength: 'Infinity',
-        headers: {
-          'Content-Type': `multipart/form-data; boundary=${formData._boundary}`,
-          Authorization: `Bearer ${JWT}`,
-        },
-      }
-    );
-    //    console.log(res.data);
-    return res.data;
-  } catch (error) {
-    console.log(error);
-    return error;
-  }
-};
- */
 function streamToString(stream) {
   const chunks = [];
   return new Promise((resolve, reject) => {
@@ -66,21 +31,20 @@ const pinFileToIPFS = async (src, name) => {
   const pinataSDK = require('@pinata/sdk');
   const pinata = new pinataSDK({ pinataJWTKey: process.env.PINATA });
 
-  // const res = await pinata.testAuthentication();
-  // console.log(res);
-
   try {
     const readableStreamForFile = fs.createReadStream(src);
 
     const result = await streamToString(readableStreamForFile);
-    console.log(JSON.parse(result)?.author.name);
 
     const options = {
       pinataMetadata: {
         name,
         keyvalues: {
-          author: JSON.parse(result)?.author.name,
-          title: JSON.parse(result)?.title,
+          author:
+            JSON.parse(result)?.author?.name || JSON.parse(result)?.from?.name,
+          ...(JSON.parse(result)?.title && {
+            title: JSON.parse(result)?.title,
+          }),
         },
       },
       pinataOptions: { cidVersion: 0 },
@@ -96,7 +60,7 @@ const pinFileToIPFS = async (src, name) => {
 };
 
 async function main() {
-  // add articles
+  // pins articles
   const articles = [
     { src: './scripts/files/article1.json', name: 'Article 1' },
     { src: './scripts/files/article2.json', name: 'Article 2' },
@@ -109,6 +73,25 @@ async function main() {
   const articleCids = [data1.IpfsHash, data2.IpfsHash, data3.IpfsHash];
   console.log('//', articleCids);
   await writeCIDsFile(articleCids.join(','), './scripts/files/cids.txt');
+
+  console.log('\n\n');
+
+  // pin messages
+  const dataMsg1 = await pinFileToIPFS(
+    './scripts/files/message1.json',
+    'message1'
+  );
+  const dataMsg2 = await pinFileToIPFS(
+    './scripts/files/message2.json',
+    'message2'
+  );
+  const dataMsg3 = await pinFileToIPFS(
+    './scripts/files/message3.json',
+    'message3'
+  );
+  const msgCids = [dataMsg1.IpfsHash, dataMsg2.IpfsHash, dataMsg3.IpfsHash];
+  console.log('//', msgCids);
+  await writeCIDsFile(msgCids.join(','), './scripts/files/messageCids.txt');
 
   process.exitCode = 1;
 }
