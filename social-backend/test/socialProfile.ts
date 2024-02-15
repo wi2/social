@@ -82,7 +82,7 @@ describe('SocialProfile Contract', () => {
     const SocialProfile = await deployAndExecuteUntilStep(
       STEP.CONTRACT_DEPLOYED
     );
-    await expect(SocialProfile.connect(wallets[1]).createProfile(user2))
+    await expect(SocialProfile.connect(wallets[1]).createProfile(user2, 'Tom'))
       .to.emit(SocialProfile, 'CreateProfile')
       .withArgs(user2);
   });
@@ -149,7 +149,9 @@ describe('SocialProfile Contract', () => {
     const socialProfile = await deployAndExecuteUntilStep(
       STEP.CONTRACT_DEPLOYED
     );
-    const addService = socialProfile.connect(wallets[3]).createProfile(user2);
+    const addService = socialProfile
+      .connect(wallets[3])
+      .createProfile(user2, 'Tom');
     await expect(addService).to.be.rejectedWith('OwnableUnauthorizedAccount');
   });
 });

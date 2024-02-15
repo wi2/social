@@ -9,6 +9,7 @@ import "./SocialBaseCommon.sol";
 contract SocialProfile is SocialBaseCommon, Ownable {
     /// @dev Represents a user profile with a pseudo (username) and a status (active or inactive).
     struct User {
+        string name;
         string pseudo;
         bool status;
     }
@@ -48,8 +49,11 @@ contract SocialProfile is SocialBaseCommon, Ownable {
     /// @notice Creates a profile for a given user.
     /// @dev Only callable by the contract owner.
     /// @param _user The address of the user for whom to create the profile.
-    function createProfile(address _user) external onlyOwner {
-        profile[_user].status = true;
+    function createProfile(
+        address _user,
+        string calldata _name
+    ) external onlyOwner {
+        profile[msg.sender].name = _name;
         emit CreateProfile(_user);
     }
 
