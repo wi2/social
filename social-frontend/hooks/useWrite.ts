@@ -45,7 +45,7 @@ export default function useWrite(
     setPrepareParams(
       params?.functionName ? { ...contract, ...params } : undefined
     );
-  }, [JSON.stringify(params)]);
+  }, [params?.functionName, params?.args?.length, params?.enabled]);
 
   // waiting transaction
   const waitTransaction = useWaitForTransaction({
