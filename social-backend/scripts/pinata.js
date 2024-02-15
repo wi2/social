@@ -1,8 +1,6 @@
 const fs = require('fs');
 require('dotenv/config');
 
-const JWT = process.env.PINATA;
-
 async function writeCIDsFile(data, pathname) {
   console.log('start write');
   fs.writeFile(pathname, data, (err) => {

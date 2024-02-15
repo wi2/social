@@ -1,10 +1,9 @@
 import { ethers, network } from 'hardhat';
-import { CID } from 'multiformats/cid';
 import fs from 'fs';
 import bs58 from 'bs58';
 
 import verify from '../utils/verify';
-import { Hex, fromHex, keccak256, toBytes, toHex } from 'viem';
+import { Address, Hex, keccak256 } from 'viem';
 import MerkleTree from 'merkletreejs';
 
 const getAccountAdresses = async () => {
@@ -23,6 +22,11 @@ function getHexProof(users: Hex[], user: string) {
   return tree.getHexProof(leaf) as Hex[];
 }
 
+async function findWalletByAddess(addr: Address) {
+  const wallets = await await ethers.getSigners();
+  return wallets.find((item) => item.address === addr);
+}
+
 async function main() {
   const Social = await ethers.deployContract('Social', []);
   await Social.waitForDeployment();
@@ -30,10 +34,11 @@ async function main() {
 
   //
   const wallets = await ethers.getSigners();
-  const [, admin, user2, user3, ...users] = await getAccountAdresses();
-  const [, walletAdmin, walletUser2, walletUser3] = await wallets;
+  const [, admin, user2, cyril, ben, daniel] = await getAccountAdresses();
+  const [, walletAdmin, walletUser2, cyrilWallet, benWallet, danielWallet] =
+    await wallets;
 
-  const usersAdded = [admin, user2, user3, ...users].slice(0, 10);
+  const usersAdded = [admin, user2, cyril, ben, daniel];
   console.log(usersAdded.length, 'users');
   console.log(usersAdded);
 
@@ -72,6 +77,8 @@ async function main() {
     .readFileSync('scripts/files/cids.txt', 'utf8')
     .split(',');
 
+  const userWallets = [cyrilWallet, benWallet, danielWallet];
+
   console.log(articleCids.length + ' articles (cid)\n');
   articleCids.forEach(async (_cid: string, index: number) => {
     const decodedFull = bs58.decode(_cid);
@@ -79,65 +86,50 @@ async function main() {
     console.log('cid' + index + ':', _cid);
     // add article
     await networkContract
-      .connect(wallets[index + 3])
+      .connect(userWallets[index])
       .postArticle(
         decoded,
-        getHexProof(usersAdded, wallets[index + 3].address)
+        getHexProof(usersAdded, userWallets[index].address)
       );
     console.log(
-      `Article ${index + 1}(${_cid}) created by ${wallets[index + 3].address}`
+      `Article ${index + 1}(${_cid}) created by ${userWallets[index].address}`
     );
-
-    await networkContract
-      .connect(wallets[index + 4])
-      .like(decoded, getHexProof(usersAdded, wallets[index + 4].address));
-    console.log(`Like Article ${index + 1} by ${wallets[index + 4].address}`);
-
-    if (index === 2 || index === 3) {
-      await networkContract
-        .connect(wallets[index + 4])
-        .unlike(decoded, getHexProof(usersAdded, wallets[index + 4].address));
-      console.log(
-        `Unlike Article ${index + 1} by ${wallets[index + 4].address}`
-      );
-    }
-
-    if (index === 2) {
-      await networkContract
-        .connect(wallets[index + 4])
-        .like(decoded, getHexProof(usersAdded, wallets[index + 4].address));
-      console.log(`Like Article ${index + 1} by ${wallets[index + 4].address}`);
-    }
-
-    if (index === 0) {
-      await networkContract
-        .connect(wallets[index + 4])
-        .pin(decoded, getHexProof(usersAdded, wallets[index + 4].address));
-      console.log(`Pin Article ${index + 1} by ${wallets[index + 4].address}`);
-    }
   });
+
+  let decodedFull = bs58.decode(articleCids[1]);
+  let decoded = decodedFull.slice(2);
+  await networkContract
+    .connect(cyrilWallet)
+    .like(decoded, getHexProof(usersAdded, cyril));
+  console.log(`Like Article ${articleCids[1]} by ${cyril}`);
+
+  await networkContract
+    .connect(cyrilWallet)
+    .pin(decoded, getHexProof(usersAdded, cyril));
+  console.log(`Like Article ${articleCids[1]} by ${cyril}`);
+
+  decodedFull = bs58.decode(articleCids[2]);
+  decoded = decodedFull.slice(2);
+  await networkContract
+    .connect(cyrilWallet)
+    .like(decoded, getHexProof(usersAdded, cyrilWallet.address));
+  console.log(`Like Article ${articleCids[2]} by ${cyril}`);
 
   // user 2 follows
   await networkContract
-    .connect(walletUser2)
-    .follow(user3, getHexProof(usersAdded, user2));
-  console.log(`Follow ${user3} by ${user2}`);
+    .connect(cyrilWallet)
+    .follow(ben, getHexProof(usersAdded, cyril));
+  console.log(`Follow ${ben} by ${cyril}`);
+
   await networkContract
-    .connect(walletUser2)
-    .follow(users[5], getHexProof(usersAdded, user2));
-  console.log(`Follow ${users[5]} by ${user2}`);
+    .connect(cyrilWallet)
+    .follow(daniel, getHexProof(usersAdded, cyril));
+  console.log(`Follow ${daniel} by ${cyril}`);
+
   await networkContract
-    .connect(walletUser2)
-    .unfollow(user3, getHexProof(usersAdded, user2));
-  console.log(`Unfollow ${user3} by ${user2}`);
-  await networkContract
-    .connect(walletUser2)
-    .follow(users[6], getHexProof(usersAdded, user2));
-  console.log(`Follow ${users[6]} by ${user2}`);
-  await networkContract
-    .connect(walletUser2)
-    .follow(user3, getHexProof(usersAdded, user2));
-  console.log(`Follow ${user3} by ${user2}`);
+    .connect(benWallet)
+    .follow(cyril, getHexProof(usersAdded, ben));
+  console.log(`Follow ${cyril} by ${ben}`);
 
   // SCENARIO SOCIAL NETWORK
   console.log('\n\n-- SCENARIO Messenger --');
@@ -145,15 +137,15 @@ async function main() {
   //Cyril send first message
   const CID = bs58.decode('QmYLeuHcpFsAwrweF15cU6jkP9QPxFyuKJitooeuwfeLou');
   await messengerContract
-    .connect(wallets[3])
-    .sendMessage(CID.slice(2), user2, getHexProof(usersAdded, user3));
+    .connect(cyrilWallet)
+    .sendMessage(CID.slice(2), ben, getHexProof(usersAdded, cyril));
   console.log('Cyril sent to Ben a message');
 
   //Ben send second message
   const CID2 = bs58.decode('QmUxmbjii7LY6V29rc4QGomWiSZdSvdnSp5h5tjNvNoRbo');
   await messengerContract
-    .connect(wallets[2])
-    .sendMessage(CID2.slice(2), user3, getHexProof(usersAdded, user2));
+    .connect(benWallet)
+    .sendMessage(CID2.slice(2), cyril, getHexProof(usersAdded, ben));
   console.log('Ben sent to Cyril a message');
 
   //Cyril send first message
@@ -161,8 +153,8 @@ async function main() {
     .decode('QmPHisK9FH1Va58ENEMci7J6t2CZZaWWCp4fYbmndih2C4')
     .slice(2);
   await messengerContract
-    .connect(wallets[3])
-    .sendMessage(CID3, user2, getHexProof(usersAdded, user3));
+    .connect(cyrilWallet)
+    .sendMessage(CID3, ben, getHexProof(usersAdded, cyril));
   console.log('Cyril sent to Ben a message');
 
   console.log(`\n-- END Messenger --\n`);
