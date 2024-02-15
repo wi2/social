@@ -2,7 +2,6 @@ import { digest } from 'multiformats';
 import { CID } from 'multiformats/cid';
 import { fromHex } from 'viem';
 import pinataSDK, { PinataPinOptions } from '@pinata/sdk';
-import base58 from 'bs58';
 
 const pinata = new pinataSDK({ pinataJWTKey: process.env.NEXT_PUBLIC_PINATA });
 
