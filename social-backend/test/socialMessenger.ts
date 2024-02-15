@@ -1,6 +1,6 @@
 import { ethers } from 'hardhat';
 import { assert, expect } from 'chai';
-import { SocialNetWorkMessenger } from '../typechain-types';
+import { SocialNetworkMessenger } from '../typechain-types';
 import { Signer } from 'ethers';
 import { Address, Hex, keccak256, parseGwei, toBytes } from 'viem';
 import MerkleTree from 'merkletreejs';
@@ -54,12 +54,12 @@ async function deployAndExecuteUntilStep(step = STEP.CONTRACT_DEPLOYED) {
   const wallets = await ethers.getSigners();
   const [, admin, user2, user3] = await getAccountAdresses();
   const SocialNetWorkFactory = await ethers.getContractFactory(
-    'SocialNetWorkMessenger'
+    'SocialNetworkMessenger'
   );
   const accountContractAddress = await accountContract.getAddress();
   const SocialNetWorkMessenger = (await SocialNetWorkFactory.deploy(
     accountContractAddress
-  )) as SocialNetWorkMessenger;
+  )) as SocialNetworkMessenger;
   await SocialNetWorkMessenger.waitForDeployment();
 
   const usersAdded = [user2, admin, user3];
