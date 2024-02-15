@@ -1,13 +1,15 @@
-import { Address, keccak256 } from 'viem';
+import { Address, fromBytes, keccak256 } from 'viem';
 import MerkleTree from 'merkletreejs';
 import {
   CustomError,
   CustomLogActionArgsType,
   CustomLogArticleArgsType,
   CustomLogFollowArgsType,
+  CustomLogMessageArgsType,
   CustomLogType,
 } from '../constants/type';
 import { P } from '@wagmi/core/dist/index-e744bbc2';
+import base58 from 'bs58';
 
 export function getErrorMsg(error: CustomError) {
   const cause = error.cause as { reason: string };
@@ -67,6 +69,24 @@ export function getEventSorted<T>(
     const blockNumberB = b?.blockNumber as bigint;
     return blockNumberA > blockNumberB ? 1 : -1;
   });
+}
+
+export function getMessages<T = CustomLogMessageArgsType>(
+  messages: CustomLogType<T>[],
+  user: Address | undefined
+) {
+  const finalMap = new Map();
+  messages
+    .filter(
+      (item: CustomLogType<T>) =>
+        (item as CustomLogType<CustomLogMessageArgsType>)?.args._from ===
+          user ||
+        (item as CustomLogType<CustomLogMessageArgsType>)?.args._to === user
+    )
+    .forEach((item: CustomLogType<T>) => {
+      finalMap.set(item?.transactionHash, item);
+    });
+  return Array.from(finalMap.values());
 }
 
 export function getFollowers<T = CustomLogFollowArgsType>(
@@ -164,4 +184,10 @@ export function getArticles<T = CustomLogArticleArgsType>(
       }
     });
   return Array.from(finalMap.values());
+}
+
+export function cidToHex(_cid: Address) {
+  return fromBytes(base58.decode(_cid).slice(2), 'hex') as unknown as
+    | Address
+    | undefined;
 }

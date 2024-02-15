@@ -22,6 +22,7 @@ import {
   getArticles,
   getFollowers,
   getLikes,
+  getMessages,
   getPins,
 } from '../utils/contract';
 import { useAccount } from 'wagmi';
@@ -70,7 +71,7 @@ export const ContractProvider = ({ children }: { children: ReactNode }) => {
   );
 
   // messenger
-  const messages = useWatch<CustomLogMessageArgsType>(
+  const MessageSended = useWatch<CustomLogMessageArgsType>(
     jsonFiles[JSON_FILES.messenger].abi.find(
       ({ name, type }) => name === 'MessageSended' && type === 'event'
     )
@@ -116,6 +117,11 @@ export const ContractProvider = ({ children }: { children: ReactNode }) => {
     jsonFiles[JSON_FILES.network].abi.find(
       ({ name, type }) => name === 'Unpinned' && type === 'event'
     )
+  );
+
+  const messages = getMessages(
+    [...MessageSended, ...watchData.messages],
+    address
   );
 
   const follows = getFollowers(
@@ -190,7 +196,7 @@ export const ContractProvider = ({ children }: { children: ReactNode }) => {
         follows,
         likes,
         pins,
-        messages: [...messages, ...watchData.messages].flat(),
+        messages,
       }}
     >
       {children}

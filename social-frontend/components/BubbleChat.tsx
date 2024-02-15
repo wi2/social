@@ -5,6 +5,7 @@ import { MessageTemplate } from '../constants/type';
 import { useAccount } from 'wagmi';
 import Avatar from './Avatar';
 import { dateFormat } from '../utils/common';
+import Loader from './Loader';
 
 export default function BubbleChat({ cid }: { cid: Address | undefined }) {
   const { address } = useAccount();
@@ -19,32 +20,35 @@ export default function BubbleChat({ cid }: { cid: Address | undefined }) {
   }, [cid, setMessage]);
 
   const isMyMessage = message?.from.address === address;
-  return (
-    <div
-      className={`chat chat-${isMyMessage ? 'end' : 'start'} p-4 grid-cols-${
-        isMyMessage ? '1' : '2'
-      } place-items-end`}
-    >
-      <div className="chat-image avatar">
-        <Avatar name={message?.from.address as Address} />
-      </div>
-      <div
-        className={`chat-header justify-self-${isMyMessage ? 'end' : 'start'}`}
-      >
-        {message?.from.name}
-      </div>
-      <div
-        className={`chat-bubble justify-self-${isMyMessage ? 'end' : 'start'}`}
-      >
-        <div>{message?.content}</div>
-      </div>
-      <div
-        className={`chat-footer justify-self-${isMyMessage ? 'end' : 'start'}`}
-      >
-        <time className="text-xs opacity-50">
+
+  if (!message?.from.address) {
+    return <Loader />;
+  }
+
+  if (isMyMessage) {
+    return (
+      <div className="chat chat-end">
+        <div className="chat-image avatar">
+          <Avatar name={message?.from.address as Address} />
+        </div>
+        <div className="chat-header">{message?.from.name}</div>
+        <div className="chat-bubble">{message?.content}</div>
+        <time className="chat-footer opacity-50 text-xs">
           {dateFormat(message?.metadata.timestamp)?.toLocaleString()}
         </time>
       </div>
+    );
+  }
+  return (
+    <div className="chat chat-start">
+      <div className="chat-image avatar">
+        <Avatar name={message?.from.address as Address} />
+      </div>
+      <div className="chat-header">{message?.from.name}</div>
+      <div className="chat-bubble">{message?.content}</div>
+      <time className="chat-footer opacity-50 text-xs">
+        {dateFormat(message?.metadata.timestamp)?.toLocaleString()}
+      </time>
     </div>
   );
 }

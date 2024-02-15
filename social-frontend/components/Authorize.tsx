@@ -4,8 +4,6 @@ import useIsUser from '../hooks/useIsUser';
 export default function Authorize({ children }: { children: ReactNode }) {
   const isUser = useIsUser();
 
-  console.log({ isUser });
-
   if (!isUser.data) {
     return (
       <div className="hero">
@@ -25,5 +23,5 @@ export default function Authorize({ children }: { children: ReactNode }) {
     );
   }
 
-  return <>{children}</>;
+  return <div className="relative">{children}</div>;
 }
