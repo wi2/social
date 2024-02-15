@@ -2,7 +2,7 @@ import Icons from './Icons';
 import Swap from './Swap';
 import { ipfsGet } from '../utils/ipfs';
 import { useCallback, useEffect, useState } from 'react';
-import { ArticleType } from '../constants/type';
+import { ArticleTemplate, ArticleType } from '../constants/type';
 import { dateFormat } from '../utils/common';
 import Loader from './Loader';
 import useContract from '../context/Contract';
@@ -14,12 +14,11 @@ import { useAccount } from 'wagmi';
 
 export default function Article({ cid }: { cid: any }) {
   const { address } = useAccount();
-  const [article, setArticle] = useState<ArticleType>();
+  const [article, setArticle] = useState<ArticleTemplate>();
   const { likes, pins, follows, users } = useContract();
-  const { setLike, isLoading: isLoadingLike } = useLike(users, cid);
-  const { setPin, isLoading: isLoadingPin } = usePin(users, cid);
+  const { setLike, isLoading: isLoadingLike } = useLike(cid);
+  const { setPin, isLoading: isLoadingPin } = usePin(cid);
   const { setFollow, isLoading: isLoadingFollow } = useFollow(
-    users,
     article?.author.address as Address
   );
 
@@ -63,7 +62,7 @@ export default function Article({ cid }: { cid: any }) {
       </div>
       <div className="flex card-actions bg-base-200 bg-opacity-50 rounded-none p-2 rounded-b">
         <div className="flex-1">
-          {dateFormat(article?.metadata.timestamp)?.toLocaleDateString()}
+          {dateFormat(article?.metadata.timestamp)?.toLocaleString()}
         </div>
         <div className="flex-none">
           {isLoadingFollow ? (
