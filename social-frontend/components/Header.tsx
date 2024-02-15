@@ -34,11 +34,10 @@ export default function Header({ children }: { children?: ReactNode }) {
   const links = [
     { link: `/project?_slug=${query._slug}`, name: 'Home' },
     { link: `/project/posts?_slug=${query._slug}`, name: 'Posts' },
-    { link: `/project/messenger?_slug=${query._slug}`, name: 'Messenger' },
   ];
 
   return (
-    <div className={`navbar fixed bg-base-100 bg-opacity-70 z-10`}>
+    <div className={`navbar fixed bg-base-300 bg-opacity-90 z-10`}>
       <div className="navbar-start">
         {project.data?.name && isUser.data ? (
           <div className="dropdown">
