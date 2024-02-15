@@ -125,14 +125,9 @@ describe('SocialAccount', function () {
       STEP.CONTRACT_DEPLOYED
     );
 
-    it('getCurrentCID should revert is not user registered', async () => {
-      const socialContract = await deployAndExecuteUntilStep(
-        STEP.CONTRACT_DEPLOYED
-      );
-      await expect(
-        socialContract.connect(wallets[4]).toggleServices()
-      ).revertedWithCustomError(socialContract, 'OwnableUnauthorizedAccount');
-    });
+    await expect(
+      socialContract.connect(wallets[4]).toggleServices()
+    ).revertedWithCustomError(socialContract, 'OwnableUnauthorizedAccount');
   });
 
   it('should return disabled service', async () => {
