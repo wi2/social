@@ -90,7 +90,7 @@ const Messenger: NextPage = () => {
           <Authorize>
             <div
               ref={ref}
-              className="flex flex-col flex-wrap bg-neutral bg-opacity-80 m-4 p-4 rounded"
+              className="flex flex-col flex-wrap bg-neutral bg-opacity-80 m-4 p-4 rounded-t"
             >
               {formattedMessages?.length ? (
                 formattedMessages?.map((item) => (
@@ -107,13 +107,14 @@ const Messenger: NextPage = () => {
               <form className="flex flex pl-4 w-full" onSubmit={onSubmit}>
                 <div className="flex-grow">
                   <Textarea
+                    className="rounded-none rounded-b"
                     name="content"
                     disabled={!isConnected || address === query._to}
                   ></Textarea>
                 </div>
                 <div>
                   <button
-                    className="btn w-24 h-40"
+                    className="btn w-24 h-40 rounded-none  rounded-br"
                     disabled={!isConnected || address === query._to}
                   >
                     Send

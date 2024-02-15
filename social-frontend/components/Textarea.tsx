@@ -15,7 +15,7 @@ const Textarea = forwardRef(
     <textarea
       ref={ref}
       {...props}
-      className="textarea bg-neutral textarea-bordered w-full mr-4 h-40"
+      className={`textarea bg-neutral textarea-bordered w-full mr-4 h-40 ${props.className}`}
     />
   )
 );
