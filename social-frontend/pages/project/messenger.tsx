@@ -6,7 +6,7 @@ import Content from '../../components/Content';
 import BubbleChat from '../../components/BubbleChat';
 import Textarea from '../../components/Textarea';
 import useContract from '../../context/Contract';
-import { FormEvent, useCallback, useState } from 'react';
+import { FormEvent, useCallback, useEffect, useRef } from 'react';
 import { MessageTemplate } from '../../constants/type';
 import { messageTemplate } from '../../constants/ipfs';
 import { Address, useAccount } from 'wagmi';
@@ -16,11 +16,12 @@ import useMessage from '../../hooks/useMessage';
 import Authorize from '../../components/Authorize';
 
 const Messenger: NextPage = () => {
+  const ref = useRef<HTMLDivElement>(null);
   const { query } = useRouter();
   const { setCid } = useMessage(query?._to as Address);
   const { address } = useAccount();
   const { isConnected, messages } = useContract();
-  const [msg, setMsg] = useState([]);
+
   const onSubmit = useCallback((e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     const { content } = e.currentTarget;
@@ -37,6 +38,7 @@ const Messenger: NextPage = () => {
       ipfsPin('message', newMsg).then((cid) => {
         setCid(cid as Address);
       });
+      content.value = '';
     }
     main();
   }, []);
@@ -45,6 +47,36 @@ const Messenger: NextPage = () => {
     const users = [message?.args._from, message?.args._to];
     return users.includes(address) && users.includes(query._to as Address);
   });
+
+  const scrollToLastMsg = () => {
+    const lastChildElement = ref.current?.lastElementChild;
+    lastChildElement?.scrollIntoView({ behavior: 'smooth' });
+  };
+
+  useEffect(() => {
+    setTimeout(scrollToLastMsg, 300);
+  }, [messages?.length]);
+
+  if (address === (query._to as Address)) {
+    return (
+      <div>
+        <Head>
+          <title>Messenger</title>
+          <link href="/favicon.ico" rel="icon" />
+        </Head>
+
+        <Layout>
+          <Content>
+            <Authorize>
+              <div className="flex flex-col flex-wrap bg-neutral bg-opacity-80 m-4 p-4 rounded">
+                You can't send message to yourself
+              </div>
+            </Authorize>
+          </Content>
+        </Layout>
+      </div>
+    );
+  }
 
   return (
     <div>
@@ -56,21 +88,34 @@ const Messenger: NextPage = () => {
       <Layout>
         <Content>
           <Authorize>
-            <div className="flex flex-col flex-wrap bg-neutral bg-opacity-80 m-4 p-4 rounded">
-              {formattedMessages?.map((item) => (
-                <BubbleChat
-                  key={`${item?.blockNumber}-${item?.args._cid}`}
-                  cid={item?.args._cid}
-                />
-              ))}
+            <div
+              ref={ref}
+              className="flex flex-col flex-wrap bg-neutral bg-opacity-80 m-4 p-4 rounded"
+            >
+              {formattedMessages?.length ? (
+                formattedMessages?.map((item) => (
+                  <BubbleChat
+                    key={`${item?.blockNumber}-${item?.args._cid}`}
+                    cid={item?.args._cid}
+                  />
+                ))
+              ) : (
+                <>Write your first message</>
+              )}
             </div>
             <div className="sticky bottom-16 z-50 mr-4">
               <form className="flex flex pl-4 w-full" onSubmit={onSubmit}>
                 <div className="flex-grow">
-                  <Textarea name="content" disabled={!isConnected}></Textarea>
+                  <Textarea
+                    name="content"
+                    disabled={!isConnected || address === query._to}
+                  ></Textarea>
                 </div>
                 <div>
-                  <button className="btn w-24 h-40" disabled={!isConnected}>
+                  <button
+                    className="btn w-24 h-40"
+                    disabled={!isConnected || address === query._to}
+                  >
                     Send
                   </button>
                 </div>
