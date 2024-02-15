@@ -2,7 +2,7 @@ import { ethers } from 'hardhat';
 import { assert, expect } from 'chai';
 import { SocialProfile } from '../typechain-types';
 import { Signer } from 'ethers';
-import { Address, Hex, keccak256, parseGwei, toBytes } from 'viem';
+import { Address, Hex, keccak256 } from 'viem';
 import MerkleTree from 'merkletreejs';
 
 const getAccountAdresses = async () => {
