@@ -13,7 +13,6 @@ const Home: NextPage = () => {
 
       <Layout>
         <Hero />
-        {/*  <HeroConnected /> */}
       </Layout>
     </div>
   );

@@ -13,6 +13,27 @@ export default function Articles() {
     followedArticles || []
   );
 
+  if (!articles?.length) {
+    return (
+      <div className="hero">
+        <div className="hero-content flex-col lg:flex-row bg-primary-content bg-opacity-70 rounded-md">
+          <div>
+            <h1 className="text-4xl font-bold">Welcome</h1>
+            <p className="py-6">
+              Start to add article and follows to see them here.
+            </p>
+            <a
+              href={`/project/posts?_slug=${query._slug}`}
+              className="btn btn-primary"
+            >
+              Post
+            </a>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <>
       <div className="flex justify-end pr-4">

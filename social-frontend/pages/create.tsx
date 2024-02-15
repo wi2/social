@@ -63,32 +63,6 @@ const Create: NextPage = () => {
                   <div className="divider lg:divider-vertical" />
                 </div>
 
-                {/* <label>Select services</label>
-                <div className="flex flex-row gap-2 mr-4">
-                  <label>
-                    <input
-                      type="checkbox"
-                      name="services"
-                      value="1"
-                      disabled={!isConnected}
-                    />{' '}
-                    Social network
-                  </label>
-                  <label>
-                    <input
-                      type="checkbox"
-                      name="services"
-                      value="2"
-                      disabled={!isConnected}
-                    />
-                    Messenger
-                  </label>
-                </div>
-
-                <div className="mr-4">
-                  <div className="divider lg:divider-vertical" />
-                </div> */}
-
                 <label>Add users</label>
                 <div className="mr-4">
                   <Textarea name="adresses" disabled={!isConnected}></Textarea>

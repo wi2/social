@@ -5,7 +5,7 @@ import {
   useState,
   ReactNode,
 } from 'react';
-import { CustomToast } from '../constants/type';
+import { CustomToast, CustomToastType } from '../constants/type';
 
 type ToastContextType = (item: CustomToast) => void;
 
@@ -49,18 +49,54 @@ export function ToastContextProvider({ children }: { children: ReactNode }) {
     <ToastContext.Provider value={addToast}>
       {children}
       <div className="toast toast-end">
-        {items.map((item, i) => (
-          <div
-            key={`toast-item-${i}`}
-            className={`alert alert-${String(
-              item.type
-            )} transition-opacity opacity-100 duration-200 max-w-80`}
-          >
-            <span className="max-w-60 overflow-hidden text-ellipsis truncate">
-              {item.content}
-            </span>
-          </div>
-        ))}
+        {items.map((item, i) => {
+          if (item.type === CustomToastType.warning) {
+            return (
+              <div
+                key={`toast-item-${i}`}
+                className={`alert alert-warning transition-opacity opacity-100 duration-200 max-w-80`}
+              >
+                <span className="max-w-60 overflow-hidden text-ellipsis truncate">
+                  {item.content}
+                </span>
+              </div>
+            );
+          }
+          if (item.type === CustomToastType.success) {
+            return (
+              <div
+                key={`toast-item-${i}`}
+                className={`alert alert-success transition-opacity opacity-100 duration-200 max-w-80`}
+              >
+                <span className="max-w-60 overflow-hidden text-ellipsis truncate">
+                  {item.content}
+                </span>
+              </div>
+            );
+          }
+          if (item.type === CustomToastType.error) {
+            return (
+              <div
+                key={`toast-item-${i}`}
+                className={`alert alert-error transition-opacity opacity-100 duration-200 max-w-80`}
+              >
+                <span className="max-w-60 overflow-hidden text-ellipsis truncate">
+                  {item.content}
+                </span>
+              </div>
+            );
+          }
+          return (
+            <div
+              key={`toast-item-${i}`}
+              className={`alert alert-info transition-opacity opacity-100 duration-200 max-w-80`}
+            >
+              <span className="max-w-60 overflow-hidden text-ellipsis truncate">
+                {item.content}
+              </span>
+            </div>
+          );
+        })}
       </div>
     </ToastContext.Provider>
   );
