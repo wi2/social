@@ -6,11 +6,11 @@ import Content from '../../components/Content';
 import BubbleChat from '../../components/BubbleChat';
 import Textarea from '../../components/Textarea';
 import useContract from '../../context/Contract';
-import { FormEvent, useCallback, useState } from 'react';
+import { FormEvent, useCallback, useEffect, useState } from 'react';
 import { MessageTemplate } from '../../constants/type';
 import { messageTemplate } from '../../constants/ipfs';
 import { Address, useAccount } from 'wagmi';
-import { ipfsPin } from '../../utils/ipfs';
+import { ipfsGet, ipfsPin } from '../../utils/ipfs';
 import { useRouter } from 'next/router';
 import useMessage from '../../hooks/useMessage';
 import Authorize from '../../components/Authorize';
@@ -19,9 +19,8 @@ const Messenger: NextPage = () => {
   //const { setTo } = useMessage();
   const { query } = useRouter();
   const { address } = useAccount();
-  const { isConnected } = useContract();
-  const messages = [] as { user: any; content: string; time: any }[];
-
+  const { isConnected, messages } = useContract();
+  const [msg, setMsg] = useState([]);
   const onSubmit = useCallback((e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     /*  const { content } = e.currentTarget;
@@ -43,6 +42,11 @@ const Messenger: NextPage = () => {
       }
       main(); */
   }, []);
+
+  const formattedMessages = messages?.filter((message) => {
+    const users = [message?.args._from, message?.args._to];
+    return users.includes(address) && users.includes(query._to as Address);
+  });
 
   return (
     <div>
@@ -69,15 +73,14 @@ const Messenger: NextPage = () => {
                 </button>
               </div>
             </form>
-
-            {messages.map((item) => (
-              <BubbleChat
-                key={item.time}
-                user={item.user}
-                content={item.content}
-                time={item.time}
-              />
-            ))}
+            <div className="flex flex-col flex-wrap bg-base-100 bg-opacity-80 m-4 rounded">
+              {formattedMessages?.map((item) => (
+                <BubbleChat
+                  key={`${item?.blockNumber}-${item?.args._cid}`}
+                  cid={item?.args._cid}
+                />
+              ))}
+            </div>
           </Authorize>
         </Content>
       </Layout>

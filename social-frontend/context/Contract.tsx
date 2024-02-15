@@ -14,6 +14,7 @@ import {
   CustomLogActionArgsType,
   CustomLogArticleArgsType,
   CustomLogFollowArgsType,
+  CustomLogMessageArgsType,
   CustomLogType,
   CustomLogUserArgsType,
 } from '../constants/type';
@@ -37,6 +38,7 @@ interface ContractContextType {
   followedArticles?: CustomLogType<CustomLogArticleArgsType>[];
   likes?: CustomLogType<CustomLogActionArgsType>[];
   pins?: CustomLogType<CustomLogActionArgsType>[];
+  messages?: CustomLogType<CustomLogMessageArgsType>[];
 }
 
 export const ContractContext = createContext<ContractContextType>({
@@ -53,6 +55,7 @@ export const ContractProvider = ({ children }: { children: ReactNode }) => {
     pinned: [],
     unpinned: [],
     articlesPosted: [],
+    messages: [],
   });
   const data = useWatchAll();
 
@@ -63,6 +66,13 @@ export const ContractProvider = ({ children }: { children: ReactNode }) => {
   const users = useWatch<CustomLogUserArgsType>(
     jsonFiles[JSON_FILES.account].abi.find(
       ({ name, type }) => name === 'UsersCreated' && type === 'event'
+    )
+  );
+
+  // messenger
+  const messages = useWatch<CustomLogMessageArgsType>(
+    jsonFiles[JSON_FILES.messenger].abi.find(
+      ({ name, type }) => name === 'MessageSended' && type === 'event'
     )
   );
 
@@ -158,6 +168,9 @@ export const ContractProvider = ({ children }: { children: ReactNode }) => {
         case eventName === 'ArticlesPosted':
           newData.articlesPosted = data;
           break;
+        case eventName === 'MessageSended':
+          newData.messages = data;
+          break;
 
         default:
           break;
@@ -177,6 +190,7 @@ export const ContractProvider = ({ children }: { children: ReactNode }) => {
         follows,
         likes,
         pins,
+        messages: [...messages, ...watchData.messages].flat(),
       }}
     >
       {children}
