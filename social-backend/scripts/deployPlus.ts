@@ -1,9 +1,10 @@
 import { ethers, network } from 'hardhat';
-const fs = require('fs');
-const bs58 = require('bs58');
+import { CID } from 'multiformats/cid';
+import fs from 'fs';
+import bs58 from 'bs58';
 
 import verify from '../utils/verify';
-import { Hex, keccak256, toBytes, toHex } from 'viem';
+import { Hex, fromHex, keccak256, toBytes, toHex } from 'viem';
 import MerkleTree from 'merkletreejs';
 
 const getAccountAdresses = async () => {
@@ -60,7 +61,7 @@ async function main() {
     project.network
   );
   const messengerContract = await ethers.getContractAt(
-    'SocialNetWorkMessenger',
+    'SocialNetworkMessenger',
     project.messenger
   );
 
@@ -138,7 +139,33 @@ async function main() {
     .follow(user3, getHexProof(usersAdded, user2));
   console.log(`Follow ${user3} by ${user2}`);
 
-  console.log(`\n-- END SCENARIO --\n`);
+  // SCENARIO SOCIAL NETWORK
+  console.log('\n\n-- SCENARIO Messenger --');
+
+  //Cyril send first message
+  const CID = bs58.decode('QmYLeuHcpFsAwrweF15cU6jkP9QPxFyuKJitooeuwfeLou');
+  await messengerContract
+    .connect(wallets[3])
+    .sendMessage(CID.slice(2), user2, getHexProof(usersAdded, user3));
+  console.log('Cyril sent to Ben a message');
+
+  //Ben send second message
+  const CID2 = bs58.decode('QmUxmbjii7LY6V29rc4QGomWiSZdSvdnSp5h5tjNvNoRbo');
+  await messengerContract
+    .connect(wallets[2])
+    .sendMessage(CID2.slice(2), user3, getHexProof(usersAdded, user2));
+  console.log('Ben sent to Cyril a message');
+
+  //Cyril send first message
+  const CID3 = bs58
+    .decode('QmPHisK9FH1Va58ENEMci7J6t2CZZaWWCp4fYbmndih2C4')
+    .slice(2);
+  await messengerContract
+    .connect(wallets[3])
+    .sendMessage(CID3, user2, getHexProof(usersAdded, user3));
+  console.log('Cyril sent to Ben a message');
+
+  console.log(`\n-- END Messenger --\n`);
 
   // eventual verification
   if (!network.name.includes('localhost') && process.env.POLYGONSCAN_API_KEY) {
