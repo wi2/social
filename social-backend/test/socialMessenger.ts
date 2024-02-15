@@ -21,114 +21,74 @@ function getHexProof(users: Hex[], user: string) {
   return tree.getHexProof(leaf) as Hex[];
 }
 
-const RANDOM_WALLET = ethers.Wallet.createRandom();
-const WALLET_SECRET1 = keccak256(toBytes('pass 1'));
-const WALLET_SECRET2 = keccak256(toBytes('pass 2'));
-
 const MSG_CID = keccak256(toBytes('1st message'));
+const MSG_CID2 = keccak256(toBytes('1st second message'));
 
 // Steps for the test scenario
 const STEP = {
   CONTRACT_DEPLOYED: 0,
-  SUBSCRIBED: 1,
-  GET_CHAT_WALLET: 2,
-  SENDED_INVITATION: 3,
-  ACCEPTED_INVITATION: 4,
-  GET_CHAT_SECRET: 5,
-  SENDED_MESSAGE: 6,
+  SENDED_MESSAGE: 3,
+  DISABLED_SERVICE: 4,
   CLOSE: 7,
 };
 
-async function deployAndExecuteSocial(services = [2]) {
+async function deployAndExecuteAccountSocial() {
   const wallets = await ethers.getSigners();
 
-  const [owner, notUser0, notUser1, user2, user3, ...users] =
-    await getAccountAdresses();
+  const [owner, admin, user2, user3, notUser1] = await getAccountAdresses();
   const SocialFactory = await ethers.getContractFactory('SocialAccount');
-  const usersAdded = [user2, owner, user3, ...users];
+  const usersAdded = [user2, admin, user3];
   const tree = getTree(usersAdded);
 
   const contract = await SocialFactory.connect(wallets[0]).deploy(
     owner,
+    admin,
     usersAdded,
     tree.getHexRoot()
   );
   return contract;
 }
 
-async function deployAndExecuteUntilStep(
-  step = STEP.CONTRACT_DEPLOYED,
-  services: number[] = [2]
-) {
-  const messengerContract = await deployAndExecuteSocial(services);
+async function deployAndExecuteUntilStep(step = STEP.CONTRACT_DEPLOYED) {
+  const accountContract = await deployAndExecuteAccountSocial();
   const wallets = await ethers.getSigners();
-  const [owner, notUser0, notUser1, user2, user3, ...users] =
-    await getAccountAdresses();
+  const [, admin, user2, user3] = await getAccountAdresses();
   const SocialNetWorkFactory = await ethers.getContractFactory(
     'SocialNetWorkMessenger'
   );
-  const messengerContractAddress = await messengerContract.getAddress();
+  const accountContractAddress = await accountContract.getAddress();
   const SocialNetWorkMessenger = (await SocialNetWorkFactory.deploy(
-    messengerContractAddress
+    accountContractAddress
   )) as SocialNetWorkMessenger;
   await SocialNetWorkMessenger.waitForDeployment();
 
-  const usersAdded = [user2, owner, user3, ...users];
-
-  if (step >= STEP.SUBSCRIBED) {
-    await SocialNetWorkMessenger.connect(wallets[3]).subscribe(
-      RANDOM_WALLET.address,
-      getHexProof(usersAdded, user2)
-    );
-    await SocialNetWorkMessenger.connect(wallets[4]).subscribe(
-      RANDOM_WALLET.address,
-      getHexProof(usersAdded, user3)
-    );
-  }
-
-  let chatWallet1;
-  let chatWallet2;
-  if (step >= STEP.GET_CHAT_WALLET) {
-    chatWallet1 = await SocialNetWorkMessenger.connect(
-      wallets[3]
-    ).getChatWallet(user2, getHexProof(usersAdded, user2));
-    chatWallet2 = await SocialNetWorkMessenger.connect(
-      wallets[4]
-    ).getChatWallet(user3, getHexProof(usersAdded, user3));
-  }
-
-  if (step >= STEP.SENDED_INVITATION) {
-    await SocialNetWorkMessenger.connect(wallets[3]).sendInvitation(
-      user3,
-      getHexProof(usersAdded, user2)
-    );
-  }
-
-  if (step >= STEP.ACCEPTED_INVITATION) {
-    await SocialNetWorkMessenger.connect(wallets[4]).AcceptInvitation(
-      user2,
-      getHexProof(usersAdded, user3),
-      WALLET_SECRET1,
-      WALLET_SECRET2
-    );
-  }
+  const usersAdded = [user2, admin, user3];
 
   if (step >= STEP.SENDED_MESSAGE) {
     const currentCid = await SocialNetWorkMessenger.connect(
-      wallets[4]
+      wallets[3]
     ).getCurrentCID(user2, getHexProof(usersAdded, user3));
-    const proof = getHexProof([currentCid as Hex, MSG_CID], currentCid);
-    const tree = getTree([currentCid, MSG_CID]);
-    await SocialNetWorkMessenger.connect(wallets[4]).sendMessage(
+
+    const proofCid = getHexProof([currentCid as Hex, MSG_CID], MSG_CID);
+    const treeCid = getTree([currentCid, MSG_CID]);
+    const proof = getHexProof(usersAdded, user3);
+    await SocialNetWorkMessenger.connect(wallets[3]).sendMessage(
       MSG_CID,
       user2,
-      tree.getHexRoot(),
+      proofCid,
+      treeCid.getHexRoot(),
       proof
     );
   }
 
+  if (step >= STEP.DISABLED_SERVICE) {
+    await accountContract.connect(wallets[0]).toggleServices();
+  }
+
   if (step >= STEP.CLOSE) {
-    await SocialNetWorkMessenger.connect(wallets[4]).burnChat(
+    // enable service before burn chat
+    await accountContract.connect(wallets[0]).toggleServices();
+    await SocialNetWorkMessenger.connect(wallets[3]).burnChat(
       user2,
       getHexProof(usersAdded, user2)
     );
@@ -139,202 +99,48 @@ async function deployAndExecuteUntilStep(
 
 describe('SocialNetWorkMessenger Contract', () => {
   let owner: Address;
-  let notUser0: Address;
+  let admin: Address;
   let notUser1: Address;
   let user2: Address;
   let user3: Address;
-  let users: Address[];
   let wallets: Signer[];
   let usersAdded: Address[];
 
   beforeEach(async () => {
     wallets = await ethers.getSigners();
 
-    [owner, notUser0, notUser1, user2, user3, ...users] =
-      await getAccountAdresses();
-    usersAdded = [user2, owner, user3, ...users];
-  });
-
-  describe('Subscribe', () => {
-    it('should emit Subscribe', async () => {
-      const SocialNetWorkMessenger = await deployAndExecuteUntilStep(
-        STEP.SUBSCRIBED
-      );
-      await expect(
-        await SocialNetWorkMessenger.connect(wallets[3]).subscribe(
-          RANDOM_WALLET.address,
-          getHexProof(usersAdded, user2)
-        )
-      )
-        .to.emit(SocialNetWorkMessenger, 'Subscribe')
-        .withArgs(user2);
-    });
-
-    it('should return false', async () => {
-      const SocialNetWorkMessenger = await deployAndExecuteUntilStep(
-        STEP.CONTRACT_DEPLOYED
-      );
-      const hasSubscribe = await SocialNetWorkMessenger.connect(
-        wallets[3]
-      ).hasSubscribe(user2, getHexProof(usersAdded, user2));
-      assert.equal(hasSubscribe, false);
-    });
-
-    it('should return true', async () => {
-      const SocialNetWorkMessenger = await deployAndExecuteUntilStep(
-        STEP.SUBSCRIBED
-      );
-      const hasSubscribe = await SocialNetWorkMessenger.connect(
-        wallets[3]
-      ).hasSubscribe(user2, getHexProof(usersAdded, user2));
-      assert.equal(hasSubscribe, true);
-    });
-
-    it('should return false', async () => {
-      const SocialNetWorkMessenger = await deployAndExecuteUntilStep(
-        STEP.CONTRACT_DEPLOYED
-      );
-      const iAmSubscribe = await SocialNetWorkMessenger.connect(
-        wallets[3]
-      ).iAmSubscribe(getHexProof(usersAdded, user2));
-      assert.equal(iAmSubscribe, false);
-    });
-
-    it('should return true', async () => {
-      const SocialNetWorkMessenger = await deployAndExecuteUntilStep(
-        STEP.SUBSCRIBED
-      );
-      const iAmSubscribe = await SocialNetWorkMessenger.connect(
-        wallets[3]
-      ).iAmSubscribe(getHexProof(usersAdded, user2));
-      assert.equal(iAmSubscribe, true);
-    });
-  });
-
-  describe('invitation', () => {
-    it('should emit InvitationSended', async () => {
-      const SocialNetWorkMessenger = await deployAndExecuteUntilStep(
-        STEP.SUBSCRIBED
-      );
-      await expect(
-        await SocialNetWorkMessenger.connect(wallets[3]).sendInvitation(
-          user3,
-          getHexProof(usersAdded, user2)
-        )
-      )
-        .to.emit(SocialNetWorkMessenger, 'InvitationSended')
-        .withArgs(user2, user3);
-    });
-
-    it('should emit InvitationAccepted', async () => {
-      const SocialNetWorkMessenger = await deployAndExecuteUntilStep(
-        STEP.SENDED_INVITATION
-      );
-      await expect(
-        await SocialNetWorkMessenger.connect(wallets[4]).AcceptInvitation(
-          user2,
-          getHexProof(usersAdded, user3),
-          WALLET_SECRET1,
-          WALLET_SECRET2
-        )
-      )
-        .to.emit(SocialNetWorkMessenger, 'InvitationAccepted')
-        .withArgs(user3, user2);
-    });
-
-    it('should revert is service is not active', async () => {
-      const SocialNetWorkMessenger = await deployAndExecuteUntilStep(
-        STEP.SENDED_INVITATION
-      );
-      await expect(
-        SocialNetWorkMessenger.connect(wallets[3]).sendInvitation(
-          user3,
-          getHexProof(usersAdded, user2)
-        )
-      ).revertedWithCustomError(
-        SocialNetWorkMessenger,
-        'NotAuthorizeToSendInvit'
-      );
-    });
-
-    it('should revert is service is not active', async () => {
-      const SocialNetWorkMessenger = await deployAndExecuteUntilStep(
-        STEP.ACCEPTED_INVITATION
-      );
-      await expect(
-        SocialNetWorkMessenger.connect(wallets[4]).AcceptInvitation(
-          user2,
-          getHexProof(usersAdded, user3),
-          WALLET_SECRET1,
-          WALLET_SECRET2
-        )
-      ).revertedWithCustomError(
-        SocialNetWorkMessenger,
-        'NotAuthorizeToAcceptInvit'
-      );
-    });
-
-    it('should revert is service is not active', async () => {
-      const SocialNetWorkMessenger = await deployAndExecuteUntilStep(
-        STEP.SENDED_INVITATION
-      );
-      await expect(
-        SocialNetWorkMessenger.connect(wallets[4]).getChatSecret(
-          user2,
-          getHexProof(usersAdded, user3)
-        )
-      ).revertedWithCustomError(
-        SocialNetWorkMessenger,
-        'NotAuthorizeToGetSecret'
-      );
-    });
-
-    it('should return mysecret', async () => {
-      const SocialNetWorkMessenger = await deployAndExecuteUntilStep(
-        STEP.ACCEPTED_INVITATION
-      );
-      const getChatSecret = await SocialNetWorkMessenger.connect(
-        wallets[4]
-      ).getChatSecret(user2, getHexProof(usersAdded, user3));
-      assert.equal(getChatSecret, WALLET_SECRET1);
-    });
-    it('should return mysecret', async () => {
-      const SocialNetWorkMessenger = await deployAndExecuteUntilStep(
-        STEP.ACCEPTED_INVITATION
-      );
-      const getChatSecret = await SocialNetWorkMessenger.connect(
-        wallets[3]
-      ).getChatSecret(user3, getHexProof(usersAdded, user2));
-      assert.equal(getChatSecret, WALLET_SECRET2);
-    });
+    [owner, admin, user2, user3, notUser1] = await getAccountAdresses();
+    usersAdded = [user2, admin, user3];
   });
 
   describe('Message', () => {
-    it('should equal', async () => {
+    it('getCurrentCID, after 1st message should return sameCid', async () => {
       const SocialNetWorkMessenger = await deployAndExecuteUntilStep(
         STEP.SENDED_MESSAGE
       );
       const getCurrentCID = await SocialNetWorkMessenger.connect(
-        wallets[4]
+        wallets[3]
       ).getCurrentCID(user2, getHexProof(usersAdded, user3));
       assert.equal(getCurrentCID, MSG_CID);
     });
 
-    it('should emit MessageSended', async () => {
+    it('sendMessage should emit MessageSended', async () => {
       const SocialNetWorkMessenger = await deployAndExecuteUntilStep(
-        STEP.ACCEPTED_INVITATION
+        STEP.SENDED_MESSAGE
       );
       const currentCid = await SocialNetWorkMessenger.connect(
-        wallets[4]
+        wallets[3]
       ).getCurrentCID(user2, getHexProof(usersAdded, user3));
-      const proof = getHexProof([currentCid as Hex, MSG_CID], currentCid);
-      const tree = getTree([currentCid, MSG_CID]);
+      const proofCid = getHexProof([currentCid as Hex, MSG_CID], MSG_CID);
+      const treeCid = getTree([currentCid, MSG_CID]);
+      const proof = getHexProof(usersAdded, user3);
 
       await expect(
-        SocialNetWorkMessenger.connect(wallets[4]).sendMessage(
+        SocialNetWorkMessenger.connect(wallets[3]).sendMessage(
           MSG_CID,
           user2,
-          tree.getHexRoot(),
+          proofCid,
+          treeCid.getHexRoot(),
           proof
         )
       )
@@ -342,47 +148,28 @@ describe('SocialNetWorkMessenger Contract', () => {
         .withArgs(user3, user2, MSG_CID);
     });
 
-    it('should revert is service is not active', async () => {
+    it('Should revert sendMessage if last message is not ok', async () => {
       const SocialNetWorkMessenger = await deployAndExecuteUntilStep(
-        STEP.ACCEPTED_INVITATION
+        STEP.SENDED_MESSAGE
       );
+
       const currentCid = await SocialNetWorkMessenger.connect(
-        wallets[4]
+        wallets[3]
       ).getCurrentCID(user2, getHexProof(usersAdded, user3));
-      const proof = getHexProof([currentCid as Hex, MSG_CID], MSG_CID);
-      const tree = getTree([currentCid, MSG_CID]);
+
+      const treeCid = getTree([currentCid, MSG_CID2]);
+      const proofCid = getHexProof([MSG_CID, MSG_CID2], MSG_CID2);
+      const proof = getHexProof(usersAdded, user3);
 
       await expect(
-        SocialNetWorkMessenger.connect(wallets[4]).sendMessage(
-          MSG_CID,
+        SocialNetWorkMessenger.connect(wallets[3]).sendMessage(
+          MSG_CID2,
           user2,
-          tree.getHexRoot(),
+          proofCid,
+          treeCid.getHexRoot(),
           proof
         )
       ).revertedWithCustomError(SocialNetWorkMessenger, 'LastMessageIsNotOk');
-    });
-
-    it('should revert is service is not active', async () => {
-      const SocialNetWorkMessenger = await deployAndExecuteUntilStep(
-        STEP.SENDED_INVITATION
-      );
-      const currentCid = await SocialNetWorkMessenger.connect(
-        wallets[4]
-      ).getCurrentCID(user2, getHexProof(usersAdded, user3));
-      const proof = getHexProof([currentCid as Hex, MSG_CID], MSG_CID);
-      const tree = getTree([currentCid, MSG_CID]);
-
-      await expect(
-        SocialNetWorkMessenger.connect(wallets[4]).sendMessage(
-          MSG_CID,
-          user2,
-          tree.getHexRoot(),
-          proof
-        )
-      ).revertedWithCustomError(
-        SocialNetWorkMessenger,
-        'NotAuthorizeToSendMessage'
-      );
     });
   });
 
@@ -392,7 +179,7 @@ describe('SocialNetWorkMessenger Contract', () => {
         STEP.SENDED_MESSAGE
       );
       await expect(
-        SocialNetWorkMessenger.connect(wallets[4]).burnChat(
+        SocialNetWorkMessenger.connect(wallets[3]).burnChat(
           user2,
           getHexProof(usersAdded, user3)
         )
@@ -405,109 +192,24 @@ describe('SocialNetWorkMessenger Contract', () => {
   /////////
   /////////
   describe('OnlyUser', () => {
-    it('should revert is service is not active', async () => {
+    it('getCurrentCID should revert is not user registered', async () => {
       const SocialNetWorkMessenger = await deployAndExecuteUntilStep(
         STEP.CONTRACT_DEPLOYED
       );
       await expect(
-        SocialNetWorkMessenger.connect(wallets[2]).subscribe(
-          RANDOM_WALLET.address,
-          getHexProof(usersAdded, notUser1)
-        )
-      ).revertedWithCustomError(SocialNetWorkMessenger, 'OnlyUser');
-    });
-
-    it('should revert is service is not active', async () => {
-      const SocialNetWorkMessenger = await deployAndExecuteUntilStep(
-        STEP.CONTRACT_DEPLOYED
-      );
-      await expect(
-        SocialNetWorkMessenger.connect(wallets[2]).hasSubscribe(
-          RANDOM_WALLET.address,
-          getHexProof(usersAdded, notUser1)
-        )
-      ).revertedWithCustomError(SocialNetWorkMessenger, 'OnlyUser');
-    });
-
-    it('should revert is service is not active', async () => {
-      const SocialNetWorkMessenger = await deployAndExecuteUntilStep(
-        STEP.CONTRACT_DEPLOYED
-      );
-      await expect(
-        SocialNetWorkMessenger.connect(wallets[2]).iAmSubscribe(
-          getHexProof(usersAdded, notUser1)
-        )
-      ).revertedWithCustomError(SocialNetWorkMessenger, 'OnlyUser');
-    });
-
-    it('should revert is service is not active', async () => {
-      const SocialNetWorkMessenger = await deployAndExecuteUntilStep(
-        STEP.CONTRACT_DEPLOYED
-      );
-      await expect(
-        SocialNetWorkMessenger.connect(wallets[2]).getChatSecret(
+        SocialNetWorkMessenger.connect(wallets[4]).getCurrentCID(
           user3,
           getHexProof(usersAdded, notUser1)
         )
       ).revertedWithCustomError(SocialNetWorkMessenger, 'OnlyUser');
     });
 
-    it('should revert is service is not active', async () => {
+    it('burnChat should revert is not user registered', async () => {
       const SocialNetWorkMessenger = await deployAndExecuteUntilStep(
         STEP.CONTRACT_DEPLOYED
       );
       await expect(
-        SocialNetWorkMessenger.connect(wallets[2]).getChatWallet(
-          user3,
-          getHexProof(usersAdded, notUser1)
-        )
-      ).revertedWithCustomError(SocialNetWorkMessenger, 'OnlyUser');
-    });
-
-    it('should revert is service is not active', async () => {
-      const SocialNetWorkMessenger = await deployAndExecuteUntilStep(
-        STEP.CONTRACT_DEPLOYED
-      );
-      await expect(
-        SocialNetWorkMessenger.connect(wallets[2]).getCurrentCID(
-          user3,
-          getHexProof(usersAdded, notUser1)
-        )
-      ).revertedWithCustomError(SocialNetWorkMessenger, 'OnlyUser');
-    });
-
-    it('should revert is service is not active', async () => {
-      const SocialNetWorkMessenger = await deployAndExecuteUntilStep(
-        STEP.CONTRACT_DEPLOYED
-      );
-      await expect(
-        SocialNetWorkMessenger.connect(wallets[2]).sendInvitation(
-          user3,
-          getHexProof(usersAdded, notUser1)
-        )
-      ).revertedWithCustomError(SocialNetWorkMessenger, 'OnlyUser');
-    });
-
-    it('should revert is service is not active', async () => {
-      const SocialNetWorkMessenger = await deployAndExecuteUntilStep(
-        STEP.CONTRACT_DEPLOYED
-      );
-      await expect(
-        SocialNetWorkMessenger.connect(wallets[2]).AcceptInvitation(
-          user3,
-          getHexProof(usersAdded, notUser1),
-          WALLET_SECRET1,
-          WALLET_SECRET2
-        )
-      ).revertedWithCustomError(SocialNetWorkMessenger, 'OnlyUser');
-    });
-
-    it('should revert is service is not active', async () => {
-      const SocialNetWorkMessenger = await deployAndExecuteUntilStep(
-        STEP.CONTRACT_DEPLOYED
-      );
-      await expect(
-        SocialNetWorkMessenger.connect(wallets[2]).burnChat(
+        SocialNetWorkMessenger.connect(wallets[4]).burnChat(
           user3,
           getHexProof(usersAdded, notUser1)
         )
@@ -519,15 +221,14 @@ describe('SocialNetWorkMessenger Contract', () => {
   /////////
   /////////
   /////////
-  describe.skip('OnlyService', () => {
-    it('should revert is service is not active e', async () => {
+  describe('OnlyService', () => {
+    it('should revert is service is not active', async () => {
       const SocialNetWorkMessenger = await deployAndExecuteUntilStep(
-        STEP.CONTRACT_DEPLOYED,
-        [1]
+        STEP.DISABLED_SERVICE
       );
       await expect(
-        SocialNetWorkMessenger.connect(wallets[4]).subscribe(
-          RANDOM_WALLET.address,
+        SocialNetWorkMessenger.connect(wallets[3]).getCurrentCID(
+          user2,
           getHexProof(usersAdded, user3)
         )
       ).revertedWithCustomError(SocialNetWorkMessenger, 'OnlyService');
@@ -535,104 +236,11 @@ describe('SocialNetWorkMessenger Contract', () => {
 
     it('should revert is service is not active', async () => {
       const SocialNetWorkMessenger = await deployAndExecuteUntilStep(
-        STEP.CONTRACT_DEPLOYED,
-        [1]
+        STEP.DISABLED_SERVICE
       );
       await expect(
-        SocialNetWorkMessenger.connect(wallets[4]).hasSubscribe(
-          RANDOM_WALLET.address,
-          getHexProof(usersAdded, user3)
-        )
-      ).revertedWithCustomError(SocialNetWorkMessenger, 'OnlyService');
-    });
-
-    it('should revert is service is not active', async () => {
-      const SocialNetWorkMessenger = await deployAndExecuteUntilStep(
-        STEP.CONTRACT_DEPLOYED,
-        [1]
-      );
-      await expect(
-        SocialNetWorkMessenger.connect(wallets[4]).iAmSubscribe(
-          getHexProof(usersAdded, user3)
-        )
-      ).revertedWithCustomError(SocialNetWorkMessenger, 'OnlyService');
-    });
-
-    it('should revert is service is not active', async () => {
-      const SocialNetWorkMessenger = await deployAndExecuteUntilStep(
-        STEP.CONTRACT_DEPLOYED,
-        [1]
-      );
-      await expect(
-        SocialNetWorkMessenger.connect(wallets[4]).getChatSecret(
-          user3,
-          getHexProof(usersAdded, user3)
-        )
-      ).revertedWithCustomError(SocialNetWorkMessenger, 'OnlyService');
-    });
-
-    it('should revert is service is not active', async () => {
-      const SocialNetWorkMessenger = await deployAndExecuteUntilStep(
-        STEP.CONTRACT_DEPLOYED,
-        [1]
-      );
-      await expect(
-        SocialNetWorkMessenger.connect(wallets[4]).getChatWallet(
-          user3,
-          getHexProof(usersAdded, user3)
-        )
-      ).revertedWithCustomError(SocialNetWorkMessenger, 'OnlyService');
-    });
-
-    it('should revert is service is not active', async () => {
-      const SocialNetWorkMessenger = await deployAndExecuteUntilStep(
-        STEP.CONTRACT_DEPLOYED,
-        [1]
-      );
-      await expect(
-        SocialNetWorkMessenger.connect(wallets[4]).getCurrentCID(
-          user3,
-          getHexProof(usersAdded, user3)
-        )
-      ).revertedWithCustomError(SocialNetWorkMessenger, 'OnlyService');
-    });
-
-    it('should revert is service is not active', async () => {
-      const SocialNetWorkMessenger = await deployAndExecuteUntilStep(
-        STEP.CONTRACT_DEPLOYED,
-        [1]
-      );
-      await expect(
-        SocialNetWorkMessenger.connect(wallets[4]).sendInvitation(
-          user3,
-          getHexProof(usersAdded, user3)
-        )
-      ).revertedWithCustomError(SocialNetWorkMessenger, 'OnlyService');
-    });
-
-    it('should revert is service is not active', async () => {
-      const SocialNetWorkMessenger = await deployAndExecuteUntilStep(
-        STEP.CONTRACT_DEPLOYED,
-        [1]
-      );
-      await expect(
-        SocialNetWorkMessenger.connect(wallets[4]).AcceptInvitation(
-          user3,
-          getHexProof(usersAdded, user3),
-          WALLET_SECRET1,
-          WALLET_SECRET2
-        )
-      ).revertedWithCustomError(SocialNetWorkMessenger, 'OnlyService');
-    });
-
-    it('should revert is service is not active', async () => {
-      const SocialNetWorkMessenger = await deployAndExecuteUntilStep(
-        STEP.CONTRACT_DEPLOYED,
-        [1]
-      );
-      await expect(
-        SocialNetWorkMessenger.connect(wallets[4]).burnChat(
-          user3,
+        SocialNetWorkMessenger.connect(wallets[3]).burnChat(
+          user2,
           getHexProof(usersAdded, user3)
         )
       ).revertedWithCustomError(SocialNetWorkMessenger, 'OnlyService');
