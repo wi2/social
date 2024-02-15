@@ -1,5 +1,4 @@
 import { ethers } from 'hardhat';
-import '@nomicfoundation/hardhat-chai-matchers';
 import { assert, expect } from 'chai';
 import { keccak256, Address } from 'viem';
 import MerkleTree from 'merkletreejs';
@@ -24,49 +23,41 @@ function getHexProof(users: Address[], user: string) {
 // Steps for the test scenario
 const STEP = {
   CONTRACT_DEPLOYED: 0,
-  USER_ADDED: 2,
+  USER_ADDED: 1,
 };
 
 // Create and deploy a voting contract instance and play the scenario until the specified step
 async function deployAndExecuteUntilStep(step = STEP.CONTRACT_DEPLOYED) {
   const wallets = await ethers.getSigners();
-  const [owner, notUser0, notUser1, user2, user3] = await getAccountAdresses();
+  const [owner, admin, notUser0, notUser1, user2, user3] =
+    await getAccountAdresses();
   const SocialFactory = await ethers.getContractFactory('SocialAccount');
 
-  let tree = getTree([owner, user2]);
-  let usersAdded = [user2, owner];
+  let tree = getTree([admin, user2]);
+  let usersAdded = [user2, admin];
 
   const socialContract = await SocialFactory.deploy(
     owner,
+    admin,
     usersAdded,
     tree.getHexRoot()
   );
   await socialContract.waitForDeployment();
 
-  /*   if (step >= STEP.CREATED) {
-    tree = getTree([owner, user2]);
-    await socialContract
-      .connect(wallets[0])
-      .createSocial([user2], tree.getHexRoot() as Address);
-    await socialContract.connect(wallets[0]).addService([1]);
-  }*/
-
   if (step >= STEP.USER_ADDED) {
-    usersAdded = [owner, user2, user3];
+    usersAdded = [admin, user2, user3];
     const tree = getTree(usersAdded);
     await socialContract
-      .connect(wallets[0])
+      .connect(wallets[1])
       .addMoreUser([user3], tree.getHexRoot() as Address);
   }
-  /*   if (step >= STEP.SERVICE_ADDED) {
-    await socialContract.connect(wallets[0]).addService([2]);
-  } */
   return socialContract;
 }
 
 describe('SocialAccount', function () {
   let wallets: Signer[];
   let owner: Address,
+    admin: Address,
     notUser0: Address,
     notUser1: Address,
     user2: Address,
@@ -74,40 +65,26 @@ describe('SocialAccount', function () {
     users: Address[];
 
   beforeEach(async function () {
-    [owner, notUser0, notUser1, user2, user3, ...users] =
+    [owner, admin, notUser0, notUser1, user2, user3, ...users] =
       await getAccountAdresses();
     wallets = await ethers.getSigners();
   });
 
-  /*   it('should revert NotAuthorize if not owner', async function () {
-    const socialContract = await deployAndExecuteUntilStep(
-      STEP.CONTRACT_DEPLOYED
-    );
-    const tree = getTree([owner, user2]);
-
-    const createSocial = socialContract
-      .connect(wallets[3])
-      .createSocial([user2], tree.getHexRoot() as Address);
-
-    expect(createSocial).to.be.rejected;
-  }); */
-
   it('isUser should return true', async function () {
     const socialContract = await deployAndExecuteUntilStep(STEP.USER_ADDED);
-    const proof = await getHexProof([owner, user2, user3], user2);
+    const proof = await getHexProof([admin, user2, user3], user2);
     const isUser = await socialContract
-      .connect(wallets[3])
+      .connect(wallets[4])
       .isUser(user2, proof);
     assert.isTrue(isUser);
   });
 
   it('isUser should return false', async function () {
     const socialContract = await deployAndExecuteUntilStep(STEP.USER_ADDED);
-    const proof = await getHexProof([owner, user2, user3], notUser1);
+    const proof = await getHexProof([admin, user2, user3], notUser1);
     const isUser = await socialContract
-      .connect(wallets[2])
+      .connect(wallets[3])
       .isUser(notUser1, proof);
-    console.log(isUser);
     expect(isUser).to.be.false;
   });
 
@@ -116,54 +93,58 @@ describe('SocialAccount', function () {
       STEP.CONTRACT_DEPLOYED
     );
     const isServiceActive = await socialContract
-      .connect(wallets[3])
+      .connect(wallets[4])
       .isServiceActive(1);
     expect(isServiceActive).to.be.true;
   });
-
-  /*   it('isServiceActive should return false', async function () {
-    const socialContract = await deployAndExecuteUntilStep(STEP.CREATED);
-    const isServiceActive = await socialContract
-      .connect(wallets[3])
-      .isServiceActive(2);
-    expect(isServiceActive).to.be.false;
-  }); */
 
   it('isServiceActive should return true', async function () {
     const socialContract = await deployAndExecuteUntilStep(
       STEP.CONTRACT_DEPLOYED
     );
     const isServiceActive = await socialContract
-      .connect(wallets[3])
+      .connect(wallets[4])
       .isServiceActive(2);
     expect(isServiceActive).to.be.true;
   });
 
-  /*   it('addService should revert with InsufficientPayment', async function () {
-    const socialContract = await deployAndExecuteUntilStep(STEP.CREATED);
-    const addService = socialContract.write.addService([[2]], {
-      value: parseGwei('999'),
-      account: owner,
-    });
-    await expect(addService).to.be.rejectedWith('InsufficientPayment()');
-  });
- */
-
-  /*   it('addService should revert with NotAuthorize', async function () {
-    const socialContract = await deployAndExecuteUntilStep(STEP.CREATED);
-    const addService = socialContract.connect(wallets[3]).addService([2]);
-    await expect(addService).to.be.rejectedWith('OwnableUnauthorizedAccount');
-  }); */
-
-  it('addMoreUser: should revert if not owner', async function () {
+  it('addMoreUser: should revert if not admin', async function () {
     const socialContract = await deployAndExecuteUntilStep(
       STEP.CONTRACT_DEPLOYED
     );
-    const tree = getTree([owner, user2]);
+    const tree = getTree([admin, user2]);
     const addMoreUser = socialContract
-      .connect(wallets[3])
+      .connect(wallets[4])
       .addMoreUser(users, tree.getHexRoot() as Address);
 
-    await expect(addMoreUser).to.be.rejectedWith('OwnableUnauthorizedAccount');
+    await expect(addMoreUser).to.be.rejectedWith('OnlyAdmin');
+  });
+
+  it('should revert toggleServices if not owner', async function () {
+    const socialContract = await deployAndExecuteUntilStep(
+      STEP.CONTRACT_DEPLOYED
+    );
+
+    it('getCurrentCID should revert is not user registered', async () => {
+      const socialContract = await deployAndExecuteUntilStep(
+        STEP.CONTRACT_DEPLOYED
+      );
+      await expect(
+        socialContract.connect(wallets[4]).toggleServices()
+      ).revertedWithCustomError(socialContract, 'OwnableUnauthorizedAccount');
+    });
+  });
+
+  it('should return disabled service', async () => {
+    const socialContract = await deployAndExecuteUntilStep(
+      STEP.CONTRACT_DEPLOYED
+    );
+
+    await socialContract.connect(wallets[0]).toggleServices();
+    const isServiceActive = await socialContract
+      .connect(wallets[4])
+      .isServiceActive(1);
+
+    assert.isFalse(isServiceActive);
   });
 });

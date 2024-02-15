@@ -3,52 +3,52 @@ pragma solidity 0.8.22;
 
 import "@openzeppelin/contracts/utils/cryptography/MerkleProof.sol";
 import "@openzeppelin/contracts/access/Ownable.sol";
-import "hardhat/console.sol";
 
 /// @title SocialAccount
 /// @notice Manages user accounts and services for a decentralized social network.
-/// This contract handles service activations, user verifications, and payments.
+/// @dev This contract handles service activations, user verifications, and payments.
+/// It uses MerkleProof from OpenZeppelin to verify user data.
 contract SocialAccount is Ownable {
-    /// @notice Custom error for invalid Merkle proof during user verification.
-    error MerkleProofIsNotValid();
+    error OnlyAdmin();
 
-    /// @notice Custom error when trying to add a service that already exists.
-    error ServiceAlreadyAdded();
-
-    /// @notice Custom error for unauthorized administrative actions.
-    error NotAuthorize();
-
-    /// @notice Custom error for unauthorized user actions.
-    error NotUserAuthorize();
-
-    uint256 leavesCount;
+    address admin;
     bytes32 public merkleRoot;
 
+    /// @dev Enum representing various services available in the network.
     enum Services {
         None,
         SocialNetworkPublic,
         SocialMessenger,
-        SocialDiscord
+        SocialProfile
     }
+    uint256 leavesCount;
 
     mapping(Services => bool) services;
     address[] public users;
 
-    /// events
     event UsersCreated(address[] _users);
 
-    /// @notice Initializes the contract and sets the owner/admin.
+    /// @notice Initializes the contract with the owner, admin, initial users, and Merkle root.
     /// @param _owner The address of the owner/admin of the contract.
+    /// @param _admin The address of the admin.
+    /// @param _to Initial list of user addresses.
+    /// @param _merkleRoot The Merkle root used for user verification.
     constructor(
         address _owner,
+        address _admin,
         address[] memory _to,
         bytes32 _merkleRoot
     ) Ownable(_owner) {
+        admin = _admin;
         _createOrUpdate(_to.length, _merkleRoot);
-        _addServices();
+        _updateService(true);
         emit UsersCreated(_to);
     }
 
+    /// @dev Internal function to verify a user's address using a Merkle proof.
+    /// @param _user The user's address to verify.
+    /// @param _proof The Merkle proof to validate the user's address.
+    /// @return True if the user's address is verified, false otherwise.
     function _verifyMessage(
         address _user,
         bytes32[] calldata _proof
@@ -61,7 +61,14 @@ contract SocialAccount is Ownable {
             );
     }
 
-    /// @notice Verifies if a specified service is active.
+    /// @dev Internal function to update the status of services in the network.
+    /// @param _val Boolean value to enable or disable services.
+    function _updateService(bool _val) private {
+        services[Services.SocialNetworkPublic] = _val;
+        services[Services.SocialMessenger] = _val;
+    }
+
+    /// @notice Checks if a specified service is currently active.
     /// @param _service The service to check.
     /// @return True if the service is active, false otherwise.
     function isServiceActive(Services _service) external view returns (bool) {
@@ -69,8 +76,8 @@ contract SocialAccount is Ownable {
     }
 
     /// @notice Verifies if a user is registered in the network.
-    /// @param _user The user's address.
-    /// @param _proof Merkle proof for user verification.
+    /// @param _user The user's address to verify.
+    /// @param _proof The Merkle proof for the user's verification.
     /// @return True if the user is registered, false otherwise.
     function isUser(
         address _user,
@@ -79,37 +86,30 @@ contract SocialAccount is Ownable {
         return _verifyMessage(_user, _proof);
     }
 
-    /*     function _addService(Services[] calldata _services) private {
-        for (uint8 i = 0; i < _services.length; i++) {
-            if (!services[_services[i]]) {
-                services[_services[i]] = true;
-            }
-        }
-    }
- */
+    /// @dev Internal function to add or update the Merkle root and increment the leaves count.
+    /// @param _size The number of new leaves (users) to add.
+    /// @param _merkleRoot The new Merkle root.
     function _createOrUpdate(uint256 _size, bytes32 _merkleRoot) private {
         merkleRoot = _merkleRoot;
         leavesCount += _size;
     }
 
-    /// @notice Adds more users to existing services.
-    /// @param _to User addresses to be added.
-    /// @param _merkleRoot The Merkle root for user verification.
-    function addMoreUser(
-        address[] calldata _to,
-        bytes32 _merkleRoot
-    ) external onlyOwner {
+    /// @notice Adds more users to the network and updates the Merkle root.
+    /// @param _to Array of user addresses to be added.
+    /// @param _merkleRoot The new Merkle root for user verification.
+    function addMoreUser(address[] calldata _to, bytes32 _merkleRoot) external {
+        if (admin != msg.sender) {
+            revert OnlyAdmin();
+        }
         _createOrUpdate(_to.length, _merkleRoot);
-        for (uint8 i = 0; i < _to.length; i++) {
+        for (uint16 i = 0; i < _to.length; i++) {
             users.push(_to[i]);
         }
         emit UsersCreated(users);
     }
 
-    /// @notice Allows the admin to add new services to the network.
-    function _addServices() private {
-        services[Services.SocialNetworkPublic] = true;
-        services[Services.SocialMessenger] = true;
-        services[Services.SocialDiscord] = true;
+    /// @notice Toggles the activation status of services in the network.
+    function toggleServices() external onlyOwner {
+        _updateService(!services[Services.SocialNetworkPublic]);
     }
 }
