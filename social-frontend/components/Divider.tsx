@@ -9,9 +9,11 @@ export default function Divider({ children }: { children: ReactNode }) {
 Divider.Line = () => <div className="divider lg:divider-horizontal" />;
 
 Divider.Left = ({ children }: { children?: ReactNode }) => (
-  <div className="grid flex-grow h-full card place-items-start">{children}</div>
+  <div className="grid flex-grow w-full h-full card place-items-start">
+    {children}
+  </div>
 );
 
 Divider.Right = ({ children }: { children?: ReactNode }) => (
-  <div className="grid flex-grow h-full place-items-end">{children}</div>
+  <div className="grid h-full max-w-md place-items-end">{children}</div>
 );
