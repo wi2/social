@@ -45,7 +45,7 @@ async function deployAndExecuteAccountSocial() {
   return contract;
 }
 
-async function deployAndExecuteUntilStep(step = STEP.CONTRACT_DEPLOYED) {
+async function deployAndExecuteUntilStep() {
   const accountContract = await deployAndExecuteAccountSocial();
   const wallets = await ethers.getSigners();
   const [owner, admin, user2, user3] = await getAccountAdresses();
@@ -79,18 +79,14 @@ describe('SocialProfile Contract', () => {
   });
 
   it('should create profile', async () => {
-    const SocialProfile = await deployAndExecuteUntilStep(
-      STEP.CONTRACT_DEPLOYED
-    );
+    const SocialProfile = await deployAndExecuteUntilStep();
     await expect(SocialProfile.connect(wallets[1]).createProfile(user2, 'Tom'))
       .to.emit(SocialProfile, 'CreateProfile')
       .withArgs(user2);
   });
 
   it('should update pseudo and emit event', async () => {
-    const SocialProfile = await deployAndExecuteUntilStep(
-      STEP.CONTRACT_DEPLOYED
-    );
+    const SocialProfile = await deployAndExecuteUntilStep();
     await expect(
       SocialProfile.connect(wallets[2]).updatePseudo('My pseudo', proofUser2)
     )
@@ -99,9 +95,7 @@ describe('SocialProfile Contract', () => {
   });
 
   it('should update status and emit event', async () => {
-    const SocialProfile = await deployAndExecuteUntilStep(
-      STEP.CONTRACT_DEPLOYED
-    );
+    const SocialProfile = await deployAndExecuteUntilStep();
     await expect(
       SocialProfile.connect(wallets[2]).updateStatus(true, proofUser2)
     )
@@ -110,9 +104,7 @@ describe('SocialProfile Contract', () => {
   });
 
   it('Should revert getCurrentCID if not user', async () => {
-    const SocialProfile = await deployAndExecuteUntilStep(
-      STEP.CONTRACT_DEPLOYED
-    );
+    const SocialProfile = await deployAndExecuteUntilStep();
     await expect(
       SocialProfile.connect(wallets[4]).updatePseudo(
         'my pseudo',
@@ -122,9 +114,7 @@ describe('SocialProfile Contract', () => {
   });
 
   it('should revert getCurrentCID  is not user registered', async () => {
-    const SocialProfile = await deployAndExecuteUntilStep(
-      STEP.CONTRACT_DEPLOYED
-    );
+    const SocialProfile = await deployAndExecuteUntilStep();
     await SocialProfile.connect(wallets[2]).updatePseudo(
       'My pseudo',
       proofUser2
@@ -134,9 +124,7 @@ describe('SocialProfile Contract', () => {
   });
 
   it('Should revert updateStatus is not user registered', async () => {
-    const SocialProfile = await deployAndExecuteUntilStep(
-      STEP.CONTRACT_DEPLOYED
-    );
+    const SocialProfile = await deployAndExecuteUntilStep();
     await expect(
       SocialProfile.connect(wallets[4]).updateStatus(
         false,
@@ -146,9 +134,7 @@ describe('SocialProfile Contract', () => {
   });
 
   it('should revert CreateProfile with NotAuthorize', async function () {
-    const socialProfile = await deployAndExecuteUntilStep(
-      STEP.CONTRACT_DEPLOYED
-    );
+    const socialProfile = await deployAndExecuteUntilStep();
     const addService = socialProfile
       .connect(wallets[3])
       .createProfile(user2, 'Tom');
