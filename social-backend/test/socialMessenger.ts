@@ -2,7 +2,7 @@ import { ethers } from 'hardhat';
 import { assert, expect } from 'chai';
 import { SocialNetworkMessenger } from '../typechain-types';
 import { Signer } from 'ethers';
-import { Address, Hex, keccak256, parseGwei, toBytes } from 'viem';
+import { Address, Hex, keccak256, toBytes } from 'viem';
 import MerkleTree from 'merkletreejs';
 
 const getAccountAdresses = async () => {
@@ -22,14 +22,13 @@ function getHexProof(users: Hex[], user: string) {
 }
 
 const MSG_CID = keccak256(toBytes('1st message'));
-const MSG_CID2 = keccak256(toBytes('1st second message'));
 
 // Steps for the test scenario
 const STEP = {
   CONTRACT_DEPLOYED: 0,
-  SENDED_MESSAGE: 3,
-  DISABLED_SERVICE: 4,
-  CLOSE: 7,
+  SENDED_MESSAGE: 1,
+  DISABLED_SERVICE: 2,
+  CLOSE: 3,
 };
 
 async function deployAndExecuteAccountSocial() {
@@ -65,18 +64,10 @@ async function deployAndExecuteUntilStep(step = STEP.CONTRACT_DEPLOYED) {
   const usersAdded = [user2, admin, user3];
 
   if (step >= STEP.SENDED_MESSAGE) {
-    const currentCid = await SocialNetWorkMessenger.connect(
-      wallets[3]
-    ).getCurrentCID(user2, getHexProof(usersAdded, user3));
-
-    const proofCid = getHexProof([currentCid as Hex, MSG_CID], MSG_CID);
-    const treeCid = getTree([currentCid, MSG_CID]);
     const proof = getHexProof(usersAdded, user3);
     await SocialNetWorkMessenger.connect(wallets[3]).sendMessage(
       MSG_CID,
       user2,
-      proofCid,
-      treeCid.getHexRoot(),
       proof
     );
   }
@@ -128,48 +119,16 @@ describe('SocialNetWorkMessenger Contract', () => {
       const SocialNetWorkMessenger = await deployAndExecuteUntilStep(
         STEP.SENDED_MESSAGE
       );
-      const currentCid = await SocialNetWorkMessenger.connect(
-        wallets[3]
-      ).getCurrentCID(user2, getHexProof(usersAdded, user3));
-      const proofCid = getHexProof([currentCid as Hex, MSG_CID], MSG_CID);
-      const treeCid = getTree([currentCid, MSG_CID]);
-      const proof = getHexProof(usersAdded, user3);
-
+      const proof = getHexProof(usersAdded, user2);
       await expect(
-        SocialNetWorkMessenger.connect(wallets[3]).sendMessage(
+        SocialNetWorkMessenger.connect(wallets[2]).sendMessage(
           MSG_CID,
-          user2,
-          proofCid,
-          treeCid.getHexRoot(),
+          user3,
           proof
         )
       )
         .to.emit(SocialNetWorkMessenger, 'MessageSended')
-        .withArgs(user3, user2, MSG_CID);
-    });
-
-    it('Should revert sendMessage if last message is not ok', async () => {
-      const SocialNetWorkMessenger = await deployAndExecuteUntilStep(
-        STEP.SENDED_MESSAGE
-      );
-
-      const currentCid = await SocialNetWorkMessenger.connect(
-        wallets[3]
-      ).getCurrentCID(user2, getHexProof(usersAdded, user3));
-
-      const treeCid = getTree([currentCid, MSG_CID2]);
-      const proofCid = getHexProof([MSG_CID, MSG_CID2], MSG_CID2);
-      const proof = getHexProof(usersAdded, user3);
-
-      await expect(
-        SocialNetWorkMessenger.connect(wallets[3]).sendMessage(
-          MSG_CID2,
-          user2,
-          proofCid,
-          treeCid.getHexRoot(),
-          proof
-        )
-      ).revertedWithCustomError(SocialNetWorkMessenger, 'LastMessageIsNotOk');
+        .withArgs(user2, user3, MSG_CID);
     });
   });
 
@@ -192,7 +151,7 @@ describe('SocialNetWorkMessenger Contract', () => {
   /////////
   /////////
   describe('OnlyUser', () => {
-    it('getCurrentCID should revert is not user registered', async () => {
+    it('Should revert getCurrentCID if not user registered', async () => {
       const SocialNetWorkMessenger = await deployAndExecuteUntilStep(
         STEP.CONTRACT_DEPLOYED
       );
@@ -204,7 +163,20 @@ describe('SocialNetWorkMessenger Contract', () => {
       ).revertedWithCustomError(SocialNetWorkMessenger, 'OnlyUser');
     });
 
-    it('burnChat should revert is not user registered', async () => {
+    it('should revert sendMessage if service is not active', async () => {
+      const SocialNetWorkMessenger = await deployAndExecuteUntilStep(
+        STEP.CONTRACT_DEPLOYED
+      );
+      await expect(
+        SocialNetWorkMessenger.connect(wallets[4]).sendMessage(
+          MSG_CID,
+          user3,
+          getHexProof(usersAdded, notUser1)
+        )
+      ).revertedWithCustomError(SocialNetWorkMessenger, 'OnlyUser');
+    });
+
+    it('Should revert burnChat if not user registered', async () => {
       const SocialNetWorkMessenger = await deployAndExecuteUntilStep(
         STEP.CONTRACT_DEPLOYED
       );
@@ -222,7 +194,7 @@ describe('SocialNetWorkMessenger Contract', () => {
   /////////
   /////////
   describe('OnlyService', () => {
-    it('should revert is service is not active', async () => {
+    it('should revert getCurrentCID if service is not active', async () => {
       const SocialNetWorkMessenger = await deployAndExecuteUntilStep(
         STEP.DISABLED_SERVICE
       );
@@ -234,7 +206,22 @@ describe('SocialNetWorkMessenger Contract', () => {
       ).revertedWithCustomError(SocialNetWorkMessenger, 'OnlyService');
     });
 
-    it('should revert is service is not active', async () => {
+    it('should revert sendMessage if service is not active', async () => {
+      const SocialNetWorkMessenger = await deployAndExecuteUntilStep(
+        STEP.DISABLED_SERVICE
+      );
+
+      const proof = getHexProof(usersAdded, user2);
+      await expect(
+        SocialNetWorkMessenger.connect(wallets[2]).sendMessage(
+          MSG_CID,
+          user3,
+          proof
+        )
+      ).revertedWithCustomError(SocialNetWorkMessenger, 'OnlyService');
+    });
+
+    it('should revert burnChat if service is not active', async () => {
       const SocialNetWorkMessenger = await deployAndExecuteUntilStep(
         STEP.DISABLED_SERVICE
       );

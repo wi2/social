@@ -3,21 +3,16 @@ pragma solidity 0.8.22;
 
 import "@openzeppelin/contracts/utils/cryptography/MerkleProof.sol";
 import "./SocialBaseCommon.sol";
+import "hardhat/console.sol";
 
 /// @title Social Network Messenger
 /// @dev Extends SocialBaseCommon for messaging functionalities in a social network.
 /// Handles chat management, message encryption, invitation control, and chat secret management.
 contract SocialNetworkMessenger is SocialBaseCommon {
-    error LastMessageIsNotOk();
-
     /// @dev Struct representing a chat session between users.
     /// Contains the current chat Content Identifier (CID) and Merkle root of all CIDs in the chat.
-    struct Chat {
-        bytes32 currentCID;
-        bytes32 merkleCIDs;
-    }
 
-    mapping(bytes32 => Chat) chats;
+    mapping(bytes32 => bytes32) chats;
 
     event MessageSended(
         address indexed _from,
@@ -49,24 +44,6 @@ contract SocialNetworkMessenger is SocialBaseCommon {
             );
     }
 
-    /// @dev Verifies the integrity and membership of a message in a chat session using Merkle proof.
-    /// @param _cid The CID of the message to verify.
-    /// @param _merkleCIDs The Merkle root of the chat's messages.
-    /// @param _proof The Merkle proof validating the message's existence in the chat.
-    /// @return True if the message is verified, false otherwise.
-    function _verifyMessage(
-        bytes32 _cid,
-        bytes32 _merkleCIDs,
-        bytes32[] calldata _proof
-    ) private pure returns (bool) {
-        return
-            MerkleProof.verifyCalldata(
-                _proof,
-                _merkleCIDs,
-                keccak256(abi.encodePacked(_cid))
-            );
-    }
-
     /// @notice Retrieves the current Content Identifier (CID) in a chat with a specific user.
     /// @param _to The address of the user with whom the chat CID is associated.
     /// @param _proof Merkle proof to verify the caller's identity in the network.
@@ -75,31 +52,20 @@ contract SocialNetworkMessenger is SocialBaseCommon {
         address _to,
         bytes32[] calldata _proof
     ) external view onlyService onlyUser(_proof) returns (bytes32) {
-        return chats[_getChatKey(_to)].currentCID;
+        return chats[_getChatKey(_to)];
     }
 
     /// @notice Sends a message in a chat session by updating the CID.
     /// @param _newCid The new Content Identifier for the message being sent.
     /// @param _to The address of the recipient in the chat.
-    /// @param _proofCIDs Merkle proof to verify the sender's identity in the network.
-    /// @param _merkleCIDs The updated Merkle root including the new CID.
     /// @param _proof Merkle proof to verify the sender's identity in the network.
     function sendMessage(
         bytes32 _newCid,
         address _to,
-        bytes32[] calldata _proofCIDs,
-        bytes32 _merkleCIDs,
         bytes32[] calldata _proof
     ) external onlyService onlyUser(_proof) {
         bytes32 chatCode = _getChatKey(_to);
-        if (
-            chats[chatCode].currentCID != bytes32(0) &&
-            !_verifyMessage(chats[chatCode].currentCID, _merkleCIDs, _proofCIDs)
-        ) {
-            revert LastMessageIsNotOk();
-        }
-        chats[chatCode].currentCID = _newCid;
-        chats[chatCode].merkleCIDs = _merkleCIDs;
+        chats[chatCode] = _newCid;
         emit MessageSended(msg.sender, _to, _newCid);
     }
 
