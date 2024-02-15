@@ -27,6 +27,7 @@ export default function useWatchAll() {
           ...jsonFiles[JSON_FILES.network].abi,
           ...jsonFiles[JSON_FILES.messenger].abi,
           ...jsonFiles[JSON_FILES.account].abi,
+          ...jsonFiles[JSON_FILES.profile].abi,
         ],
         onLogs: (l) => {
           setData(l);
