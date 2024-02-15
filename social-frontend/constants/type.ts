@@ -96,7 +96,7 @@ export type MessageAuthorType = {
   address: string;
 };
 
-export type MessageType = {
+export type MessageTemplate = {
   metadata: metadataMessageType;
   from: MessageAuthorType;
   to: MessageAuthorType;
@@ -120,6 +120,12 @@ export type CustomLogArticleArgsType = {
 
 export type CustomLogUserArgsType = {
   _users: Address[];
+};
+
+export type CustomLogMessageArgsType = {
+  _from: Address;
+  _to: Address;
+  _cid: Address;
 };
 
 export type MetadataTemplate = {

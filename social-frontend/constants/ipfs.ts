@@ -39,7 +39,7 @@ const comment = {
   comment: '',
 };
 
-const message = {
+export const messageTemplate = {
   metadata: {
     parent: '', // previous CID message
     timestamp: '',
