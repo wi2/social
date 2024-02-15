@@ -15,6 +15,7 @@ import {
   CustomLogArticleArgsType,
   CustomLogFollowArgsType,
   CustomLogMessageArgsType,
+  CustomLogProfileArgsType,
   CustomLogType,
   CustomLogUserArgsType,
 } from '../constants/type';
@@ -25,8 +26,11 @@ import {
   getMessages,
   getPins,
 } from '../utils/contract';
-import { useAccount } from 'wagmi';
+import { Address, useAccount } from 'wagmi';
 import useWatchAll from '../hooks/useWatchAll';
+
+type objectType = { [k: Address]: string };
+type profileType = keyof objectType;
 
 interface ContractContextType {
   isConnected: boolean;
@@ -40,6 +44,7 @@ interface ContractContextType {
   likes?: CustomLogType<CustomLogActionArgsType>[];
   pins?: CustomLogType<CustomLogActionArgsType>[];
   messages?: CustomLogType<CustomLogMessageArgsType>[];
+  profiles?: any;
 }
 
 export const ContractContext = createContext<ContractContextType>({
@@ -57,6 +62,7 @@ export const ContractProvider = ({ children }: { children: ReactNode }) => {
     unpinned: [],
     articlesPosted: [],
     messages: [],
+    profiles: [],
   });
   const data = useWatchAll();
 
@@ -67,6 +73,13 @@ export const ContractProvider = ({ children }: { children: ReactNode }) => {
   const users = useWatch<CustomLogUserArgsType>(
     jsonFiles[JSON_FILES.account].abi.find(
       ({ name, type }) => name === 'UsersCreated' && type === 'event'
+    )
+  );
+
+  // profile
+  const UpdatePseudo = useWatch<CustomLogProfileArgsType>(
+    jsonFiles[JSON_FILES.profile].abi.find(
+      ({ name, type }) => name === 'UpdatePseudo' && type === 'event'
     )
   );
 
@@ -185,6 +198,15 @@ export const ContractProvider = ({ children }: { children: ReactNode }) => {
     }
   }, [data?.[0]?.blockNumber, setWatchData]);
 
+  const allProfiles = [...UpdatePseudo, ...watchData.profiles];
+  const profiles = allProfiles.reduce(
+    (acc: objectType, cur: any) => ({
+      ...acc,
+      [`profile-${cur?.args._user}`]: cur?.args._pseudo,
+    }),
+    {}
+  );
+
   return (
     <ContractContext.Provider
       value={{
@@ -197,6 +219,7 @@ export const ContractProvider = ({ children }: { children: ReactNode }) => {
         likes,
         pins,
         messages,
+        profiles,
       }}
     >
       {children}

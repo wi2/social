@@ -17,7 +17,7 @@ export default function Layout({ children }: { children: ReactNode }) {
   const { theme } = useTheme();
   const project = useGetProject();
 
-  const { users, follows } = useContract();
+  const { users, follows, profiles } = useContract();
   const allUsers = users?.map((user) => user?.args._users).flat();
 
   return (
@@ -30,16 +30,19 @@ export default function Layout({ children }: { children: ReactNode }) {
           <Drawer.Side>
             {follows?.length ? (
               <Accordion name="accordion-side" title="Follow" checked>
-                {follows?.map((user) => (
-                  <li key={`follow-${user?.args._userFollow}`}>
-                    <a
-                      href={`/project/messenger?_slug=${query._slug}&_to=${user?.args._userFollow}`}
-                    >
-                      <Avatar name={user?.args._userFollow} />
-                      {displayAdress(user?.args._userFollow)}
-                    </a>
-                  </li>
-                ))}
+                {follows?.map((user) => {
+                  return (
+                    <li key={`follow-${user?.args._userFollow}`}>
+                      <a
+                        href={`/project/messenger?_slug=${query._slug}&_to=${user?.args._userFollow}`}
+                      >
+                        <Avatar name={user?.args._userFollow} />
+                        {profiles[`profile-${user?.args._userFollow}`] ||
+                          displayAdress(user?.args._userFollow)}
+                      </a>
+                    </li>
+                  );
+                })}
               </Accordion>
             ) : null}
 
@@ -51,7 +54,7 @@ export default function Layout({ children }: { children: ReactNode }) {
                       href={`/project/messenger?_slug=${query._slug}&_to=${user}`}
                     >
                       <Avatar name={user} />
-                      {displayAdress(user)}
+                      {profiles?.[`profile-${user}`] || displayAdress(user)}
                     </a>
                   </li>
                 ))}

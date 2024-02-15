@@ -122,6 +122,11 @@ export type CustomLogUserArgsType = {
   _users: Address[];
 };
 
+export type CustomLogProfileArgsType = {
+  _pseudo: string;
+  _user: Address;
+};
+
 export type CustomLogMessageArgsType = {
   _from: Address;
   _to: Address;
