@@ -105,7 +105,7 @@ export function getFollowers<T = CustomLogFollowArgsType>(
     .forEach((item: CustomLogType<T>) => {
       const itemType = item as CustomLogType<CustomLogFollowArgsType>;
       if (itemType) {
-        const _userFollow = itemType.args._userFollow;
+        const { _userFollow } = itemType.args;
         if (itemType.eventName === 'Followed') {
           finalMap.set(_userFollow, item);
         } else if (itemType.eventName === 'Unfollowed') {
@@ -118,26 +118,20 @@ export function getFollowers<T = CustomLogFollowArgsType>(
 
 export function getLikes<T = CustomLogActionArgsType>(
   liked: CustomLogType<T>[],
-  unliked: CustomLogType<T>[],
-  user: Address | undefined
+  unliked: CustomLogType<T>[]
 ) {
   const finalMap = new Map();
-  getEventSorted<T>(liked, unliked)
-    .filter(
-      (item) =>
-        (item as CustomLogType<CustomLogActionArgsType>)?.args._me === user
-    )
-    .forEach((item) => {
-      const itemType = item as CustomLogType<CustomLogActionArgsType>;
-      if (itemType) {
-        const { _cid } = itemType.args;
-        if (itemType.eventName === 'Liked') {
-          finalMap.set(_cid, itemType);
-        } else if (itemType.eventName === 'Unliked') {
-          finalMap.delete(_cid);
-        }
+  getEventSorted<T>(liked, unliked).forEach((item) => {
+    const itemType = item as CustomLogType<CustomLogActionArgsType>;
+    if (itemType) {
+      const { _cid, _me } = itemType.args;
+      if (itemType.eventName === 'Liked') {
+        finalMap.set(`${_me}${_cid}`, itemType);
+      } else if (itemType.eventName === 'Unliked') {
+        finalMap.delete(`${_me}${_cid}`);
       }
-    });
+    }
+  });
   return Array.from(finalMap.values());
 }
 
@@ -149,11 +143,11 @@ export function getPins<T = CustomLogActionArgsType>(
   getEventSorted(pinned, unpinned).forEach((item) => {
     const itemType = item as CustomLogType<CustomLogActionArgsType>;
     if (itemType) {
-      const { _cid } = itemType.args;
+      const { _cid, _me } = itemType.args;
       if (itemType.eventName === 'Pinned') {
-        finalMap.set(_cid, item);
+        finalMap.set(`${_me}${_cid}`, item);
       } else if (itemType.eventName === 'Unpinned') {
-        finalMap.delete(_cid);
+        finalMap.delete(`${_me}${_cid}`);
       }
     }
   });

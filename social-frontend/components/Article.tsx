@@ -15,7 +15,7 @@ import { useAccount } from 'wagmi';
 export default function Article({ cid }: { cid: any }) {
   const { address } = useAccount();
   const [article, setArticle] = useState<ArticleTemplate>();
-  const { likes, pins, follows } = useContract();
+  const { likes, pins, follows, allLikes } = useContract();
   const { setLike, isLoading: isLoadingLike } = useLike(cid);
   const { setPin, isLoading: isLoadingPin } = usePin(cid);
   const { setUserFollow, isLoading: isLoadingFollow } = useFollow(
@@ -27,6 +27,7 @@ export default function Article({ cid }: { cid: any }) {
   const isFollow =
     follows?.some((flw) => flw?.args._userFollow === article?.author.address) ||
     false;
+  const nbLikes = allLikes?.filter((like) => like?.args._cid === cid).length;
 
   const handleFollow = useCallback(() => {
     setUserFollow(article?.author.address as Address, !isFollow);
@@ -92,10 +93,13 @@ export default function Article({ cid }: { cid: any }) {
               <Loader />
             </span>
           ) : (
-            <Swap active={isLiked} onClick={handleLike}>
-              <Icons icon="liked" />
-              <Icons icon="unliked" />
-            </Swap>
+            <div className="indicator">
+              <Swap active={isLiked} onClick={handleLike}>
+                <Icons icon="liked" />
+                <Icons icon="unliked" />
+              </Swap>
+              <span className="badge badge-sm indicator-item">{nbLikes}</span>
+            </div>
           )}
         </div>
       </div>
