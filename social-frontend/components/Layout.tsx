@@ -49,39 +49,44 @@ export default function Layout({ children }: { children: ReactNode }) {
                   ?.filter((user) => user !== address)
                   .map((user) => (
                     <li
-                      className="flex flex-row justify-between"
+                      className="flex flex-row justify-between items-center"
                       key={`users-${user}`}
                     >
-                      <a
-                        href={`/project/messenger?_slug=${query._slug}&_to=${user}`}
-                      >
+                      <a href={`/project?_slug=${query._slug}&_to=${user}`}>
                         <Avatar name={user} />
                         {profiles?.[`profile-${user}`] || displayAdress(user)}
                       </a>
-                      {isLoading || isFetching ? (
-                        <span className="inline-grid ">
-                          <Loader />
-                        </span>
-                      ) : (
-                        <Swap
-                          active={
-                            myFollows?.some(
-                              (follow) => follow?.args._userFollow === user
-                            ) || false
-                          }
-                          onClick={() =>
-                            handleFollow(
-                              user as Address,
-                              !myFollows?.some(
+                      <span>
+                        {isLoading || isFetching ? (
+                          <span className="inline-grid ">
+                            <Loader />
+                          </span>
+                        ) : (
+                          <Swap
+                            active={
+                              myFollows?.some(
                                 (follow) => follow?.args._userFollow === user
                               ) || false
-                            )
-                          }
+                            }
+                            onClick={() =>
+                              handleFollow(
+                                user as Address,
+                                !myFollows?.some(
+                                  (follow) => follow?.args._userFollow === user
+                                ) || false
+                              )
+                            }
+                          >
+                            <Icons icon="followed" />
+                            <Icons icon="unfollowed" />
+                          </Swap>
+                        )}
+                        <a
+                          href={`/project/messenger?_slug=${query._slug}&_to=${user}`}
                         >
-                          <Icons icon="followed" />
-                          <Icons icon="unfollowed" />
-                        </Swap>
-                      )}
+                          <Icons icon="chat" />
+                        </a>
+                      </span>
                     </li>
                   ))}
               </Accordion>
@@ -99,31 +104,37 @@ export default function Layout({ children }: { children: ReactNode }) {
                       key={`follow-${user?.args._userFollow}`}
                     >
                       <a
-                        href={`/project/messenger?_slug=${query._slug}&_to=${user?.args._userFollow}`}
+                        href={`/project?_slug=${query._slug}&_to=${user?.args._userFollow}`}
                       >
                         <Avatar name={user?.args._userFollow} />
                         {profiles[`profile-${user?.args._userFollow}`] ||
                           displayAdress(user?.args._userFollow)}
                       </a>
-
-                      {isLoading ? (
-                        <span className="inline-grid ">
-                          <Loader />
-                        </span>
-                      ) : (
-                        <Swap
-                          active
-                          onClick={() =>
-                            handleFollow(
-                              user?.args._userFollow as Address,
-                              false
-                            )
-                          }
+                      <span>
+                        {isLoading ? (
+                          <span className="inline-grid ">
+                            <Loader />
+                          </span>
+                        ) : (
+                          <Swap
+                            active
+                            onClick={() =>
+                              handleFollow(
+                                user?.args._userFollow as Address,
+                                false
+                              )
+                            }
+                          >
+                            <Icons icon="followed" />
+                            <Icons icon="unfollowed" />
+                          </Swap>
+                        )}
+                        <a
+                          href={`/project/messenger?_slug=${query._slug}&_to=${user?.args._userFollow}`}
                         >
-                          <Icons icon="followed" />
-                          <Icons icon="unfollowed" />
-                        </Swap>
-                      )}
+                          <Icons icon="chat" />
+                        </a>
+                      </span>
                     </li>
                   );
                 })}
