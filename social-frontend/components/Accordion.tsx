@@ -1,4 +1,4 @@
-import { ReactNode } from 'react';
+import { ReactNode, useState } from 'react';
 
 export default function ({
   children,
@@ -11,13 +11,18 @@ export default function ({
   title: string;
   checked?: boolean;
 }) {
+  const [check, setChecked] = useState(checked);
+
   return (
     <div className="collapse collapse-arrow bg-base-200 bg-opacity-80 mb-4 rounded">
       <input
         type="radio"
         name={name}
-        onChange={(e) => e.preventDefault()} /* to prevent warning */
-        checked={checked}
+        onChange={(e) => {
+          e.preventDefault();
+          setChecked(!check);
+        }}
+        defaultChecked={check}
       />
       <div className="collapse-title text-xl font-medium">{title}</div>
       <div className="collapse-content">{children}</div>
