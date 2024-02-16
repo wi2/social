@@ -46,7 +46,7 @@ export function getTree(users: Address[]) {
 
 export function getHexProof(users: Address[], user: Address | undefined) {
   const tree = getTree(users);
-  const leaf = keccak256(user as Address);
+  const leaf = keccak256((user || '0x') as Address);
   return tree.getHexProof(leaf) as Address[];
 }
 
