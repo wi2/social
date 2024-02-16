@@ -1,4 +1,4 @@
-import { FormEvent, ReactNode, useCallback } from 'react';
+import { FormEvent, ReactNode, useCallback, useEffect, useState } from 'react';
 import useIsUser from '../hooks/useIsUser';
 import Input from './Input';
 import useIsConnected from '../hooks/useIsConnected';
@@ -6,9 +6,11 @@ import Loader from './Loader';
 import useUpdatePseudo from '../hooks/useUpdatePseudo';
 import { useAccount } from 'wagmi';
 import useContract from '../context/Contract';
+import NotConnected from './NotConnected';
 
 export default function Authorize({ children }: { children: ReactNode }) {
-  const { address } = useAccount();
+  const [isReady, setReady] = useState(false);
+  const { address, isConnecting } = useAccount();
   const isConnected = useIsConnected();
   const isUser = useIsUser();
   const { setPseudo } = useUpdatePseudo();
@@ -23,16 +25,27 @@ export default function Authorize({ children }: { children: ReactNode }) {
     [setPseudo]
   );
 
+  useEffect(() => {
+    setTimeout(() => {
+      setReady(true);
+    }, 200);
+  }, []);
+
+  if (!isConnected && !isConnecting && isReady) {
+    return <NotConnected />;
+  }
+
   if (
     !isConnected ||
     isUser.isLoading ||
     isUser.isFetching ||
-    !isUser.isSuccess
+    !isUser.isSuccess ||
+    !isReady
   ) {
     return <Loader />;
   }
 
-  if (!isUser.data) {
+  if (!isUser.data && isReady) {
     return (
       <div className="hero">
         <div className="hero-content flex-col lg:flex-row bg-primary-content bg-opacity-70 rounded-md">
@@ -51,7 +64,7 @@ export default function Authorize({ children }: { children: ReactNode }) {
       </div>
     );
   }
-  if (!profiles[`profile-${address}`]) {
+  if (!profiles[`profile-${address}`] && isReady) {
     return (
       <div className="hero">
         <div className="hero-content flex-col lg:flex-row bg-primary-content bg-opacity-70 rounded-md">
