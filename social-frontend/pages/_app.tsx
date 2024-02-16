@@ -8,6 +8,7 @@ import { publicProvider } from 'wagmi/providers/public';
 import { alchemyProvider } from 'wagmi/providers/alchemy';
 import { ToastContextProvider } from '../components/Toast';
 import { Contract } from '../context/Contract';
+import { ThemeProvider } from '../context/Theme';
 
 const { chains, publicClient, webSocketPublicClient } = configureChains(
   [
@@ -43,11 +44,13 @@ function MyApp({ Component, pageProps }: AppProps) {
   return (
     <WagmiConfig config={wagmiConfig}>
       <RainbowKitProvider chains={chains}>
-        <ToastContextProvider>
-          <Contract>
-            <Component {...pageProps} />
-          </Contract>
-        </ToastContextProvider>
+        <ThemeProvider>
+          <ToastContextProvider>
+            <Contract>
+              <Component {...pageProps} />
+            </Contract>
+          </ToastContextProvider>
+        </ThemeProvider>
       </RainbowKitProvider>
     </WagmiConfig>
   );
