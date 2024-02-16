@@ -23,7 +23,12 @@ export default function Authorize({ children }: { children: ReactNode }) {
     [setPseudo]
   );
 
-  if (!isConnected || isUser.isLoading) {
+  if (
+    !isConnected ||
+    isUser.isLoading ||
+    isUser.isFetching ||
+    !isUser.isSuccess
+  ) {
     return <Loader />;
   }
 
