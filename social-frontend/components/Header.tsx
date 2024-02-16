@@ -33,7 +33,8 @@ export default function Header({ children }: { children?: ReactNode }) {
 
   const links = [
     { link: `/project?_slug=${query._slug}`, name: 'Home' },
-    { link: `/project/posts?_slug=${query._slug}`, name: 'Posts' },
+    { link: `/project/dashboard?_slug=${query._slug}`, name: 'Dashboard' },
+    { link: `/project/posts?_slug=${query._slug}`, name: 'Add Post' },
   ];
 
   return (

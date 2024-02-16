@@ -1,6 +1,6 @@
 import { Address } from 'viem';
 
-export default function Avatar({ name }: { name: Address | undefined }) {
+export default function Avatar({ name }: { name?: Address | undefined }) {
   return (
     <div className="avatar online placeholder">
       <div className="bg-base-100 rounded-full w-12">
