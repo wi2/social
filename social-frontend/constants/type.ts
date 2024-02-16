@@ -160,4 +160,5 @@ export type ArticleTemplate = {
   author: AuthorTemplate;
   title: string;
   content: string;
+  retweet?: RetweetTemplate;
 };

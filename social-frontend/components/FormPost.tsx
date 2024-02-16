@@ -10,6 +10,7 @@ import { Address, useAccount } from 'wagmi';
 import usePost from '../hooks/usePost';
 import { ArticleTemplate } from '../constants/type';
 import { useRouter } from 'next/router';
+import useGetProfile from '../hooks/useGetProfile';
 
 export default function FormPost() {
   const { query } = useRouter();
@@ -17,6 +18,7 @@ export default function FormPost() {
   const { isConnected } = useContract();
   const { setCid } = usePost();
   const { articles } = useContract();
+  const profile = useGetProfile();
 
   const onSubmit = useCallback(
     (e: FormEvent<HTMLFormElement>) => {
@@ -34,11 +36,14 @@ export default function FormPost() {
         }
         newArticle.metadata.timestamp = now.getTime();
         newArticle.author.address = address;
+        newArticle.author.name = profile.data.pseudo;
         newArticle.title = titleArticle.value;
         newArticle.content = content.value;
 
         ipfsPin(titleArticle.value, newArticle).then((cid) => {
           setCid(cid as Address);
+          titleArticle.value = '';
+          content.value = '';
         });
       }
       main();

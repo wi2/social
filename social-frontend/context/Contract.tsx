@@ -216,7 +216,7 @@ export const ContractProvider = ({ children }: { children: ReactNode }) => {
         case eventName === 'Pinned':
           newData.pinned = data;
           break;
-        case eventName === 'ArticlesPosted':
+        case eventName === 'ArticlePosted':
           newData.articlesPosted = data;
           break;
         case eventName === 'MessageSended':
