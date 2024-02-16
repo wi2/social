@@ -2,7 +2,7 @@ import Icons from './Icons';
 import Swap from './Swap';
 import { ipfsGet } from '../utils/ipfs';
 import { useCallback, useEffect, useState } from 'react';
-import { ArticleTemplate, ArticleType } from '../constants/type';
+import { ArticleTemplate } from '../constants/type';
 import { dateFormat } from '../utils/common';
 import Loader from './Loader';
 import useContract from '../context/Contract';
@@ -18,7 +18,7 @@ export default function Article({ cid }: { cid: any }) {
   const { likes, pins, follows, users } = useContract();
   const { setLike, isLoading: isLoadingLike } = useLike(cid);
   const { setPin, isLoading: isLoadingPin } = usePin(cid);
-  const { setFollow, isLoading: isLoadingFollow } = useFollow(
+  const { setUserFollow, isLoading: isLoadingFollow } = useFollow(
     article?.author.address as Address
   );
 
@@ -29,12 +29,12 @@ export default function Article({ cid }: { cid: any }) {
     false;
 
   const handleFollow = useCallback(() => {
-    setFollow(!isFollow);
-  }, [isFollow]);
+    setUserFollow(article?.author.address as Address, !isFollow);
+  }, [isFollow, setUserFollow]);
 
   const handleLike = useCallback(() => {
     setLike(!isLiked);
-  }, [isLiked]);
+  }, [isLiked, setLike]);
 
   const handlePin = useCallback(() => {
     setPin(!isPinned);
@@ -69,7 +69,7 @@ export default function Article({ cid }: { cid: any }) {
             <span className="inline-grid ">
               <Loader />
             </span>
-          ) : (article?.author.address as Address) !== address ? null : (
+          ) : (article?.author.address as Address) === address ? null : (
             <Swap active={isFollow} onClick={handleFollow}>
               <Icons icon="followed" />
               <Icons icon="unfollowed" />
@@ -80,7 +80,7 @@ export default function Article({ cid }: { cid: any }) {
             <span className="inline-grid ">
               <Loader />
             </span>
-          ) : (article?.author.address as Address) === address ? null : (
+          ) : (article?.author.address as Address) !== address ? null : (
             <Swap active={isPinned} onClick={handlePin}>
               <Icons icon="pinned" />
               <Icons icon="unpinned" />
