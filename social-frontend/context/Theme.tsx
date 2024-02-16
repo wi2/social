@@ -16,6 +16,7 @@ export const ThemeContext = createContext<ThemeContextType>({});
 
 export const ThemeProvider = ({ children }: any) => {
   const [theme, setTheme] = useState(Theme.dark);
+  const [isMounted, setIsMounted] = useState(false);
 
   // Basculer le thème
   const toggleTheme = useCallback(() => {
@@ -30,7 +31,12 @@ export const ThemeProvider = ({ children }: any) => {
     setTheme(storedTheme);
     localStorage.setItem('theme', storedTheme);
     document.body.setAttribute('data-theme', storedTheme);
+    setIsMounted(true);
   }, []);
+
+  if (!isMounted) {
+    return null;
+  }
 
   return (
     <ThemeContext.Provider value={{ theme, toggleTheme }}>
