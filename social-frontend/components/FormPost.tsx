@@ -43,7 +43,7 @@ export default function FormPost() {
       }
       main();
     },
-    [articles?.length, setCid]
+    [articles?.length, setCid, address]
   );
 
   return (

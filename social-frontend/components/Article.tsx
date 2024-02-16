@@ -31,7 +31,7 @@ export default function Article({ cid }: { cid: any }) {
 
   const handleFollow = useCallback(() => {
     setUserFollow(article?.author.address as Address, !isFollow);
-  }, [isFollow, setUserFollow]);
+  }, [isFollow, setUserFollow, article?.author.address]);
 
   const handleLike = useCallback(() => {
     setLike(!isLiked);

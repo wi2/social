@@ -70,7 +70,7 @@ export default function Board() {
               <h2 className="text-1xl font-bold">Users already added</h2>
               <div className="grid grid-cols-2 gap-2">
                 {users?.map((user) => (
-                  <div>{user}</div>
+                  <div key={user}>{user}</div>
                 ))}
               </div>
 

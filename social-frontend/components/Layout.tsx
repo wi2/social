@@ -31,7 +31,7 @@ export default function Layout({ children }: { children: ReactNode }) {
     (_user: Address, _active: boolean) => {
       setUserFollow(_user, _active);
     },
-    [setUserFollow, myFollows?.length]
+    [setUserFollow]
   );
 
   return (

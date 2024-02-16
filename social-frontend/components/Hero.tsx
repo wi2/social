@@ -1,3 +1,5 @@
+import Link from 'next/link';
+
 export default function Hero() {
   return (
     <div className="hero min-h-screen bg-base-600">
@@ -17,9 +19,9 @@ export default function Hero() {
             social networking, redefined by user-centric control, privacy, and
             innovation.
           </p>
-          <a href="/create" className="btn btn-primary">
+          <Link href="/create" className="btn btn-primary">
             Create your social network project
-          </a>
+          </Link>
         </div>
       </div>
     </div>

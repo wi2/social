@@ -7,6 +7,7 @@ import useUpdatePseudo from '../hooks/useUpdatePseudo';
 import { useAccount } from 'wagmi';
 import useContract from '../context/Contract';
 import NotConnected from './NotConnected';
+import Link from 'next/link';
 
 export default function Authorize({ children }: { children: ReactNode }) {
   const [isReady, setReady] = useState(false);
@@ -50,15 +51,15 @@ export default function Authorize({ children }: { children: ReactNode }) {
       <div className="hero">
         <div className="hero-content flex-col lg:flex-row bg-primary-content bg-opacity-70 rounded-md">
           <div>
-            <h1 className="text-4xl font-bold">You're not Authorize.</h1>
+            <h1 className="text-4xl font-bold">You are not Authorize.</h1>
             <p className="py-6">
               This account user is not authorize to access.
               <br />
               Are you sure to connect with the good account?
             </p>
-            <a href="/" className="btn btn-primary">
+            <Link href="/" className="btn btn-primary">
               Back to homepage
-            </a>
+            </Link>
           </div>
         </div>
       </div>

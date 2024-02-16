@@ -3,6 +3,7 @@ import useIsConnected from '../hooks/useIsConnected';
 import Loader from './Loader';
 import { useAccount } from 'wagmi';
 import { useRouter } from 'next/router';
+import Link from 'next/link';
 
 export default function NotConnected({ children }: { children?: ReactNode }) {
   const { query } = useRouter();
@@ -18,12 +19,12 @@ export default function NotConnected({ children }: { children?: ReactNode }) {
       <div className="hero">
         <div className="hero-content flex-col lg:flex-row bg-primary-content bg-opacity-70 rounded-md">
           <div>
-            <h1 className="text-4xl font-bold">You're not Connected.</h1>
+            <h1 className="text-4xl font-bold">You are not Connected.</h1>
             <p className="py-6">Please connect your wallet</p>
             {query._slug && (
-              <a href="/" className="btn btn-primary">
+              <Link href="/" className="btn btn-primary">
                 Back to homepage
-              </a>
+              </Link>
             )}
           </div>
         </div>

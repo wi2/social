@@ -1,6 +1,6 @@
 import { ReactNode, useState } from 'react';
 
-export default function ({
+export default function Accordion({
   children,
   name,
   title,

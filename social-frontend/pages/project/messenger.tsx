@@ -22,26 +22,29 @@ const Messenger: NextPage = () => {
   const { address } = useAccount();
   const { isConnected, messages } = useContract();
 
-  const onSubmit = useCallback((e: FormEvent<HTMLFormElement>) => {
-    e.preventDefault();
-    const { content } = e.currentTarget;
-    async function main() {
-      const now = new Date();
-      const newMsg: MessageTemplate = {
-        ...messageTemplate,
-      } as unknown as MessageTemplate;
-      newMsg.metadata.timestamp = now.getTime();
-      newMsg.from.address = address as Address;
-      newMsg.to.address = query._to as Address;
-      newMsg.content = content.value;
+  const onSubmit = useCallback(
+    (e: FormEvent<HTMLFormElement>) => {
+      e.preventDefault();
+      const { content } = e.currentTarget;
+      async function main() {
+        const now = new Date();
+        const newMsg: MessageTemplate = {
+          ...messageTemplate,
+        } as unknown as MessageTemplate;
+        newMsg.metadata.timestamp = now.getTime();
+        newMsg.from.address = address as Address;
+        newMsg.to.address = query._to as Address;
+        newMsg.content = content.value;
 
-      ipfsPin('message', newMsg).then((cid) => {
-        setCid(cid as Address);
-      });
-      content.value = '';
-    }
-    main();
-  }, []);
+        ipfsPin('message', newMsg).then((cid) => {
+          setCid(cid as Address);
+        });
+        content.value = '';
+      }
+      main();
+    },
+    [address, query._to, setCid]
+  );
 
   const formattedMessages = messages?.filter((message) => {
     const users = [message?.args._from, message?.args._to];
@@ -69,7 +72,7 @@ const Messenger: NextPage = () => {
           <Content>
             <Authorize>
               <div className="flex flex-col flex-wrap bg-neutral bg-opacity-80 m-4 p-4 rounded">
-                You can't send message to yourself
+                You can not send message to yourself
               </div>
             </Authorize>
           </Content>
