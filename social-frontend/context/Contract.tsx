@@ -37,6 +37,7 @@ interface ContractContextType {
   // account
   users?: CustomLogType<CustomLogUserArgsType>[];
   // network
+  allArticles?: CustomLogType<CustomLogArticleArgsType>[];
   articles?: CustomLogType<CustomLogArticleArgsType>[];
   follows?: CustomLogType<CustomLogFollowArgsType>[];
   followedArticles?: CustomLogType<CustomLogArticleArgsType>[];
@@ -158,14 +159,27 @@ export const ContractProvider = ({ children }: { children: ReactNode }) => {
     address
   );
 
-  const articles = getArticles(
-    [...articlesPosted, ...watchData.articlesPosted],
-    address
+  const allArticles = getArticles([
+    ...articlesPosted,
+    ...watchData.articlesPosted,
+    ...(completeData.articles || []),
+  ]);
+
+  const articles = allArticles.filter(
+    (item) =>
+      (item as CustomLogType<CustomLogArticleArgsType>)?.args._author ===
+      address
   );
 
   const followedArticles = follows
     .map((follow) => follow.args._userFollow)
-    .map((addr) => getArticles(articlesPosted, addr))
+    .map((addr) =>
+      getArticles(articlesPosted).filter(
+        (item) =>
+          (item as CustomLogType<CustomLogArticleArgsType>)?.args._author ===
+          addr
+      )
+    )
     .flat();
 
   useEffect(() => {
@@ -219,6 +233,7 @@ export const ContractProvider = ({ children }: { children: ReactNode }) => {
       isConnected,
       isOwner,
       users,
+      allArticles,
       articles,
       followedArticles,
       follows,

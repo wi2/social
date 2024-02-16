@@ -6,12 +6,14 @@ import Article from './Article';
 
 export default function Articles() {
   const { query } = useRouter();
-  const { articles, followedArticles } = useContract();
+  const { allArticles, articles, followedArticles } = useContract();
 
-  const articlesSorted = getEventSorted<CustomLogArticleArgsType>(
-    articles || [],
-    followedArticles || []
-  );
+  const articlesSorted = query._to
+    ? allArticles?.filter((article) => article?.args._author === query._to)
+    : getEventSorted<CustomLogArticleArgsType>(
+        articles || [],
+        followedArticles || []
+      );
 
   if (!articles?.length) {
     return (
@@ -41,7 +43,7 @@ export default function Articles() {
           href={`/project/posts?_slug=${query._slug}`}
           className="btn btn-primary"
         >
-          Add
+          Add Article
         </a>
       </div>
       <div className="flex flex-col gap-4 pt-4 pb-4">

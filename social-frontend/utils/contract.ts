@@ -167,24 +167,18 @@ export function getPins<T = CustomLogActionArgsType>(
 }
 
 export function getArticles<T = CustomLogArticleArgsType>(
-  articlesPosted: CustomLogType<T>[],
-  user: Address | undefined
+  articlesPosted: CustomLogType<T>[]
 ) {
   const finalMap = new Map();
-  getEventSorted(articlesPosted, [])
-    .filter(
-      (item) =>
-        (item as CustomLogType<CustomLogArticleArgsType>)?.args._author === user
-    )
-    .forEach((item) => {
-      const itemType = item as CustomLogType<CustomLogActionArgsType>;
-      if (itemType) {
-        const { _cid } = itemType.args;
-        if (itemType.eventName === 'ArticlePosted') {
-          finalMap.set(_cid, itemType);
-        }
+  getEventSorted(articlesPosted, []).forEach((item) => {
+    const itemType = item as CustomLogType<CustomLogActionArgsType>;
+    if (itemType) {
+      const { _cid } = itemType.args;
+      if (itemType.eventName === 'ArticlePosted') {
+        finalMap.set(_cid, itemType);
       }
-    });
+    }
+  });
   return Array.from(finalMap.values());
 }
 
