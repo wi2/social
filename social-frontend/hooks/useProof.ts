@@ -9,10 +9,7 @@ export default function useProof() {
   const { address } = useAccount();
   const [proof, setProof] = useState<Address[]>();
 
-  const allUsers = users
-    ?.filter((user) => user?.args._users)
-    .map((user) => user?.args._users)
-    .flat();
+  const allUsers = users?.filter((user) => user);
 
   useEffect(() => {
     const prf = getHexProof(allUsers as Address[], address);

@@ -35,7 +35,7 @@ interface ContractContextType {
   isConnected: boolean;
   isOwner: boolean;
   // account
-  users?: CustomLogType<CustomLogUserArgsType>[];
+  users?: (Address | undefined)[];
   // network
   allArticles?: CustomLogType<CustomLogArticleArgsType>[];
   articles?: CustomLogType<CustomLogArticleArgsType>[];
@@ -76,7 +76,7 @@ export const ContractProvider = ({ children }: { children: ReactNode }) => {
   const isConnected = useIsConnected();
   const isOwner = useIsOwner();
   // account
-  const users = useWatch<CustomLogUserArgsType>(
+  const UsersCreated = useWatch<CustomLogUserArgsType>(
     jsonFiles[JSON_FILES.account].abi.find(
       ({ name, type }) => name === 'UsersCreated' && type === 'event'
     )
@@ -191,6 +191,8 @@ export const ContractProvider = ({ children }: { children: ReactNode }) => {
     )
     .flat();
 
+  const users = UsersCreated.map((user) => user?.args._users).flat();
+
   useEffect(() => {
     if (data?.length) {
       const { eventName } = data[0];
@@ -262,7 +264,6 @@ export const ContractProvider = ({ children }: { children: ReactNode }) => {
     followedArticles.length,
     follows.length,
     allLikes.length,
-
     likes.length,
     allPins.length,
     pins.length,

@@ -25,7 +25,6 @@ export default function Layout({ children }: { children: ReactNode }) {
   const { setUserFollow, isLoading, isFetching } = useFollow(undefined);
 
   const { users, follows, profiles } = useContract();
-  const allUsers = users?.map((user) => user?.args._users).flat();
   const myFollows = follows?.filter((flw) => flw?.args._me === address);
 
   const handleFollow = useCallback(
@@ -43,9 +42,9 @@ export default function Layout({ children }: { children: ReactNode }) {
         <Drawer>
           <Drawer.Content>{children}</Drawer.Content>
           <Drawer.Side>
-            {allUsers?.length && (
+            {users?.length && (
               <Accordion name="accordion-side" title="All users" checked>
-                {allUsers
+                {users
                   ?.filter((user) => user !== address)
                   .map((user) => (
                     <li
