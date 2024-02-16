@@ -22,6 +22,10 @@ function concatenate(resultConstructor: any, ...arrays: any) {
 }
 
 export async function ipfsGet(val: any) {
+  console.log(val);
+  if (!val) {
+    return null;
+  }
   const digBytes = fromHex(val, 'bytes');
   const bytes = concatenate(Uint8Array, Uint8Array.of(18, 32), digBytes);
   const dig = new digest.Digest(18, 32, digBytes, bytes);

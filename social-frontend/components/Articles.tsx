@@ -6,16 +6,37 @@ import Article from './Article';
 
 export default function Articles() {
   const { query } = useRouter();
-  const { allArticles, articles, followedArticles } = useContract();
+  const { allArticles, articles, followedArticles, allPins, pins } =
+    useContract();
 
-  const articlesSorted = query._to
+  let articlesSorted = query._to
     ? allArticles?.filter((article) => article?.args._author === query._to)
     : getEventSorted<CustomLogArticleArgsType>(
         articles || [],
         followedArticles || []
-      );
+      ) || [];
 
-  if (!articles?.length) {
+  const choosePins = query._to ? allPins : pins;
+
+  if (choosePins?.length) {
+    choosePins?.forEach((pin) => {
+      const index =
+        articlesSorted?.findIndex(
+          (item) => item?.args._cid === pin?.args._cid
+        ) || 0;
+      articlesSorted = articlesSorted?.length
+        ? [
+            articlesSorted?.[index || 0],
+            ...articlesSorted.slice(0, index),
+            ...articlesSorted.slice(index + 1, articlesSorted.length),
+          ]
+        : [];
+    });
+  }
+
+  articlesSorted = articlesSorted?.filter((item) => item);
+
+  if (!articlesSorted?.length) {
     return (
       <div className="hero">
         <div className="hero-content flex-col lg:flex-row bg-primary-content bg-opacity-70 rounded-md">
@@ -47,7 +68,7 @@ export default function Articles() {
         </a>
       </div>
       <div className="flex flex-col gap-4 pt-4 pb-4">
-        {articlesSorted?.map((article) => (
+        {articlesSorted.map((article) => (
           <Article cid={article?.args._cid} key={article?.args._cid} />
         ))}
       </div>

@@ -143,26 +143,20 @@ export function getLikes<T = CustomLogActionArgsType>(
 
 export function getPins<T = CustomLogActionArgsType>(
   pinned: CustomLogType<T>[],
-  unpinned: CustomLogType<T>[],
-  user: Address | undefined
+  unpinned: CustomLogType<T>[]
 ) {
   const finalMap = new Map();
-  getEventSorted(pinned, unpinned)
-    .filter(
-      (item) =>
-        (item as CustomLogType<CustomLogActionArgsType>)?.args._me === user
-    )
-    .forEach((item) => {
-      const itemType = item as CustomLogType<CustomLogActionArgsType>;
-      if (itemType) {
-        const { _cid } = itemType.args;
-        if (itemType.eventName === 'Pinned') {
-          finalMap.set(_cid, item);
-        } else if (itemType.eventName === 'Unpinned') {
-          finalMap.delete(_cid);
-        }
+  getEventSorted(pinned, unpinned).forEach((item) => {
+    const itemType = item as CustomLogType<CustomLogActionArgsType>;
+    if (itemType) {
+      const { _cid } = itemType.args;
+      if (itemType.eventName === 'Pinned') {
+        finalMap.set(_cid, item);
+      } else if (itemType.eventName === 'Unpinned') {
+        finalMap.delete(_cid);
       }
-    });
+    }
+  });
   return Array.from(finalMap.values());
 }
 

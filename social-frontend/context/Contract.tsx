@@ -43,6 +43,7 @@ interface ContractContextType {
   followedArticles?: CustomLogType<CustomLogArticleArgsType>[];
   likes?: CustomLogType<CustomLogActionArgsType>[];
   pins?: CustomLogType<CustomLogActionArgsType>[];
+  allPins?: CustomLogType<CustomLogActionArgsType>[];
   messages?: CustomLogType<CustomLogMessageArgsType>[];
   profiles?: any;
 }
@@ -153,12 +154,15 @@ export const ContractProvider = ({ children }: { children: ReactNode }) => {
     address
   );
 
-  const pins = getPins(
+  const allPins = getPins(
     [...pinned, ...watchData.pinned, ...(completeData.pins || [])],
-    [...unpinned, ...watchData.unpinned],
-    address
+    [...unpinned, ...watchData.unpinned]
   );
 
+  const pins = allPins.filter(
+    (item) =>
+      (item as CustomLogType<CustomLogActionArgsType>)?.args._me === address
+  );
   const allArticles = getArticles([
     ...articlesPosted,
     ...watchData.articlesPosted,
@@ -239,6 +243,7 @@ export const ContractProvider = ({ children }: { children: ReactNode }) => {
       follows,
       likes,
       pins,
+      allPins,
       messages,
       profiles,
     });
@@ -246,10 +251,12 @@ export const ContractProvider = ({ children }: { children: ReactNode }) => {
     isConnected,
     isOwner,
     users.length,
+    allArticles.length,
     articles.length,
     followedArticles.length,
     follows.length,
     likes.length,
+    allPins.length,
     pins.length,
     messages.length,
     JSON.stringify(profiles),
