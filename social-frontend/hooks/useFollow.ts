@@ -10,25 +10,28 @@ import { displayAdress } from '../utils/common';
 export default function useFollow(_userFollow: Address | undefined) {
   const proof = useProof();
   const [isFollow, setFollow] = useState<boolean | undefined>(undefined);
+  const [userFollow, setUserFollow] = useState<Address | undefined>(
+    _userFollow
+  );
   const { toastSuccess } = useToasts();
 
   const onError = () => {
     setFollow(undefined);
+    setUserFollow(undefined);
   };
 
   const onSuccess = () => {
     toastSuccess(
-      `${isFollow ? 'Follow' : 'Unfollow'} ${displayAdress(
-        _userFollow
-      )} success`
+      `${isFollow ? 'Follow' : 'Unfollow'} ${displayAdress(userFollow)} success`
     );
     setFollow(undefined);
+    setUserFollow(undefined);
   };
 
   const { isLoading, isSuccess, isFetching, isError } = useWrite(
     {
       functionName: isFollow ? 'follow' : 'unfollow',
-      args: [_userFollow, proof],
+      args: [userFollow, proof],
       enabled: isFollow !== undefined,
     },
     onError,
@@ -42,5 +45,9 @@ export default function useFollow(_userFollow: Address | undefined) {
     isError,
     isFetching,
     setFollow,
+    setUserFollow: (user: Address, active: boolean) => {
+      setUserFollow(user);
+      setFollow(active);
+    },
   };
 }

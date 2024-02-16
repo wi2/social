@@ -15,7 +15,7 @@ import { useAccount } from 'wagmi';
 export default function Article({ cid }: { cid: any }) {
   const { address } = useAccount();
   const [article, setArticle] = useState<ArticleTemplate>();
-  const { likes, pins, follows, users } = useContract();
+  const { likes, pins, follows } = useContract();
   const { setLike, isLoading: isLoadingLike } = useLike(cid);
   const { setPin, isLoading: isLoadingPin } = usePin(cid);
   const { setUserFollow, isLoading: isLoadingFollow } = useFollow(

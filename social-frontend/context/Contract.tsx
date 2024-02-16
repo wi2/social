@@ -30,7 +30,6 @@ import { Address, useAccount } from 'wagmi';
 import useWatchAll from '../hooks/useWatchAll';
 
 type objectType = { [k: Address]: string };
-type profileType = keyof objectType;
 
 interface ContractContextType {
   isConnected: boolean;
@@ -53,6 +52,10 @@ export const ContractContext = createContext<ContractContextType>({
 });
 
 export const ContractProvider = ({ children }: { children: ReactNode }) => {
+  const [completeData, setCompleteData] = useState<ContractContextType>({
+    isConnected: false,
+    isOwner: false,
+  });
   const [watchData, setWatchData] = useState({
     unfollowed: [],
     followed: [],
@@ -138,24 +141,28 @@ export const ContractProvider = ({ children }: { children: ReactNode }) => {
   );
 
   const follows = getFollowers(
-    [...followed, ...watchData.followed],
+    [...followed, ...watchData.followed, ...(completeData.follows || [])],
     [...unfollowed, ...watchData.unfollowed],
     address
   );
+
   const likes = getLikes(
-    [...liked, ...watchData.liked],
+    [...liked, ...watchData.liked, ...(completeData.likes || [])],
     [...unliked, ...watchData.unliked],
     address
   );
+
   const pins = getPins(
-    [...pinned, ...watchData.pinned],
+    [...pinned, ...watchData.pinned, ...(completeData.pins || [])],
     [...unpinned, ...watchData.unpinned],
     address
   );
+
   const articles = getArticles(
     [...articlesPosted, ...watchData.articlesPosted],
     address
   );
+
   const followedArticles = follows
     .map((follow) => follow.args._userFollow)
     .map((addr) => getArticles(articlesPosted, addr))
@@ -196,7 +203,7 @@ export const ContractProvider = ({ children }: { children: ReactNode }) => {
       }
       setWatchData(newData);
     }
-  }, [data?.[0]?.blockNumber, setWatchData]);
+  }, [data?.[0]?.blockNumber, data?.[0]?.transactionHash, setWatchData]);
 
   const allProfiles = [...UpdatePseudo, ...watchData.profiles];
   const profiles = allProfiles.reduce(
@@ -207,19 +214,37 @@ export const ContractProvider = ({ children }: { children: ReactNode }) => {
     {}
   );
 
+  useEffect(() => {
+    setCompleteData({
+      isConnected,
+      isOwner,
+      users,
+      articles,
+      followedArticles,
+      follows,
+      likes,
+      pins,
+      messages,
+      profiles,
+    });
+  }, [
+    isConnected,
+    isOwner,
+    users.length,
+    articles.length,
+    followedArticles.length,
+    follows.length,
+    likes.length,
+    pins.length,
+    messages.length,
+    JSON.stringify(profiles),
+  ]);
+
   return (
     <ContractContext.Provider
       value={{
-        isConnected,
-        isOwner,
+        ...completeData,
         users,
-        articles,
-        followedArticles,
-        follows,
-        likes,
-        pins,
-        messages,
-        profiles,
       }}
     >
       {children}
