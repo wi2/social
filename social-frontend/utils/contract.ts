@@ -21,13 +21,6 @@ export function getErrorMsg(error: CustomError) {
   );
 }
 
-export async function watchEvents(client: P, event: any, cb: any) {
-  const allLogs = await client.watchEvent({
-    onLogs: (logs) => console.log(logs),
-  });
-  cb(allLogs);
-}
-
 export async function getEvents<S>(client: P, event: any, cb: any) {
   const logs = (await client.getLogs({
     event,

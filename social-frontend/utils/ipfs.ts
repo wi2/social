@@ -22,7 +22,6 @@ function concatenate(resultConstructor: any, ...arrays: any) {
 }
 
 export async function ipfsGet(val: any) {
-  console.log(val);
   if (!val) {
     return null;
   }
