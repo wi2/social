@@ -38,12 +38,18 @@ export default function useWrite(
   const [prepareParams, setPrepareParams] = useState<ContractParams>(params);
 
   // write transaction
-  const prepare = usePrepareContractWrite(prepareParams);
+  const prepare = usePrepareContractWrite({ ...prepareParams });
   const writeContract = useContractWrite(prepare.config);
 
   useEffect(() => {
     setPrepareParams(
-      params?.functionName ? { ...contract, ...params } : undefined
+      params?.functionName
+        ? {
+            ...contract,
+            ...params,
+            scopeKey: prepareParams?.scopeKey + '1',
+          }
+        : undefined
     );
   }, [params?.functionName, params?.args?.length, params?.enabled]);
 

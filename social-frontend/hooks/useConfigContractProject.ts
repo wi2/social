@@ -15,9 +15,9 @@ export default function useConfigContractProject(contractName?: JSON_FILES) {
   return {
     address: project.data?.[contractName || ''] || socialConf.address,
     abi: jsonFiles[contractName || JSON_FILES.social].abi,
-    /*     cacheOnBlock: true,
+    cacheOnBlock: false,
     cacheTime: 2000,
-    staleTime: 2000, */
+    staleTime: 2000,
     account: account.address,
   };
 }

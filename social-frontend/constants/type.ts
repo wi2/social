@@ -17,6 +17,7 @@ export type ContractParams =
       cacheTime?: number | undefined;
       enabled?: boolean;
       value?: any;
+      scopeKey?: string;
     }
   | undefined;
 
