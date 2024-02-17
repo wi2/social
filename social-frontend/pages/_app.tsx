@@ -3,7 +3,7 @@ import '@rainbow-me/rainbowkit/styles.css';
 import { getDefaultWallets, RainbowKitProvider } from '@rainbow-me/rainbowkit';
 import type { AppProps } from 'next/app';
 import { configureChains, createConfig, WagmiConfig } from 'wagmi';
-import { sepolia, hardhat } from 'wagmi/chains';
+import { polygonMumbai, hardhat } from 'wagmi/chains';
 import { publicProvider } from 'wagmi/providers/public';
 import { alchemyProvider } from 'wagmi/providers/alchemy';
 import { ToastContextProvider } from '../components/Toast';
@@ -13,7 +13,7 @@ import { ThemeProvider } from '../context/Theme';
 const { chains, publicClient, webSocketPublicClient } = configureChains(
   [
     ...(process.env.NEXT_PUBLIC_ENABLE_TESTNETS === 'true'
-      ? [sepolia]
+      ? [polygonMumbai]
       : [hardhat]),
   ],
   process.env.NEXT_PUBLIC_ENABLE_TESTNETS === 'true'
