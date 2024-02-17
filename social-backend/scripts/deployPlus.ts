@@ -12,17 +12,18 @@ async function main() {
 
   //
   const wallets = await ethers.getSigners();
-  const [, admin, user2, cyril, ben, daniel] = await getAccountAdresses();
-  const [, walletAdmin, walletUser2, cyrilWallet, benWallet, danielWallet] =
+  const [, admin, mike, cyril, ben, daniel] = await getAccountAdresses();
+  const [, adminWallet, mikeWallet, cyrilWallet, benWallet, danielWallet] =
     await wallets;
 
-  const usersAdded = [admin, user2, cyril, ben, daniel];
+  const usersAdded = [admin, mike, cyril, ben, daniel];
+
   console.log(usersAdded.length, 'users');
   console.log(usersAdded);
 
   const tree = getTree(usersAdded);
 
-  await Social.connect(walletAdmin).create(
+  await Social.connect(adminWallet).create(
     'Alyra',
     'alyra',
     usersAdded,
@@ -32,13 +33,17 @@ async function main() {
   // PROJECT CREATION
   console.log('\n\n-- PROJECT CREATION --');
 
-  const project = await Social.connect(walletAdmin).getProject('alyra');
+  const project = await Social.connect(adminWallet).getProject('alyra');
   console.log('Project created by the owner' + project.owner);
   console.log('account', project.account);
   console.log('network', project.network);
   console.log('networkMessenger', project.messenger);
 
   await ethers.getContractAt('SocialAccount', project.account);
+  const profileContract = await ethers.getContractAt(
+    'SocialProfile',
+    project.profile
+  );
   const networkContract = await ethers.getContractAt(
     'SocialNetWork',
     project.network
@@ -48,6 +53,35 @@ async function main() {
     project.messenger
   );
 
+  // ADD PROFILES
+  console.log('\n\n-- ADD PROFILES --');
+  await profileContract
+    .connect(adminWallet)
+    .updatePseudo('Admin', getHexProof(usersAdded, admin));
+  console.log(`Admin profile created`);
+
+  await profileContract
+    .connect(mikeWallet)
+    .updatePseudo('Mike', getHexProof(usersAdded, mike));
+  console.log(`Mike profile created`);
+
+  await profileContract
+    .connect(cyrilWallet)
+    .updatePseudo('Cyril', getHexProof(usersAdded, cyril));
+  console.log(`Cyril profile created`);
+
+  await profileContract
+    .connect(benWallet)
+    .updatePseudo('Ben', getHexProof(usersAdded, ben));
+  console.log(`Ben profile created`);
+
+  await profileContract
+    .connect(danielWallet)
+    .updatePseudo('Daniel', getHexProof(usersAdded, daniel));
+  console.log(`Daniel profile created`);
+
+  console.log(`\n-- END Adding profile --\n`);
+
   // SCENARIO SOCIAL NETWORK
   console.log('\n\n-- SCENARIO SOCIAL NETWORK --');
   // get cids generate by ./pinata.js
@@ -55,8 +89,7 @@ async function main() {
     .readFileSync('scripts/files/cids.txt', 'utf8')
     .split(',');
 
-  const userWallets = [cyrilWallet, benWallet, danielWallet];
-
+  const articlesWallet = [cyrilWallet, benWallet, danielWallet];
   console.log(articleCids.length + ' articles (cid)\n');
   articleCids.forEach(async (_cid: string, index: number) => {
     const decodedFull = bs58.decode(_cid);
@@ -64,13 +97,15 @@ async function main() {
     console.log('cid' + index + ':', _cid);
     // add article
     await networkContract
-      .connect(userWallets[index])
+      .connect(articlesWallet[index])
       .postArticle(
         decoded,
-        getHexProof(usersAdded, userWallets[index].address)
+        getHexProof(usersAdded, articlesWallet[index].address)
       );
     console.log(
-      `Article ${index + 1}(${_cid}) created by ${userWallets[index].address}`
+      `Article ${index + 1}(${_cid}) created by ${
+        articlesWallet[index].address
+      }`
     );
   });
 
@@ -109,7 +144,7 @@ async function main() {
     .follow(cyril, getHexProof(usersAdded, ben));
   console.log(`Follow ${cyril} by ${ben}`);
 
-  // SCENARIO SOCIAL NETWORK
+  // SCENARIO SOCIAL MESSENGER
   console.log('\n\n-- SCENARIO Messenger --');
 
   //Cyril send first message
