@@ -15,6 +15,7 @@ import { Address, useAccount } from 'wagmi';
 import Icons from './Icons';
 import useFollow from '../hooks/useFollow';
 import Loader from './Loader';
+import Link from 'next/link';
 
 export default function Layout({ children }: { children: ReactNode }) {
   const { query } = useRouter();
@@ -49,7 +50,7 @@ export default function Layout({ children }: { children: ReactNode }) {
                   .map((user) => (
                     <li key={`users-${user}`}>
                       <div className="flex flex-row justify-between items-center">
-                        <a
+                        <Link
                           href={`/project?_slug=${query._slug}&_to=${user}`}
                           className="tooltip"
                           data-tip={`See ${
@@ -61,7 +62,7 @@ export default function Layout({ children }: { children: ReactNode }) {
                             {profiles?.[`profile-${user}`] ||
                               displayAdress(user)}
                           </span>
-                        </a>
+                        </Link>
                         <span className="flex flex-row gap-3 items-center">
                           {isLoading || isFetching ? (
                             <span className="inline-grid ">
@@ -100,7 +101,7 @@ export default function Layout({ children }: { children: ReactNode }) {
                               </Swap>
                             </span>
                           )}
-                          <a
+                          <Link
                             href={`/project/messenger?_slug=${query._slug}&_to=${user}`}
                             className="tooltip tooltip-left"
                             data-tip={`chat with ${
@@ -108,7 +109,7 @@ export default function Layout({ children }: { children: ReactNode }) {
                             }`}
                           >
                             <Icons icon="chat" />
-                          </a>
+                          </Link>
                         </span>
                       </div>
                     </li>
@@ -125,7 +126,7 @@ export default function Layout({ children }: { children: ReactNode }) {
                   return (
                     <li key={`follow-${user?.args._userFollow}`}>
                       <div className="flex flex-row justify-between items-center">
-                        <a
+                        <Link
                           href={`/project?_slug=${query._slug}&_to=${user?.args._userFollow}`}
                           className="tooltip"
                           data-tip={`See ${
@@ -137,7 +138,7 @@ export default function Layout({ children }: { children: ReactNode }) {
                             {profiles[`profile-${user?.args._userFollow}`] ||
                               displayAdress(user?.args._userFollow)}
                           </span>
-                        </a>
+                        </Link>
                         <span className="flex flex-row gap-3 items-center">
                           {isLoading ? (
                             <span className="inline-grid ">
@@ -164,7 +165,7 @@ export default function Layout({ children }: { children: ReactNode }) {
                               </Swap>
                             </span>
                           )}
-                          <a
+                          <Link
                             href={`/project/messenger?_slug=${query._slug}&_to=${user?.args._userFollow}`}
                             className="tooltip tooltip-left"
                             data-tip={`chat with ${
@@ -172,7 +173,7 @@ export default function Layout({ children }: { children: ReactNode }) {
                             }`}
                           >
                             <Icons icon="chat" />
-                          </a>
+                          </Link>
                         </span>
                       </div>
                     </li>

@@ -11,6 +11,7 @@ import usePost from '../hooks/usePost';
 import { ArticleTemplate } from '../constants/type';
 import { useRouter } from 'next/router';
 import useGetProfile from '../hooks/useGetProfile';
+import Link from 'next/link';
 
 export default function FormPost() {
   const { query } = useRouter();
@@ -54,12 +55,12 @@ export default function FormPost() {
   return (
     <div className="bg-base-300 bg-opacity-80 rounded mr-4 pb-4 pt-4">
       <div className="flex justify-end pr-4">
-        <a
+        <Link
           href={`/project?_slug=${query._slug}`}
           className="btn btn-accent text-accent-content"
         >
           Back
-        </a>
+        </Link>
       </div>
       <form className="flex flex-col w-full pl-4" onSubmit={onSubmit}>
         <h2 className="text-4xl font-bold">Create Article</h2>

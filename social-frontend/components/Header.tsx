@@ -64,9 +64,12 @@ export default function Header({ children }: { children?: ReactNode }) {
         ) : null}
       </div>
       <div className="navbar-center">
-        <a className="btn btn-ghost text-accent text-xl">
+        <Link
+          href={project.data?.name ? `/project?_slug=${query._slug}` : ''}
+          className="btn btn-ghost text-accent text-xl"
+        >
           {project.data?.name || 'dsnMaker'}
-        </a>
+        </Link>
       </div>
       {isUser.data ? (
         <div className="navbar-end gap-2">
