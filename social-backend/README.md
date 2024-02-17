@@ -1,8 +1,6 @@
-# Decentralized Social Networks Maker (dsnMaker)
+# Decentralized Social Networks Maker (dsnMaker) - Backend
 
-# Backend (dsnMaker)
-
-Welcome to **Decentralized Social Networks Maker (dsnMaker)**, an innovative platform designed to revolutionize the way we think about and interact on social networks. In an era where privacy concerns and centralized control dominate traditional social media, dsnMaker offers a refreshing and empowering alternative. By leveraging the power of blockchain technology, dsnMaker provides a suite of tools for creating and managing decentralized social networks where privacy, user autonomy, and transparent governance are paramount.
+**Decentralized Social Networks Maker (dsnMaker)**, an innovative platform designed to revolutionize the way we think about and interact on social networks. In an era where privacy concerns and centralized control dominate traditional social media, dsnMaker offers a refreshing and empowering alternative. By leveraging the power of blockchain technology, dsnMaker provides a suite of tools for creating and managing decentralized social networks where privacy, user autonomy, and transparent governance are paramount.
 
 ## Key Features
 
@@ -36,6 +34,15 @@ Welcome to **Decentralized Social Networks Maker (dsnMaker)**, an innovative pla
 <img src="images/test-1.png"  style="width:50%"/>
 <img src="images/coverage.png"  style="width:50%"/>
 
+before starting, Add file `./.env`
+
+```
+PRIVATE_KEY=[YOUR_WALLET_PRIVATE_KEY]
+POLYGONSCAN_API_KEY=[YOUR_POLYGONSCAN_API_KEY]
+MUMBAI_RPC_URL=https://...
+PINATA=[YOUR_PINATA_JWT]
+```
+
 Try running test
 
 ```shell
@@ -62,14 +69,28 @@ Try deploy empty project
 
 ```shell
 npx hardhat node
-npx hardhat run scripts/deploy.ts
+npx hardhat run scripts/deploy.ts --network localhost
+```
+
+or for mumbai polygon
+
+```shell
+npx hardhat run scripts/deploy.ts --network mumbai
+
 ```
 
 Try deploy project with script to create a project with multiple article and actions(follow, like,...)
 
 ```shell
 npx hardhat node
-npx hardhat run scripts/deployPlus.ts
+npx hardhat run scripts/deployPlus.ts --network localhost
+```
+
+or for mumbai polygon
+
+```shell
+npx hardhat node
+npx hardhat run scripts/deployPlus.ts --network mumbai
 ```
 
 Here are concise descriptions of each smart contract in your decentralized social network, highlighting their functionalities and interrelationships:
@@ -143,7 +164,7 @@ Here are concise descriptions of each smart contract in your decentralized socia
 ## Techno
 
 - Hardhat
-- Wagmi
+- Ether
 - Solidity
 - Openzeppelin
 - Typescript
