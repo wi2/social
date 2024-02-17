@@ -1,8 +1,8 @@
-import socialJson from '../../social-backend/artifacts/contracts/Social.sol/Social.json';
-import socialAccountJson from '../../social-backend/artifacts/contracts/SocialAccount.sol/SocialAccount.json';
-import socialNetworkJson from '../../social-backend/artifacts/contracts/SocialNetwork.sol/SocialNetwork.json';
-import socialMessenger from '../../social-backend/artifacts/contracts/SocialNetWorkMessenger.sol/SocialNetWorkMessenger.json';
-import socialProfile from '../../social-backend/artifacts/contracts/SocialProfile.sol/SocialProfile.json';
+import socialJson from '../json/Social.json';
+import socialAccountJson from '../json/SocialAccount.json';
+import socialNetworkJson from '../json/SocialNetwork.json';
+import socialMessenger from '../json/SocialNetWorkMessenger.json';
+import socialProfile from '../json/SocialProfile.json';
 
 const addrContract = process.env.NEXT_PUBLIC_CONTRACT_ADDRESS as `0x${string}`;
 
