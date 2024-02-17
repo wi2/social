@@ -1,6 +1,5 @@
 import { Addressable } from 'ethers';
 import { run } from 'hardhat';
-import { Address } from 'viem';
 
 const verify = async (contractAddress: string | Addressable, args: any[]) => {
   console.log('Verifying the contract...');

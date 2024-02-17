@@ -2,24 +2,8 @@ import { ethers } from 'hardhat';
 import { assert, expect } from 'chai';
 import { SocialNetWork } from '../typechain-types';
 import { Signer } from 'ethers';
-import { Address, Hex, keccak256, toBytes } from 'viem';
-import MerkleTree from 'merkletreejs';
-
-const getAccountAdresses = async () => {
-  const wallets = await ethers.getSigners();
-  return wallets.map(({ address }) => address as Address);
-};
-
-function getTree(users: string[]) {
-  const leaves = users.map((address) => keccak256(address as Hex));
-  return new MerkleTree(leaves, keccak256, { sort: true });
-}
-
-function getHexProof(users: Hex[], user: string) {
-  const tree = getTree(users);
-  const leaf = keccak256(user as Hex);
-  return tree.getHexProof(leaf) as Hex[];
-}
+import { Hex, keccak256, toBytes } from 'viem';
+import { getAccountAdresses, getHexProof, getTree } from '../utils/common';
 
 const ARTICLE_CID = keccak256(toBytes('Example article content'));
 
@@ -116,13 +100,13 @@ async function deployAndExecuteUntilStep(step = STEP.CONTRACT_DEPLOYED) {
 }
 
 describe('SocialNetWork Contract', () => {
-  let owner: Address;
-  let admin: Address;
-  let user2: Address;
-  let user3: Address;
-  let notUser1: Address;
+  let owner: Hex;
+  let admin: Hex;
+  let user2: Hex;
+  let user3: Hex;
+  let notUser1: Hex;
   let wallets: Signer[];
-  let usersAdded: Address[];
+  let usersAdded: Hex[];
 
   beforeEach(async () => {
     wallets = await ethers.getSigners();
@@ -211,8 +195,7 @@ describe('SocialNetWork Contract', () => {
   describe('OnlyService', () => {
     it('should allow get last article from user', async () => {
       const socialNetwork = await deployAndExecuteUntilStep(
-        STEP.DISABLED_SERVICE,
-        []
+        STEP.DISABLED_SERVICE
       );
 
       await expect(
@@ -222,8 +205,7 @@ describe('SocialNetWork Contract', () => {
 
     it('should revert is service is not active', async () => {
       const socialNetwork = await deployAndExecuteUntilStep(
-        STEP.DISABLED_SERVICE,
-        [2]
+        STEP.DISABLED_SERVICE
       );
       await expect(
         socialNetwork
@@ -233,8 +215,7 @@ describe('SocialNetWork Contract', () => {
     });
     it('should revert is service is not active', async () => {
       const socialNetwork = await deployAndExecuteUntilStep(
-        STEP.DISABLED_SERVICE,
-        [2]
+        STEP.DISABLED_SERVICE
       );
       const proof = getHexProof(usersAdded, user3);
       await expect(
@@ -243,8 +224,7 @@ describe('SocialNetWork Contract', () => {
     });
     it('should revert is service is not active', async () => {
       const socialNetwork = await deployAndExecuteUntilStep(
-        STEP.DISABLED_SERVICE,
-        [2]
+        STEP.DISABLED_SERVICE
       );
       const proof = getHexProof(usersAdded, user3);
       await expect(
@@ -253,8 +233,7 @@ describe('SocialNetWork Contract', () => {
     });
     it('should revert is service is not active', async () => {
       const socialNetwork = await deployAndExecuteUntilStep(
-        STEP.DISABLED_SERVICE,
-        [2]
+        STEP.DISABLED_SERVICE
       );
       const proof = getHexProof(usersAdded, user3);
       await expect(
@@ -264,8 +243,7 @@ describe('SocialNetWork Contract', () => {
 
     it('should revert for non user to post', async () => {
       const socialNetwork = await deployAndExecuteUntilStep(
-        STEP.DISABLED_SERVICE,
-        [2]
+        STEP.DISABLED_SERVICE
       );
       const proof = getHexProof(usersAdded, user3);
       await expect(
@@ -274,8 +252,7 @@ describe('SocialNetWork Contract', () => {
     });
     it('should revert for non user to post', async () => {
       const socialNetwork = await deployAndExecuteUntilStep(
-        STEP.DISABLED_SERVICE,
-        [2]
+        STEP.DISABLED_SERVICE
       );
       const proof = getHexProof(usersAdded, user3);
       await expect(
@@ -285,8 +262,7 @@ describe('SocialNetWork Contract', () => {
 
     it('should revert for non user to post', async () => {
       const socialNetwork = await deployAndExecuteUntilStep(
-        STEP.DISABLED_SERVICE,
-        [2]
+        STEP.DISABLED_SERVICE
       );
       const proof = getHexProof(usersAdded, user3);
       await expect(
@@ -295,8 +271,7 @@ describe('SocialNetWork Contract', () => {
     });
     it('should revert for non user to post', async () => {
       const socialNetwork = await deployAndExecuteUntilStep(
-        STEP.DISABLED_SERVICE,
-        [2]
+        STEP.DISABLED_SERVICE
       );
       const proof = getHexProof(usersAdded, user3);
       await expect(

@@ -1,24 +1,8 @@
 import { ethers } from 'hardhat';
 import { assert, expect } from 'chai';
-import { keccak256, Address } from 'viem';
-import MerkleTree from 'merkletreejs';
+import { Hex } from 'viem';
 import { Signer } from 'ethers';
-
-const getAccountAdresses = async () => {
-  const wallets = await ethers.getSigners();
-  return wallets.map(({ address }) => address as Address);
-};
-
-function getTree(users: string[]) {
-  const leaves = users.map((address) => keccak256(address as Address));
-  return new MerkleTree(leaves, keccak256, { sort: true });
-}
-
-function getHexProof(users: Address[], user: string) {
-  const tree = getTree(users);
-  const leaf = keccak256(user as Address);
-  return tree.getHexProof(leaf) as Address[];
-}
+import { getAccountAdresses, getHexProof, getTree } from '../utils/common';
 
 // Steps for the test scenario
 const STEP = {
@@ -49,20 +33,20 @@ async function deployAndExecuteUntilStep(step = STEP.CONTRACT_DEPLOYED) {
     const tree = getTree(usersAdded);
     await socialContract
       .connect(wallets[1])
-      .addMoreUser([user3], tree.getHexRoot() as Address);
+      .addMoreUser([user3], tree.getHexRoot() as Hex);
   }
   return socialContract;
 }
 
 describe('SocialAccount', function () {
   let wallets: Signer[];
-  let owner: Address,
-    admin: Address,
-    notUser0: Address,
-    notUser1: Address,
-    user2: Address,
-    user3: Address,
-    users: Address[];
+  let owner: Hex,
+    admin: Hex,
+    notUser0: Hex,
+    notUser1: Hex,
+    user2: Hex,
+    user3: Hex,
+    users: Hex[];
 
   beforeEach(async function () {
     [owner, admin, notUser0, notUser1, user2, user3, ...users] =
@@ -115,7 +99,7 @@ describe('SocialAccount', function () {
     const tree = getTree([admin, user2]);
     const addMoreUser = socialContract
       .connect(wallets[4])
-      .addMoreUser(users, tree.getHexRoot() as Address);
+      .addMoreUser(users, tree.getHexRoot() as Hex);
 
     await expect(addMoreUser).to.be.rejectedWith('OnlyAdmin');
   });

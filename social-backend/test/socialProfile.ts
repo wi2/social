@@ -2,31 +2,8 @@ import { ethers } from 'hardhat';
 import { assert, expect } from 'chai';
 import { SocialProfile } from '../typechain-types';
 import { Signer } from 'ethers';
-import { Address, Hex, keccak256 } from 'viem';
-import MerkleTree from 'merkletreejs';
-
-const getAccountAdresses = async () => {
-  const wallets = await ethers.getSigners();
-  return wallets.map(({ address }) => address as Address);
-};
-
-function getTree(users: string[]) {
-  const leaves = users.map((address) => keccak256(address as Hex));
-  return new MerkleTree(leaves, keccak256, { sort: true });
-}
-
-function getHexProof(users: Hex[], user: string) {
-  const tree = getTree(users);
-  const leaf = keccak256(user as Hex);
-  return tree.getHexProof(leaf) as Hex[];
-}
-
-// Steps for the test scenario
-const STEP = {
-  CONTRACT_DEPLOYED: 0,
-  PROFILE_CREATED: 1,
-  PROFILE_UPDATED: 2,
-};
+import { Hex } from 'viem';
+import { getAccountAdresses, getHexProof, getTree } from '../utils/common';
 
 async function deployAndExecuteAccountSocial() {
   const wallets = await ethers.getSigners();
@@ -47,8 +24,7 @@ async function deployAndExecuteAccountSocial() {
 
 async function deployAndExecuteUntilStep() {
   const accountContract = await deployAndExecuteAccountSocial();
-  const wallets = await ethers.getSigners();
-  const [owner, admin, user2, user3] = await getAccountAdresses();
+  const [, admin] = await getAccountAdresses();
   const SocialProfileFactory = await ethers.getContractFactory('SocialProfile');
   const accountContractAddress = await accountContract.getAddress();
   const SocialProfile = (await SocialProfileFactory.deploy(
@@ -61,13 +37,13 @@ async function deployAndExecuteUntilStep() {
 }
 
 describe('SocialProfile Contract', () => {
-  let owner: Address;
-  let admin: Address;
-  let notUser1: Address;
-  let user2: Address;
-  let user3: Address;
+  let owner: Hex;
+  let admin: Hex;
+  let notUser1: Hex;
+  let user2: Hex;
+  let user3: Hex;
   let wallets: Signer[];
-  let usersAdded: Address[];
+  let usersAdded: Hex[];
   let proofUser2: any;
 
   beforeEach(async () => {

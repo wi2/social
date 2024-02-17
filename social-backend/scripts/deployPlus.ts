@@ -3,29 +3,7 @@ import fs from 'fs';
 import bs58 from 'bs58';
 
 import verify from '../utils/verify';
-import { Address, Hex, keccak256 } from 'viem';
-import MerkleTree from 'merkletreejs';
-
-const getAccountAdresses = async () => {
-  const wallets = await ethers.getSigners();
-  return wallets.map(({ address }) => address as Hex);
-};
-
-function getTree(users: string[]) {
-  const leaves = users.map((address) => keccak256(address as Hex));
-  return new MerkleTree(leaves, keccak256, { sort: true });
-}
-
-function getHexProof(users: Hex[], user: string) {
-  const tree = getTree(users);
-  const leaf = keccak256(user as Hex);
-  return tree.getHexProof(leaf) as Hex[];
-}
-
-async function findWalletByAddess(addr: Address) {
-  const wallets = await await ethers.getSigners();
-  return wallets.find((item) => item.address === addr);
-}
+import { getAccountAdresses, getHexProof, getTree } from '../utils/common';
 
 async function main() {
   const Social = await ethers.deployContract('Social', []);

@@ -1,18 +1,7 @@
 import { ethers } from 'hardhat';
 import { assert, expect } from 'chai';
-import { keccak256, Address } from 'viem';
-import MerkleTree from 'merkletreejs';
 import { Signer } from 'ethers';
-
-const getAccountAdresses = async () => {
-  const wallets = await ethers.getSigners();
-  return wallets.map(({ address }) => address as Address);
-};
-
-function getTree(users: string[]) {
-  const leaves = users.map((address) => keccak256(address as Address));
-  return new MerkleTree(leaves, keccak256, { sort: true });
-}
+import { getAccountAdresses, getTree } from '../utils/common';
 
 // Create and deploy a voting contract instance and play the scenario until the specified step
 async function deployAndExecuteUntilStep() {
@@ -84,14 +73,4 @@ describe('SocialAccount', function () {
       .getProject('simplon');
     assert.equal(project.owner, users[1]);
   });
-
-  /*   it('addService should revert with InsufficientPayment', async function () {
-    const socialContract = await deployAndExecuteUntilStep(STEP.CREATED);
-    const addService = socialContract.write.addService([[2]], {
-      value: parseGwei('999'),
-      account: admin,
-    });
-    await expect(addService).to.be.rejectedWith('InsufficientPayment()');
-  });
- */
 });
