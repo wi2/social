@@ -123,8 +123,8 @@ const Create: NextPage = () => {
                     <li>
                       Add all{' '}
                       <strong className="text-secondary">adresses</strong> of
-                      your users separate by '
-                      <strong className="text-secondary">,</strong>'.
+                      your users separate by
+                      <strong className="text-secondary">,</strong>.
                     </li>
                   </ul>
                 </div>
