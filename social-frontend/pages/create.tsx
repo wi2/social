@@ -41,7 +41,7 @@ const Create: NextPage = () => {
           <NotConnected>
             <Divider>
               <Divider.Left>
-                <div className="w-full ml-4 bg-primary-content bg-opacity-70 rounded-md">
+                <div className="w-full ml-4 bg-base-300 text-base-content bg-opacity-70 rounded-md">
                   <form
                     className="flex flex-col w-full pt-4 pl-4 pb-4"
                     onSubmit={onSubmit}
@@ -60,7 +60,7 @@ const Create: NextPage = () => {
                       />
                       <Input
                         name="slug"
-                        placeholder="slug (only a-z and 0-1, no space)"
+                        placeholder="slug ([a-z0-1-]) no space"
                         disabled={!isConnected}
                       />
                     </div>
@@ -91,20 +91,32 @@ const Create: NextPage = () => {
               </Divider.Left>
               <Divider.Line />
               <Divider.Right>
-                <div className="w-full max-w-md h-full p-4 ml-4 mr-4 bg-neutral bg-opacity-70 rounded-md">
-                  <h2 className="text-2xl font-bold">Help</h2>
-                  <p className="font-bold">Fill information of your project</p>
-                  <ul className="list-disc ml-6">
+                <div className="w-full max-w-md h-full p-4 ml-4 mr-4 bg-base-100 text-base-content bg-opacity-70 rounded-md">
+                  <h2 className="text-2xl font-bold text-secondary">Help</h2>
+                  <p className="font-bold text-secondary pt-4">
+                    Fill information of your project
+                  </p>
+                  <ul className="list-disc ml-6 flex flex-col gap-4 pt-4">
                     <li>
-                      Give a <strong>name</strong> to your project
+                      Give a <strong className="text-secondary">name</strong> to
+                      your project
                     </li>
                     <li>
-                      Fill <strong>slug</strong>, this is for your url project,
-                      only use [a-z0-9] in lowercase. Your project will bee
-                      available at: /project?_slug=myproject
+                      Fill <strong className="text-secondary">slug</strong>,
+                      this is for your url project, only use [a-z0-9-] in
+                      lowercase.
+                      <br />
+                      Your project will bee available at:
+                      <br />
+                      <strong className="text-secondary">
+                        /project?_slug=myproject
+                      </strong>
                     </li>
                     <li>
-                      Add all <strong>adresses</strong> of your users.
+                      Add all{' '}
+                      <strong className="text-secondary">adresses</strong> of
+                      your users separate by '
+                      <strong className="text-secondary">,</strong>'.
                     </li>
                   </ul>
                 </div>

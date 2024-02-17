@@ -4,6 +4,7 @@ import useConfigContractProject from './useConfigContractProject';
 import { JSON_FILES } from '../constants/contract';
 import useProof from './useProof';
 import useContract from '../context/Contract';
+import { Address, isAddress } from 'viem';
 
 /**
  * @notice Vérifie si l'utilisateur actuel est le propriétaire du contrat.
@@ -20,6 +21,6 @@ export default function useIsUser() {
     ...contract,
     functionName: 'isUser',
     args: [address, proof],
-    enabled: Boolean(address) && Boolean(users?.length),
+    enabled: isAddress(address as Address) && Boolean((users || []).length > 0),
   });
 }

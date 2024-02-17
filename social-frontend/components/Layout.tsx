@@ -99,7 +99,7 @@ export default function Layout({ children }: { children: ReactNode }) {
                 {myFollows?.map((user) => {
                   return (
                     <li
-                      className="flex flex-row justify-between"
+                      className="flex flex-row justify-between items-center"
                       key={`follow-${user?.args._userFollow}`}
                     >
                       <a

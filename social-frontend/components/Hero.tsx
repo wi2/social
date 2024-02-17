@@ -3,9 +3,9 @@ import Link from 'next/link';
 export default function Hero() {
   return (
     <div className="hero min-h-screen bg-base-600">
-      <div className="bg-primary-content bg-opacity-70 hero-content flex-col lg:flex-row">
+      <div className="bg-secondary-content bg-opacity-70 hero-content flex-col lg:flex-row max-w-2xl">
         <div>
-          <h1 className="text-4xl font-bold">
+          <h1 className="text-4xl font-bold text-secondary">
             Decentralized Social Networks Maker!
           </h1>
           <p className="py-6">
@@ -13,15 +13,20 @@ export default function Hero() {
             power to build your own decentralized social network. Tailored for
             privacy and exclusivity, our platform offers key functionalities
             like personalized user management, secure and private messaging, and
-            unique content-sharing features. Establish your exclusive community,
-            control your interactions, and experience the unparalleled security
-            of blockchain technology. Join us in pioneering a new era of private
-            social networking, redefined by user-centric control, privacy, and
-            innovation.
+            unique content-sharing features.
           </p>
-          <Link href="/create" className="btn btn-primary">
-            Create your social network project
-          </Link>
+          <p>
+            Establish your exclusive community, control your interactions, and
+            experience the unparalleled security of blockchain technology.
+            <br />
+            Join us in pioneering a new era of private social networking,
+            redefined by user-centric control, privacy, and innovation.
+          </p>
+          <div className="flex justify-end">
+            <Link href="/create" className="btn btn-secondary mt-4">
+              Create your social network project
+            </Link>
+          </div>
         </div>
       </div>
     </div>

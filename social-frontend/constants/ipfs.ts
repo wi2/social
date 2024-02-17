@@ -1,5 +1,3 @@
-import { zeroAddress } from 'viem';
-
 const now = new Date();
 
 export const article = {

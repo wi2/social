@@ -39,9 +39,9 @@ export default function Board() {
     <div className="relative flex flex-col gap-4 justify-center items-center">
       {isAdmin && (
         <>
-          <div className="stats bg-neutral text-neutral-content">
+          <div className="stats bg-neutral bg-opacity-80 text-neutral-content rounded-md">
             <div className="stat">
-              <div className="stat-title">Total Users</div>
+              <div className="stat-title text-accent">Total Users</div>
               <div className="stat-value">{users?.length || 0}</div>
               <div className="stat-actions">
                 <button
@@ -96,14 +96,14 @@ export default function Board() {
           )}
         </>
       )}
-      <div className="stats shadow">
+      <div className="stats shadow bg-opacity-60 rounded-md">
         <div className="stat">
           <div className="stat-figure text-primary">
             <Icons icon="liked" />
           </div>
           <div className="stat-title">Total Likes</div>
-          <div className="stat-value text-primary">{nbLikes}</div>
-          <div className="stat-desc">All your likes</div>
+          <div className="stat-value text-secondary">{nbLikes}</div>
+          <div className="stat-desc text-secondary">All your likes</div>
         </div>
 
         <div className="stat">
@@ -111,8 +111,8 @@ export default function Board() {
             <Icons icon="pinned" />
           </div>
           <div className="stat-title">Total Pins</div>
-          <div className="stat-value text-secondary">{nbPins}</div>
-          <div className="stat-desc">All your pins</div>
+          <div className="stat-value text-primary">{nbPins}</div>
+          <div className="stat-desc text-primary">All your pins</div>
         </div>
 
         <div className="stat">
@@ -120,8 +120,8 @@ export default function Board() {
             <Avatar name={address} />
           </div>
           <div className="stat-title">Total followers</div>
-          <div className="stat-value">{nbFollows}</div>
-          <div className="stat-desc text-primary">All the user you follow</div>
+          <div className="stat-value text-accent">{nbFollows}</div>
+          <div className="stat-desc text-accent">All the user you follow</div>
         </div>
       </div>
     </div>

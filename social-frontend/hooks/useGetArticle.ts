@@ -1,6 +1,7 @@
 import { useAccount, useContractRead } from 'wagmi';
 import useConfigContractProject from './useConfigContractProject';
 import { JSON_FILES } from '../constants/contract';
+import { Address, isAddress } from 'viem';
 
 export default function useGetArticle() {
   const { address } = useAccount();
@@ -10,6 +11,6 @@ export default function useGetArticle() {
     ...contract,
     functionName: 'getLastArticleFrom',
     args: [address],
-    enabled: Boolean(address),
+    enabled: Boolean(address) && isAddress(address as Address),
   }) as { data: any };
 }

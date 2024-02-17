@@ -1,6 +1,7 @@
 import { useAccount, useContractRead } from 'wagmi';
 
 import useConfigContract from './useConfigContract';
+import { Address, isAddress } from 'viem';
 
 /**
  * @notice Vérifie si l'utilisateur actuel est le propriétaire du contrat.
@@ -13,7 +14,7 @@ export default function useIsOwner(): boolean {
   const { data } = useContractRead({
     ...contract,
     functionName: 'owner',
-    enabled: Boolean(address),
+    enabled: Boolean(address) && isAddress(address as Address),
   });
   return Boolean(data) && data === address;
 }

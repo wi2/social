@@ -93,7 +93,7 @@ const Messenger: NextPage = () => {
           <Authorize>
             <div
               ref={ref}
-              className="flex flex-col flex-wrap bg-neutral bg-opacity-80 m-4 p-4 rounded-t"
+              className="flex flex-col flex-wrap bg-neutral text-neutral-content bg-opacity-80 m-4 p-4 rounded-t"
             >
               {formattedMessages?.length ? (
                 formattedMessages?.map((item) => (
@@ -117,7 +117,7 @@ const Messenger: NextPage = () => {
                 </div>
                 <div>
                   <button
-                    className="btn w-24 h-40 rounded-none  rounded-br"
+                    className="btn btn-accent w-24 h-40 rounded-none rounded-br"
                     disabled={!isConnected || address === query._to}
                   >
                     Send

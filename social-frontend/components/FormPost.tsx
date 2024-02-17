@@ -52,9 +52,12 @@ export default function FormPost() {
   );
 
   return (
-    <div className="bg-neutral bg-opacity-80 rounded mr-4 pb-4 pt-4">
+    <div className="bg-base-300 bg-opacity-80 rounded mr-4 pb-4 pt-4">
       <div className="flex justify-end pr-4">
-        <a href={`/project?_slug=${query._slug}`} className="btn btn-primary">
+        <a
+          href={`/project?_slug=${query._slug}`}
+          className="btn btn-accent text-accent-content"
+        >
           Back
         </a>
       </div>
@@ -87,7 +90,10 @@ export default function FormPost() {
         </div>
 
         <div>
-          <button className="btn" disabled={!isConnected}>
+          <button
+            className="btn bg-accent text-accent-content"
+            disabled={!isConnected}
+          >
             Create
           </button>
         </div>

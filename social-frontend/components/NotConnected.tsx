@@ -19,10 +19,12 @@ export default function NotConnected({ children }: { children?: ReactNode }) {
       <div className="hero">
         <div className="hero-content flex-col lg:flex-row bg-primary-content bg-opacity-70 rounded-md">
           <div>
-            <h1 className="text-4xl font-bold">You are not Connected.</h1>
+            <h1 className="text-4xl text-secondary font-bold">
+              You are not Connected.
+            </h1>
             <p className="py-6">Please connect your wallet</p>
             {query._slug && (
-              <Link href="/" className="btn btn-primary">
+              <Link href="/" className="btn btn-accent">
                 Back to homepage
               </Link>
             )}

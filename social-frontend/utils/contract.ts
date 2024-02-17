@@ -1,4 +1,4 @@
-import { Address, fromBytes, isAddress, keccak256 } from 'viem';
+import { Address, fromBytes, isAddress, keccak256, zeroAddress } from 'viem';
 import MerkleTree from 'merkletreejs';
 import {
   CustomError,
@@ -39,7 +39,7 @@ export function getTree(users: Address[]) {
 
 export function getHexProof(users: Address[], user: Address | undefined) {
   const tree = getTree(users);
-  const leaf = keccak256((user || '0x') as Address);
+  const leaf = keccak256((user || zeroAddress) as Address);
   return tree.getHexProof(leaf) as Address[];
 }
 

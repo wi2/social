@@ -41,7 +41,7 @@ export default function Articles() {
       <div className="hero">
         <div className="hero-content flex-col lg:flex-row bg-primary-content bg-opacity-70 rounded-md">
           <div>
-            <h1 className="text-4xl font-bold">Welcome</h1>
+            <h1 className="text-4xl font-bold text-secondary">Welcome</h1>
             <p className="py-6">
               Start to add article and follows to see them here.
             </p>
@@ -62,7 +62,7 @@ export default function Articles() {
       <div className="flex justify-end pr-4">
         <a
           href={`/project/posts?_slug=${query._slug}`}
-          className="btn btn-primary"
+          className="btn btn-accent text-accent-content"
         >
           Add Article
         </a>

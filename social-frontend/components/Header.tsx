@@ -64,7 +64,7 @@ export default function Header({ children }: { children?: ReactNode }) {
         ) : null}
       </div>
       <div className="navbar-center">
-        <a className="btn btn-ghost text-xl">
+        <a className="btn btn-ghost text-accent text-xl">
           {project.data?.name || 'dsnMaker'}
         </a>
       </div>
@@ -72,7 +72,7 @@ export default function Header({ children }: { children?: ReactNode }) {
         <div className="navbar-end gap-2">
           <Drawer.Toggle>Open</Drawer.Toggle>
           <button
-            className="bg-neutral rounded-full p-1 h-7 w-7"
+            className="bg-base-100 rounded-full p-1 h-7 w-7"
             onClick={handleToggleTheme}
           >
             <Swap active={theme === Theme.dark}>
