@@ -1,6 +1,7 @@
 // SPDX-License-Identifier: MIT
 pragma solidity 0.8.22;
 
+/// @author Michael GAETA
 /// @title Social Network Article Likes Management
 /// @notice This abstract contract provides functionalities for liking and unliking articles on a social network.
 /// Users can express their appreciation for an article by liking it and can also retract their likes.

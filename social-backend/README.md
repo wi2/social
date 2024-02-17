@@ -1,67 +1,153 @@
 # Decentralized Social Networks Maker (dsnMaker)
 
-## Social.sol
+# Backend (dsnMaker)
 
-Acts as a factory to create decentralized social networks. Each social network created by this contract includes a main account, a network platform, and a messenger service. The contract automates the deployment of these components, allowing for the easy setup of independent social networks.
+Welcome to **Decentralized Social Networks Maker (dsnMaker)**, an innovative platform designed to revolutionize the way we think about and interact on social networks. In an era where privacy concerns and centralized control dominate traditional social media, dsnMaker offers a refreshing and empowering alternative. By leveraging the power of blockchain technology, dsnMaker provides a suite of tools for creating and managing decentralized social networks where privacy, user autonomy, and transparent governance are paramount.
 
-## SocialNetWorkMessenger.sol
+## Key Features
 
-Manages a messaging service within the social network. Allows users to send encrypted messages, manage chat invitations, and exchange secret keys for secure communication.
+- **Factory Contract**: At the heart of dsnMaker lies the Social Factory Contract, a robust mechanism for deploying independent social networks. Each network is a self-contained ecosystem with its core components, ensuring full autonomy and customization.
 
-### SocialBaseCommon.sol
+### User Account Management
 
-This foundational contract sets the basic rules and access controls for the other contracts in the social network. It defines who can use certain functionalities, like admins or verified users, and ensures that services are active before being used.
+- **SocialAccount**: This contract is crucial for managing user accounts within each network. It utilizes advanced cryptographic methods like Merkle Proof for secure user verification, adding a layer of security and trust.
 
-### SocialNetWork.sol
+### Modular Functionality
 
-The core of the social network. It combines all functionalities of the other contracts (articles, likes, user following, messaging) into one platform. Users can interact in various ways, like posting articles, liking, following other users, sending messages, etc.
+- **Common Functionalities**: The abstract SocialBaseCommon contract provides essential functionalities that other specific feature contracts inherit, ensuring consistency and efficiency across the platform.
 
-### SocialBaseCommon.sol
+### Comprehensive Social Interaction
 
-This foundational contract sets the basic rules and access controls for the other contracts in the social network. It defines who can use certain functionalities, like admins or verified users, and ensures that services are active before being used.
+- **SocialNetWork**: This contract integrates various social networking features such as article posting, likes, follows, and pins, offering a rich and engaging user experience reminiscent of traditional social media but with enhanced privacy and user control.
 
-### SocialNetWorkArticle.sol
+### Messaging and Communication
 
-This contract allows users to post and retrieve articles in a social network. Each user can publish an article, and the contract keeps track of the last article posted by each user.
+- **SocialNetworkMessenger**: Prioritizing secure and private communication, this contract manages encrypted messaging services, fostering seamless interaction within the network.
 
-### SocialNetWorkLikes.sol
+### User Profile Customization
 
-A "likes" system for articles. Users can "like" or "unlike" articles. The contract tracks which articles have been liked and the total number of "likes" for each article.
+- **SocialProfile**: Addressing the need for personal expression, this contract allows users to create and manage their profiles, enhancing the social aspect of the network.
 
-### SocialNetWorkFollowers.sol
+---
 
-Enables users to "follow" or "unfollow" other users, similar to subscribing to their posts or activities on the social network. It keeps track of who is following whom.
+## Test and coverage
 
-### SocialNetWorkPins.sol
+<img src="images/test-2.png"  style="width:50%"/>
+<img src="images/test-1.png"  style="width:50%"/>
+<img src="images/coverage.png"  style="width:50%"/>
 
-Allows users to pin articles. Pinning an article means marking it as important or for later reading. Users can pin and unpin articles as they wish.
-
-## SocialAccount: Managing User Accounts and Services in a Decentralized Social Network
-
-The `SocialAccount` contract is a key component of a decentralized social network, overseeing the management of user accounts and the services they can access. Its main functionalities include:
-
-- **Service Management**: It controls which services are available on the network and ensures they are operational.
-- **User Verification**: The contract employs mechanisms like Merkle proofs to verify the authenticity of users on the network.
-- **Payments and Financial Oversight**: It manages payments related to accessing various services, ensuring that sufficient funds are provided for service activation.
-- **Admin Control**: Certain actions within the network, like adding new services or users, are restricted to administrators for better governance.
-- **Withdrawal of Funds**: The contract allows for the withdrawal of funds, typically managed by network owners or administrators.
-
-In essence, `SocialAccount` acts as the administrative layer of the social network, facilitating a secure and regulated environment where users can engage with various social features, from posting content to messaging, while ensuring a fair and managed financial system.
-
-# Sample Hardhat Project
-
-This project demonstrates a basic Hardhat use case. It comes with a sample contract, a test for that contract, and a script that deploys that contract.
-
-![Test](https://github.com/wi2/social/tree/master/social-backend/images/test-1.png?raw=true)
-![Text](https://github.com/wi2/social/tree/master/social-backend/images/test-1.png?raw=true)
-![Coverage](https://github.com/wi2/social/tree/master/social-backend/images/coverage.png?raw=true)
-
-Try running some of the following tasks:
+Try running test
 
 ```shell
-npx hardhat help
 npx hardhat test
 REPORT_GAS=true npx hardhat test
 npx hardhat node
 npx hardhat run scripts/deploy.ts
 ```
+
+Try running coverage
+
+```shell
+npx hardhat test
+REPORT_GAS=true npx hardhat test
+npx hardhat node
+npx hardhat run scripts/deploy.ts
+```
+
+---
+
+## Start node and deploy project
+
+Try deploy empty project
+
+```shell
+npx hardhat node
+npx hardhat run scripts/deploy.ts
+```
+
+Try deploy project with script to create a project with multiple article and actions(follow, like,...)
+
+```shell
+npx hardhat node
+npx hardhat run scripts/deployPlus.ts
+```
+
+Here are concise descriptions of each smart contract in your decentralized social network, highlighting their functionalities and interrelationships:
+
+---
+
+## Smart contract Details
+
+<img src="images/social.png" style="width:95%"/>
+
+1. **Social (Factory Contract)**:
+
+   - Function: Acts as a factory to create individual social networks.
+   - Features: Each network includes a main account, platform, messenger, and profile.
+   - Relationships: Deploys instances of `SocialAccount`, `SocialNetwork`, `SocialNetWorkMessenger`, and `SocialProfile`.
+
+2. **SocialAccount**:
+
+   - Function: Manages user accounts and services within the network.
+   - Features: Handles service activations, user verifications (using Merkle Proof), and admin controls.
+   - Relationships: Central to various network services like public network access, messaging, and profile management.
+
+3. **SocialBaseCommon (Abstract Contract)**:
+
+   - Function: Provides common functionalities for feature-specific contracts.
+   - Features: Includes mechanisms for service activation verification and user authenticity.
+   - Relationships: Base contract inherited by feature-specific contracts (e.g., `SocialNetWorkArticle`).
+
+4. **SocialNetWork**:
+
+   - Function: Integrates various social networking features.
+   - Features: Combines articles, likes, follows, and pins functionalities.
+   - Relationships: Inherits from `SocialBaseCommon` and integrates `SocialNetWorkArticle`, `SocialNetWorkLikes`, `SocialNetWorkFollowers`, `SocialNetWorkPins`.
+
+5. **SocialNetWorkArticle**:
+
+   - Function: Manages article posting and retrieval.
+   - Features: Stores the last article posted by each user.
+   - Relationships: Designed to be inherited by `SocialNetWork`.
+
+6. **SocialNetWorkFollowers**:
+
+   - Function: Manages follower relationships between users.
+   - Features: Enables users to follow or unfollow others, with custom checks for already followed/unfollowed statuses.
+   - Relationships: Intended to be part of `SocialNetWork`.
+
+7. **SocialNetWorkLikes**:
+
+   - Function: Handles liking and unliking articles.
+   - Features: Tracks like status and count for each article.
+   - Relationships: Part of the `SocialNetWork` contract.
+
+8. **SocialNetworkMessenger**:
+
+   - Function: Manages messaging services within the network.
+   - Features: Handles chat sessions, message encryption, and chat history.
+   - Relationships: Extends `SocialBaseCommon`, connected to `SocialAccount`.
+
+9. **SocialNetWorkPins**:
+
+   - Function: Provides functionality for pinning and unpinning articles.
+   - Features: Allows users to mark articles as pinned for easy access.
+   - Relationships: Part of the functionalities within `SocialNetWork`.
+
+10. **SocialProfile**:
+
+- Function: Manages user profiles within the network.
+- Features: Handles operations like profile creation and updates (pseudo, status).
+- Relationships: Extends `SocialBaseCommon` and connected to `SocialAccount`.
+
+## Techno
+
+- Hardhat
+- Wagmi
+- Solidity
+- Openzeppelin
+- Typescript
+
+## Author
+
+Project created and developed by GAETA Michael

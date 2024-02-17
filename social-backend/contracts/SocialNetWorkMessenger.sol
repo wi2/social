@@ -5,6 +5,7 @@ import "@openzeppelin/contracts/utils/cryptography/MerkleProof.sol";
 import "./SocialBaseCommon.sol";
 import "hardhat/console.sol";
 
+/// @author Michael GAETA
 /// @title Social Network Messenger
 /// @dev Extends SocialBaseCommon for messaging functionalities in a social network.
 /// Handles chat management, message encryption, invitation control, and chat secret management.

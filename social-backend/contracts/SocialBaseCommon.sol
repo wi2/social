@@ -3,6 +3,7 @@ pragma solidity 0.8.22;
 
 import "./SocialAccount.sol";
 
+/// @author Michael GAETA
 /// @title SocialBaseCommon
 /// @notice This abstract contract provides common functionalities for Social Network contracts.
 /// It includes mechanisms to verify service activation and user authenticity.

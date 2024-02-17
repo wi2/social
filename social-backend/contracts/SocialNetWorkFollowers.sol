@@ -1,6 +1,8 @@
 // SPDX-License-Identifier: MIT
 pragma solidity 0.8.22;
 
+/// @author Michael GAETA
+/// @author Michael GAETA
 /// @title Social Network Followers Management
 /// @notice This abstract contract provides functionalities for managing follower relationships in a social network.
 /// It enables users to follow and unfollow each other, while ensuring each action is valid.

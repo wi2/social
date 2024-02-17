@@ -3,6 +3,7 @@ pragma solidity 0.8.22;
 
 import "./SocialBaseCommon.sol";
 
+/// @author Michael GAETA
 /// @title Social Profile
 /// @notice This contract extends SocialBaseCommon to manage user profiles in a social network.
 /// @dev It handles operations like creating and updating user profiles.

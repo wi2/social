@@ -4,6 +4,7 @@ pragma solidity 0.8.22;
 import "@openzeppelin/contracts/utils/cryptography/MerkleProof.sol";
 import "@openzeppelin/contracts/access/Ownable.sol";
 
+/// @author Michael GAETA
 /// @title SocialAccount
 /// @notice Manages user accounts and services for a decentralized social network.
 /// @dev This contract handles service activations, user verifications, and payments.

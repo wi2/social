@@ -1,6 +1,7 @@
 // SPDX-License-Identifier: MIT
 pragma solidity 0.8.22;
 
+/// @author Michael GAETA
 /// @title Social Network Article Pinning
 /// @dev Provides functionality for users to pin and unpin articles in a social network.
 /// Users can mark articles as "pinned" for easy access or reference.

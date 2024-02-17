@@ -1,6 +1,7 @@
 // SPDX-License-Identifier: MIT
 pragma solidity 0.8.22;
 
+/// @author Michael GAETA
 /// @title Social Network Article Management
 /// @notice This abstract contract provides functionalities for posting and retrieving articles on a social network.
 /// It is designed to be inherited by other contracts that require article posting and retrieval capabilities.

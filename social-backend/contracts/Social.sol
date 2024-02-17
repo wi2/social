@@ -7,6 +7,7 @@ import "./SocialNetwork.sol";
 import "./SocialNetWorkMessenger.sol";
 import "./SocialProfile.sol";
 
+/// @author Michael GAETA
 /// @title Social Network Factory
 /// @notice This contract serves as a factory to create individual social networks.
 /// Each social network consists of a main account, a network platform, and a messenger service.

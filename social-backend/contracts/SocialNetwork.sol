@@ -7,6 +7,7 @@ import "./SocialNetWorkLikes.sol";
 import "./SocialNetWorkFollowers.sol";
 import "./SocialNetWorkPins.sol";
 
+/// @author Michael GAETA
 /// @title Social Network Contract
 /// @notice Integrates various social networking functionalities such as articles, likes, follows, and pins.
 /// It is a comprehensive contract that allows users to interact in a decentralized social network setting.
