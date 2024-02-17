@@ -32,7 +32,7 @@ const Create: NextPage = () => {
   return (
     <div>
       <Head>
-        <title>Create your project</title>
+        <title>Create Your social network</title>
         <link href="/favicon.ico" rel="icon" />
       </Head>
 
@@ -46,7 +46,9 @@ const Create: NextPage = () => {
                     className="flex flex-col w-full pt-4 pl-4 pb-4"
                     onSubmit={onSubmit}
                   >
-                    <h2 className="text-4xl font-bold">Create project</h2>
+                    <h2 className="text-4xl text-accent font-bold">
+                      Create Your social network
+                    </h2>
 
                     <div className="mr-4">
                       <div className="divider lg:divider-vertical" />
@@ -69,7 +71,9 @@ const Create: NextPage = () => {
                       <div className="divider lg:divider-vertical" />
                     </div>
 
-                    <label>Add users</label>
+                    <label>
+                      Add users <small>(separate by ,)</small>
+                    </label>
                     <div className="mr-4">
                       <Textarea
                         name="adresses"
@@ -82,7 +86,10 @@ const Create: NextPage = () => {
                     </div>
 
                     <div className="flex justify-end pr-4">
-                      <button className="btn" disabled={!isConnected}>
+                      <button
+                        className="btn btn-accent"
+                        disabled={!isConnected}
+                      >
                         Create
                       </button>
                     </div>
@@ -103,7 +110,8 @@ const Create: NextPage = () => {
                     </li>
                     <li>
                       Fill <strong className="text-secondary">slug</strong>,
-                      this is for your url project, only use [a-z0-9-] in
+                      this is for your url project, only use{' '}
+                      <strong className="text-secondary">[a-z0-9-]</strong> in
                       lowercase.
                       <br />
                       Your project will bee available at:
