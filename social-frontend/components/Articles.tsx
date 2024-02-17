@@ -24,6 +24,7 @@ export default function Articles() {
         articlesSorted?.findIndex(
           (item) => item?.args._cid === pin?.args._cid
         ) || 0;
+
       articlesSorted = articlesSorted?.length
         ? [
             articlesSorted?.[index || 0],
@@ -45,12 +46,14 @@ export default function Articles() {
             <p className="py-6">
               Start to add article and follows to see them here.
             </p>
-            <a
-              href={`/project/posts?_slug=${query._slug}`}
-              className="btn btn-primary"
-            >
-              Post
-            </a>
+            <span className="flex justify-end">
+              <a
+                href={`/project/posts?_slug=${query._slug}`}
+                className="btn btn-accent text-accent-content"
+              >
+                Post
+              </a>
+            </span>
           </div>
         </div>
       </div>
