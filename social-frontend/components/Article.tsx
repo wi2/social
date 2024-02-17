@@ -37,24 +37,26 @@ export default function Article({ cid }: { cid: any }) {
     async function main() {
       const now = new Date();
       const newArticle: ArticleTemplate = {
-        ...article,
+        ...JSON.parse(JSON.stringify(article)),
         retweet: {
           author: article?.author.name,
           address: article?.author.address,
           cid,
         },
       } as unknown as ArticleTemplate;
+
       if (articles?.length) {
         newArticle.metadata.historic = articles.map(
           (article) => article?.args._cid
         ) as Address[];
       }
+
       newArticle.metadata.timestamp = now.getTime();
       newArticle.author.address = address;
       newArticle.author.name = profile.data.pseudo;
 
-      ipfsPin(newArticle.title, newArticle).then((cid) => {
-        setCid(cid as Address);
+      ipfsPin(newArticle.title, newArticle).then((_cid) => {
+        setCid(_cid as Address);
       });
     }
     main();
