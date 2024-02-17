@@ -52,9 +52,9 @@ In essence, `SocialAccount` acts as the administrative layer of the social netwo
 
 This project demonstrates a basic Hardhat use case. It comes with a sample contract, a test for that contract, and a script that deploys that contract.
 
-![Test](https://github.com/wi2/social/blob/master/test-1.png?raw=true)
-![Text](https://github.com/wi2/social/blob/master/test-1.png?raw=true)
-![Coverage](https://github.com/wi2/social/blob/master/coverage.png?raw=true)
+![Test](https://github.com/wi2/social/images/master/test-1.png?raw=true)
+![Text](https://github.com/wi2/social/images/master/test-1.png?raw=true)
+![Coverage](https://github.com/wi2/social/images/master/coverage.png?raw=true)
 
 Try running some of the following tasks:
 
