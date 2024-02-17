@@ -33,8 +33,9 @@ contract SocialNetWork is
     /// @param _user The address of the user whose latest article is being requested.
     /// @return bytes32 The content identifier (CID) of the latest article.
     function getLastArticleFrom(
-        address _user
-    ) public view onlyService returns (bytes32) {
+        address _user,
+        bytes32[] calldata _proof
+    ) public view onlyService onlyUser(_proof) returns (bytes32) {
         return _getLastArticleFrom(_user);
     }
 

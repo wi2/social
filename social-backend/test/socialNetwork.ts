@@ -115,13 +115,25 @@ describe('SocialNetWork Contract', () => {
   });
 
   describe('OnlyUser', () => {
+    it('should revert getLastArticleFrom if not authorize(not user)', async () => {
+      const socialNetwork = await deployAndExecuteUntilStep(
+        STEP.CONTRACT_DEPLOYED
+      );
+
+      await expect(
+        socialNetwork
+          .connect(wallets[4])
+          .getLastArticleFrom(user2, getHexProof(usersAdded, notUser1))
+      ).revertedWithCustomError(socialNetwork, 'OnlyUser');
+    });
+
     it('should revert postArticle if not authorize(not user)', async () => {
       const socialNetwork = await deployAndExecuteUntilStep(
         STEP.CONTRACT_DEPLOYED
       );
       await expect(
         socialNetwork
-          .connect(wallets[3])
+          .connect(wallets[4])
           .postArticle(ARTICLE_CID, getHexProof(usersAdded, notUser1))
       ).revertedWithCustomError(socialNetwork, 'OnlyUser');
     });
@@ -132,7 +144,7 @@ describe('SocialNetWork Contract', () => {
       );
       const proof = getHexProof(usersAdded, notUser1);
       await expect(
-        socialNetwork.connect(wallets[2]).follow(user2, proof)
+        socialNetwork.connect(wallets[4]).follow(user2, proof)
       ).revertedWithCustomError(socialNetwork, 'OnlyUser');
     });
 
@@ -142,7 +154,7 @@ describe('SocialNetWork Contract', () => {
       );
       const proof = getHexProof(usersAdded, notUser1);
       await expect(
-        socialNetwork.connect(wallets[2]).unfollow(user2, proof)
+        socialNetwork.connect(wallets[4]).unfollow(user2, proof)
       ).revertedWithCustomError(socialNetwork, 'OnlyUser');
     });
 
@@ -152,7 +164,7 @@ describe('SocialNetWork Contract', () => {
       );
       const proof = getHexProof(usersAdded, notUser1);
       await expect(
-        socialNetwork.connect(wallets[2]).like(ARTICLE_CID, proof)
+        socialNetwork.connect(wallets[4]).like(ARTICLE_CID, proof)
       ).revertedWithCustomError(socialNetwork, 'OnlyUser');
     });
 
@@ -162,7 +174,7 @@ describe('SocialNetWork Contract', () => {
       );
       const proof = getHexProof(usersAdded, notUser1);
       await expect(
-        socialNetwork.connect(wallets[2]).unlike(ARTICLE_CID, proof)
+        socialNetwork.connect(wallets[4]).unlike(ARTICLE_CID, proof)
       ).revertedWithCustomError(socialNetwork, 'OnlyUser');
     });
 
@@ -172,7 +184,7 @@ describe('SocialNetWork Contract', () => {
       );
       const proof = getHexProof(usersAdded, notUser1);
       await expect(
-        socialNetwork.connect(wallets[2]).pin(ARTICLE_CID, proof)
+        socialNetwork.connect(wallets[4]).pin(ARTICLE_CID, proof)
       ).revertedWithCustomError(socialNetwork, 'OnlyUser');
     });
     it('should revert unpin if not authorize(not user)', async () => {
@@ -181,7 +193,7 @@ describe('SocialNetWork Contract', () => {
       );
       const proof = getHexProof(usersAdded, notUser1);
       await expect(
-        socialNetwork.connect(wallets[2]).unpin(ARTICLE_CID, proof)
+        socialNetwork.connect(wallets[4]).unpin(ARTICLE_CID, proof)
       ).revertedWithCustomError(socialNetwork, 'OnlyUser');
     });
   });
@@ -193,7 +205,9 @@ describe('SocialNetWork Contract', () => {
       );
 
       await expect(
-        socialNetwork.connect(wallets[3]).getLastArticleFrom(user2)
+        socialNetwork
+          .connect(wallets[2])
+          .getLastArticleFrom(user2, getHexProof(usersAdded, user2))
       ).revertedWithCustomError(socialNetwork, 'OnlyService');
     });
 
@@ -203,7 +217,7 @@ describe('SocialNetWork Contract', () => {
       );
       await expect(
         socialNetwork
-          .connect(wallets[3])
+          .connect(wallets[2])
           .postArticle(ARTICLE_CID, getHexProof(usersAdded, user2))
       ).revertedWithCustomError(socialNetwork, 'OnlyService');
     });
@@ -214,7 +228,7 @@ describe('SocialNetWork Contract', () => {
       );
       const proof = getHexProof(usersAdded, user3);
       await expect(
-        socialNetwork.connect(wallets[3]).follow(user2, proof)
+        socialNetwork.connect(wallets[2]).follow(user2, proof)
       ).revertedWithCustomError(socialNetwork, 'OnlyService');
     });
 
@@ -224,7 +238,7 @@ describe('SocialNetWork Contract', () => {
       );
       const proof = getHexProof(usersAdded, user3);
       await expect(
-        socialNetwork.connect(wallets[3]).unfollow(user2, proof)
+        socialNetwork.connect(wallets[2]).unfollow(user2, proof)
       ).revertedWithCustomError(socialNetwork, 'OnlyService');
     });
 
@@ -234,7 +248,7 @@ describe('SocialNetWork Contract', () => {
       );
       const proof = getHexProof(usersAdded, user3);
       await expect(
-        socialNetwork.connect(wallets[3]).like(ARTICLE_CID, proof)
+        socialNetwork.connect(wallets[2]).like(ARTICLE_CID, proof)
       ).revertedWithCustomError(socialNetwork, 'OnlyService');
     });
 
@@ -244,7 +258,7 @@ describe('SocialNetWork Contract', () => {
       );
       const proof = getHexProof(usersAdded, user3);
       await expect(
-        socialNetwork.connect(wallets[3]).unlike(ARTICLE_CID, proof)
+        socialNetwork.connect(wallets[2]).unlike(ARTICLE_CID, proof)
       ).revertedWithCustomError(socialNetwork, 'OnlyService');
     });
 
@@ -254,7 +268,7 @@ describe('SocialNetWork Contract', () => {
       );
       const proof = getHexProof(usersAdded, user3);
       await expect(
-        socialNetwork.connect(wallets[3]).pin(ARTICLE_CID, proof)
+        socialNetwork.connect(wallets[2]).pin(ARTICLE_CID, proof)
       ).revertedWithCustomError(socialNetwork, 'OnlyService');
     });
     it('should revert unpin if service not active', async () => {
@@ -263,7 +277,7 @@ describe('SocialNetWork Contract', () => {
       );
       const proof = getHexProof(usersAdded, user3);
       await expect(
-        socialNetwork.connect(wallets[3]).unpin(ARTICLE_CID, proof)
+        socialNetwork.connect(wallets[2]).unpin(ARTICLE_CID, proof)
       ).revertedWithCustomError(socialNetwork, 'OnlyService');
     });
   });
@@ -288,7 +302,7 @@ describe('SocialNetWork Contract', () => {
       const socialNetwork = await deployAndExecuteUntilStep(STEP.POST_CONTENT);
       const lastCid = await socialNetwork
         .connect(wallets[2])
-        .getLastArticleFrom(user2);
+        .getLastArticleFrom(user2, getHexProof(usersAdded, user2));
       assert.equal(lastCid, ARTICLE_CID);
     });
 
