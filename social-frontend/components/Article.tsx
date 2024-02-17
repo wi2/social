@@ -89,19 +89,19 @@ export default function Article({ cid }: { cid: any }) {
           <span className="flex-1">
             {article?.retweet?.address && <Icons icon="retweet" />}
             {article?.title || <Loader />}
-            <small className="text-xs flex-none">
+            <small className="text-xs flex-none opacity-30">
               <br />
               {cid}
             </small>
           </span>
-          <small className="text-sm flex-none">
+          <small className="text-sm flex-none text-accent">
             by {article?.retweet?.author || article?.author.name}
           </small>
         </h2>
         <p>{article?.content || <Loader />}</p>
       </div>
-      <div className="flex card-actions bg-base-200 bg-opacity-50 rounded-none p-2 rounded-b">
-        <div className="flex-1">
+      <div className="flex card-actions bg-base-200 bg-opacity-50 text-base-content text-xs rounded-none p-2 rounded-b items-center">
+        <div className="flex-1 opacity-50">
           {dateFormat(article?.metadata.timestamp)?.toLocaleString()}
         </div>
         <div className="flex gap-4 mr-4">
