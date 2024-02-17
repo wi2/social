@@ -6,6 +6,14 @@
 
 **dsnMaker** enables users to create, manage, and interact within their own decentralized social networks. It focuses on user autonomy, privacy, and interactive social features, all underpinned by blockchain and ipfs technology.
 
+### Frontend
+
+Explore the frontend details, including setup and deployment instructions, in the [Frontend README](https://github.com/wi2/social/tree/master/social-frontend).
+
+### Backend
+
+For backend functionalities, smart contract interactions, and deployment, refer to the [Backend README](https://github.com/wi2/social/tree/master/social-backend).
+
 ### Key Features
 
 - Create and manage user-centric social networks.
@@ -16,16 +24,6 @@
 ### Technology Stack
 
 The project utilizes modern technologies like Next.js, TypeScript, Solidity, and IPFS, hardhat ensuring a robust and efficient user experience.
-
-## Quick Start
-
-### Frontend
-
-Explore the frontend details, including setup and deployment instructions, in the [Frontend README](https://github.com/wi2/social/tree/master/social-frontend).
-
-### Backend
-
-For backend functionalities, smart contract interactions, and deployment, refer to the [Backend README](https://github.com/wi2/social/tree/master/social-backend).
 
 ## Author
 
