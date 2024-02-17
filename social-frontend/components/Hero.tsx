@@ -3,9 +3,9 @@ import Link from 'next/link';
 export default function Hero() {
   return (
     <div className="hero min-h-screen bg-base-600">
-      <div className="bg-secondary-content bg-opacity-70 hero-content flex-col lg:flex-row max-w-2xl">
+      <div className="bg-accent-content bg-opacity-70 hero-content flex-col lg:flex-row max-w-2xl">
         <div>
-          <h1 className="text-4xl font-bold text-secondary">
+          <h1 className="text-4xl font-bold text-accent">
             Decentralized Social Networks Maker!
           </h1>
           <p className="py-6">
@@ -23,7 +23,7 @@ export default function Hero() {
             redefined by user-centric control, privacy, and innovation.
           </p>
           <div className="flex justify-end">
-            <Link href="/create" className="btn btn-secondary mt-4">
+            <Link href="/create" className="btn btn-accent mt-4">
               Create your social network project
             </Link>
           </div>
