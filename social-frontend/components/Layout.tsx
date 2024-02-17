@@ -51,8 +51,14 @@ export default function Layout({ children }: { children: ReactNode }) {
                       className="flex flex-row justify-between items-center"
                       key={`users-${user}`}
                     >
-                      <a href={`/project?_slug=${query._slug}&_to=${user}`}>
-                        <Avatar name={user} />
+                      <a
+                        href={`/project?_slug=${query._slug}&_to=${user}`}
+                        className="tooltip"
+                        data-tip={`See ${
+                          profiles?.[`profile-${user}`]
+                        } Articles`}
+                      >
+                        <Avatar name={user} noTooltip />
                         {profiles?.[`profile-${user}`] || displayAdress(user)}
                       </a>
                       <span>
@@ -61,27 +67,43 @@ export default function Layout({ children }: { children: ReactNode }) {
                             <Loader />
                           </span>
                         ) : (
-                          <Swap
-                            active={
+                          <span
+                            className="tooltip"
+                            data-tip={`${
                               myFollows?.some(
                                 (follow) => follow?.args._userFollow === user
                               ) || false
-                            }
-                            onClick={() =>
-                              handleFollow(
-                                user as Address,
-                                !myFollows?.some(
+                                ? 'Unfollow'
+                                : 'Follow'
+                            } ${profiles?.[`profile-${user}`]}`}
+                          >
+                            <Swap
+                              active={
+                                myFollows?.some(
                                   (follow) => follow?.args._userFollow === user
                                 ) || false
-                              )
-                            }
-                          >
-                            <Icons icon="followed" />
-                            <Icons icon="unfollowed" />
-                          </Swap>
+                              }
+                              onClick={() =>
+                                handleFollow(
+                                  user as Address,
+                                  !myFollows?.some(
+                                    (follow) =>
+                                      follow?.args._userFollow === user
+                                  ) || false
+                                )
+                              }
+                            >
+                              <Icons icon="followed" />
+                              <Icons icon="unfollowed" />
+                            </Swap>
+                          </span>
                         )}
                         <a
                           href={`/project/messenger?_slug=${query._slug}&_to=${user}`}
+                          className="tooltip tooltip-left"
+                          data-tip={`chat with ${
+                            profiles?.[`profile-${user}`]
+                          }`}
                         >
                           <Icons icon="chat" />
                         </a>
@@ -104,8 +126,12 @@ export default function Layout({ children }: { children: ReactNode }) {
                     >
                       <a
                         href={`/project?_slug=${query._slug}&_to=${user?.args._userFollow}`}
+                        className="tooltip"
+                        data-tip={`See ${
+                          profiles?.[`profile-${user?.args._userFollow}`]
+                        } Articles`}
                       >
-                        <Avatar name={user?.args._userFollow} />
+                        <Avatar name={user?.args._userFollow} noTooltip />
                         {profiles[`profile-${user?.args._userFollow}`] ||
                           displayAdress(user?.args._userFollow)}
                       </a>
@@ -115,21 +141,32 @@ export default function Layout({ children }: { children: ReactNode }) {
                             <Loader />
                           </span>
                         ) : (
-                          <Swap
-                            active
-                            onClick={() =>
-                              handleFollow(
-                                user?.args._userFollow as Address,
-                                false
-                              )
-                            }
+                          <span
+                            className="tooltip"
+                            data-tip={`Unfollow ${
+                              profiles?.[`profile-${user?.args._userFollow}`]
+                            }`}
                           >
-                            <Icons icon="followed" />
-                            <Icons icon="unfollowed" />
-                          </Swap>
+                            <Swap
+                              active
+                              onClick={() =>
+                                handleFollow(
+                                  user?.args._userFollow as Address,
+                                  false
+                                )
+                              }
+                            >
+                              <Icons icon="followed" />
+                              <Icons icon="unfollowed" />
+                            </Swap>
+                          </span>
                         )}
                         <a
                           href={`/project/messenger?_slug=${query._slug}&_to=${user?.args._userFollow}`}
+                          className="tooltip tooltip-left"
+                          data-tip={`chat with ${
+                            profiles?.[`profile-${user?.args._userFollow}`]
+                          }`}
                         >
                           <Icons icon="chat" />
                         </a>

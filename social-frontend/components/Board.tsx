@@ -49,7 +49,7 @@ export default function Board() {
                     e.preventDefault();
                     setDisplayForm(!displayForm);
                   }}
-                  className="btn btn-sm btn-success"
+                  className="btn btn-sm btn-accent text-accent-content"
                 >
                   Add more users
                 </button>

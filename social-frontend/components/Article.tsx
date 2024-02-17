@@ -17,7 +17,7 @@ import useGetProfile from '../hooks/useGetProfile';
 export default function Article({ cid }: { cid: any }) {
   const { address } = useAccount();
   const [article, setArticle] = useState<ArticleTemplate>();
-  const { likes, pins, follows, allLikes, articles } = useContract();
+  const { likes, pins, follows, allLikes, articles, profiles } = useContract();
   const { setLike, isLoading: isLoadingLike } = useLike(cid);
   const { setPin, isLoading: isLoadingPin } = usePin(cid);
   const { setUserFollow, isLoading: isLoadingFollow } = useFollow(
@@ -104,7 +104,11 @@ export default function Article({ cid }: { cid: any }) {
         </div>
         <div className="flex gap-4 mr-4">
           {(article?.author.address as Address) !== address && (
-            <div onClick={handleRetweet}>
+            <div
+              onClick={handleRetweet}
+              className="tooltip"
+              data-tip="Retweet this article"
+            >
               <Icons icon="retweet" />
             </div>
           )}
@@ -114,10 +118,17 @@ export default function Article({ cid }: { cid: any }) {
               <Loader />
             </span>
           ) : (article?.author.address as Address) === address ? null : (
-            <Swap active={isFollow} onClick={handleFollow}>
-              <Icons icon="followed" />
-              <Icons icon="unfollowed" />
-            </Swap>
+            <span
+              className="tooltip"
+              data-tip={`${isFollow ? 'Unfollow' : 'Follow'} ${
+                profiles?.[`profile-${article?.author.address}`]
+              }`}
+            >
+              <Swap active={isFollow} onClick={handleFollow}>
+                <Icons icon="followed" />
+                <Icons icon="unfollowed" />
+              </Swap>
+            </span>
           )}
 
           {isLoadingPin ? (
@@ -125,20 +136,26 @@ export default function Article({ cid }: { cid: any }) {
               <Loader />
             </span>
           ) : (article?.author.address as Address) !== address ? null : (
-            <>
+            <span
+              className="tooltip"
+              data-tip={isPinned ? 'Unpin article' : 'Pin article'}
+            >
               <Swap active={isPinned} onClick={handlePin}>
                 <Icons icon="pinned" />
                 <Icons icon="unpinned" />
               </Swap>
-            </>
+            </span>
           )}
 
           {isLoadingLike ? (
-            <span className="inline-grid ">
+            <span className="inline-grid">
               <Loader />
             </span>
           ) : (
-            <div className="indicator">
+            <div
+              className="indicator tooltip"
+              data-tip={isLiked ? 'Unlike article' : 'Like article'}
+            >
               <Swap active={isLiked} onClick={handleLike}>
                 <Icons icon="liked" />
                 <Icons icon="unliked" />
