@@ -48,7 +48,14 @@ export default function Layout({ children }: { children: ReactNode }) {
                 {users
                   ?.filter((user) => user !== address)
                   .map((user) => (
-                    <li key={`users-${user}`}>
+                    <li
+                      key={`users-${user}`}
+                      className={
+                        query._to === user
+                          ? 'bg-base-100 bg-opacity-60 rounded-md'
+                          : ''
+                      }
+                    >
                       <div className="flex flex-row justify-between items-center">
                         <Link
                           href={`/project?_slug=${query._slug}&_to=${user}`}
@@ -124,7 +131,14 @@ export default function Layout({ children }: { children: ReactNode }) {
               >
                 {myFollows?.map((user) => {
                   return (
-                    <li key={`follow-${user?.args._userFollow}`}>
+                    <li
+                      key={`follow-${user?.args._userFollow}`}
+                      className={
+                        query._to === user?.args._userFollow
+                          ? 'bg-base-100 bg-opacity-60 rounded-md'
+                          : ''
+                      }
+                    >
                       <div className="flex flex-row justify-between items-center">
                         <Link
                           href={`/project?_slug=${query._slug}&_to=${user?.args._userFollow}`}
