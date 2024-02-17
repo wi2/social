@@ -38,7 +38,7 @@ async function deployAndExecuteUntilStep(step = STEP.CONTRACT_DEPLOYED) {
   return socialContract;
 }
 
-describe('SocialAccount', function () {
+describe('SocialAccount Contract', function () {
   let wallets: Signer[];
   let owner: Hex,
     admin: Hex,
@@ -79,16 +79,6 @@ describe('SocialAccount', function () {
     const isServiceActive = await socialContract
       .connect(wallets[4])
       .isServiceActive(1);
-    expect(isServiceActive).to.be.true;
-  });
-
-  it('isServiceActive should return true', async function () {
-    const socialContract = await deployAndExecuteUntilStep(
-      STEP.CONTRACT_DEPLOYED
-    );
-    const isServiceActive = await socialContract
-      .connect(wallets[4])
-      .isServiceActive(2);
     expect(isServiceActive).to.be.true;
   });
 

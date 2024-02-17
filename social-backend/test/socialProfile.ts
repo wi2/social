@@ -79,7 +79,7 @@ describe('SocialProfile Contract', () => {
       .withArgs(true, user2);
   });
 
-  it('Should revert getCurrentCID if not user', async () => {
+  it('Should revert getCurrentCID if not authorize(only user)', async () => {
     const SocialProfile = await deployAndExecuteUntilStep();
     await expect(
       SocialProfile.connect(wallets[4]).updatePseudo(
@@ -89,7 +89,7 @@ describe('SocialProfile Contract', () => {
     ).revertedWithCustomError(SocialProfile, 'OnlyUser');
   });
 
-  it('should revert getCurrentCID  is not user registered', async () => {
+  it('should revert getCurrentCID if not authorize(only user)', async () => {
     const SocialProfile = await deployAndExecuteUntilStep();
     await SocialProfile.connect(wallets[2]).updatePseudo(
       'My pseudo',
@@ -99,7 +99,7 @@ describe('SocialProfile Contract', () => {
     assert.equal(myProfile.pseudo, 'My pseudo');
   });
 
-  it('Should revert updateStatus is not user registered', async () => {
+  it('Should revert updateStatus if not authorize(only user)', async () => {
     const SocialProfile = await deployAndExecuteUntilStep();
     await expect(
       SocialProfile.connect(wallets[4]).updateStatus(
@@ -109,7 +109,7 @@ describe('SocialProfile Contract', () => {
     ).revertedWithCustomError(SocialProfile, 'OnlyUser');
   });
 
-  it('should revert CreateProfile with NotAuthorize', async function () {
+  it('should revert CreateProfile if not authorize', async function () {
     const socialProfile = await deployAndExecuteUntilStep();
     const addService = socialProfile
       .connect(wallets[3])

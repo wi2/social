@@ -115,7 +115,7 @@ describe('SocialNetWork Contract', () => {
   });
 
   describe('OnlyUser', () => {
-    it('should revert is service is not active', async () => {
+    it('should revert postArticle if not authorize(not user)', async () => {
       const socialNetwork = await deployAndExecuteUntilStep(
         STEP.CONTRACT_DEPLOYED
       );
@@ -125,7 +125,8 @@ describe('SocialNetWork Contract', () => {
           .postArticle(ARTICLE_CID, getHexProof(usersAdded, notUser1))
       ).revertedWithCustomError(socialNetwork, 'OnlyUser');
     });
-    it('should revert is service is not active', async () => {
+
+    it('should revert follow if not authorize(not user)', async () => {
       const socialNetwork = await deployAndExecuteUntilStep(
         STEP.CONTRACT_DEPLOYED
       );
@@ -134,16 +135,8 @@ describe('SocialNetWork Contract', () => {
         socialNetwork.connect(wallets[2]).follow(user2, proof)
       ).revertedWithCustomError(socialNetwork, 'OnlyUser');
     });
-    it('should revert is service is not active', async () => {
-      const socialNetwork = await deployAndExecuteUntilStep(
-        STEP.CONTRACT_DEPLOYED
-      );
-      const proof = getHexProof(usersAdded, notUser1);
-      await expect(
-        socialNetwork.connect(wallets[2]).unfollow(user2, proof)
-      ).revertedWithCustomError(socialNetwork, 'OnlyUser');
-    });
-    it('should revert is service is not active', async () => {
+
+    it('should revert unfollow if not authorize(not user)', async () => {
       const socialNetwork = await deployAndExecuteUntilStep(
         STEP.CONTRACT_DEPLOYED
       );
@@ -153,7 +146,7 @@ describe('SocialNetWork Contract', () => {
       ).revertedWithCustomError(socialNetwork, 'OnlyUser');
     });
 
-    it('should revert for non user to post', async () => {
+    it('should revert like if not authorize(not user)', async () => {
       const socialNetwork = await deployAndExecuteUntilStep(
         STEP.CONTRACT_DEPLOYED
       );
@@ -162,7 +155,8 @@ describe('SocialNetWork Contract', () => {
         socialNetwork.connect(wallets[2]).like(ARTICLE_CID, proof)
       ).revertedWithCustomError(socialNetwork, 'OnlyUser');
     });
-    it('should revert for non user to post', async () => {
+
+    it('should revert unlike if not authorize(not user)', async () => {
       const socialNetwork = await deployAndExecuteUntilStep(
         STEP.CONTRACT_DEPLOYED
       );
@@ -172,7 +166,7 @@ describe('SocialNetWork Contract', () => {
       ).revertedWithCustomError(socialNetwork, 'OnlyUser');
     });
 
-    it('should revert for non user to post', async () => {
+    it('should revert pin if not authorize(not user)', async () => {
       const socialNetwork = await deployAndExecuteUntilStep(
         STEP.CONTRACT_DEPLOYED
       );
@@ -181,7 +175,7 @@ describe('SocialNetWork Contract', () => {
         socialNetwork.connect(wallets[2]).pin(ARTICLE_CID, proof)
       ).revertedWithCustomError(socialNetwork, 'OnlyUser');
     });
-    it('should revert for non user to post', async () => {
+    it('should revert unpin if not authorize(not user)', async () => {
       const socialNetwork = await deployAndExecuteUntilStep(
         STEP.CONTRACT_DEPLOYED
       );
@@ -193,7 +187,7 @@ describe('SocialNetWork Contract', () => {
   });
 
   describe('OnlyService', () => {
-    it('should allow get last article from user', async () => {
+    it('should revert getLastArticleFrom if service not active', async () => {
       const socialNetwork = await deployAndExecuteUntilStep(
         STEP.DISABLED_SERVICE
       );
@@ -203,7 +197,7 @@ describe('SocialNetWork Contract', () => {
       ).revertedWithCustomError(socialNetwork, 'OnlyService');
     });
 
-    it('should revert is service is not active', async () => {
+    it('should revert postArticle if service not active', async () => {
       const socialNetwork = await deployAndExecuteUntilStep(
         STEP.DISABLED_SERVICE
       );
@@ -213,7 +207,8 @@ describe('SocialNetWork Contract', () => {
           .postArticle(ARTICLE_CID, getHexProof(usersAdded, user2))
       ).revertedWithCustomError(socialNetwork, 'OnlyService');
     });
-    it('should revert is service is not active', async () => {
+
+    it('should revert follow if service not active', async () => {
       const socialNetwork = await deployAndExecuteUntilStep(
         STEP.DISABLED_SERVICE
       );
@@ -222,16 +217,8 @@ describe('SocialNetWork Contract', () => {
         socialNetwork.connect(wallets[3]).follow(user2, proof)
       ).revertedWithCustomError(socialNetwork, 'OnlyService');
     });
-    it('should revert is service is not active', async () => {
-      const socialNetwork = await deployAndExecuteUntilStep(
-        STEP.DISABLED_SERVICE
-      );
-      const proof = getHexProof(usersAdded, user3);
-      await expect(
-        socialNetwork.connect(wallets[3]).unfollow(user2, proof)
-      ).revertedWithCustomError(socialNetwork, 'OnlyService');
-    });
-    it('should revert is service is not active', async () => {
+
+    it('should revert unfollow if service not active', async () => {
       const socialNetwork = await deployAndExecuteUntilStep(
         STEP.DISABLED_SERVICE
       );
@@ -241,7 +228,7 @@ describe('SocialNetWork Contract', () => {
       ).revertedWithCustomError(socialNetwork, 'OnlyService');
     });
 
-    it('should revert for non user to post', async () => {
+    it('should revert like if service not active', async () => {
       const socialNetwork = await deployAndExecuteUntilStep(
         STEP.DISABLED_SERVICE
       );
@@ -250,7 +237,8 @@ describe('SocialNetWork Contract', () => {
         socialNetwork.connect(wallets[3]).like(ARTICLE_CID, proof)
       ).revertedWithCustomError(socialNetwork, 'OnlyService');
     });
-    it('should revert for non user to post', async () => {
+
+    it('should revert unlike if service not active', async () => {
       const socialNetwork = await deployAndExecuteUntilStep(
         STEP.DISABLED_SERVICE
       );
@@ -260,7 +248,7 @@ describe('SocialNetWork Contract', () => {
       ).revertedWithCustomError(socialNetwork, 'OnlyService');
     });
 
-    it('should revert for non user to post', async () => {
+    it('should revert pin if service not active', async () => {
       const socialNetwork = await deployAndExecuteUntilStep(
         STEP.DISABLED_SERVICE
       );
@@ -269,7 +257,7 @@ describe('SocialNetWork Contract', () => {
         socialNetwork.connect(wallets[3]).pin(ARTICLE_CID, proof)
       ).revertedWithCustomError(socialNetwork, 'OnlyService');
     });
-    it('should revert for non user to post', async () => {
+    it('should revert unpin if service not active', async () => {
       const socialNetwork = await deployAndExecuteUntilStep(
         STEP.DISABLED_SERVICE
       );
@@ -322,7 +310,7 @@ describe('SocialNetWork Contract', () => {
         .withArgs(user3, user2);
     });
 
-    it('should allow a user to follow another user', async () => {
+    it('should revert follow if already followed', async () => {
       const socialNetwork = await deployAndExecuteUntilStep(STEP.FOLLOW);
       const proof = getHexProof(usersAdded, user3);
       await expect(
@@ -338,7 +326,7 @@ describe('SocialNetWork Contract', () => {
         .withArgs(user3, user2);
     });
 
-    it('should allow a user to unfollow another user', async () => {
+    it('should revert unfollow if already unfollowed', async () => {
       const socialNetwork = await deployAndExecuteUntilStep(STEP.UNFOLLOW);
       const proof = getHexProof(usersAdded, user3);
       await expect(
@@ -356,7 +344,7 @@ describe('SocialNetWork Contract', () => {
         .withArgs(ARTICLE_CID, user3);
     });
 
-    it('should revert like an article', async () => {
+    it('should revert like if already liked', async () => {
       const socialNetwork = await deployAndExecuteUntilStep(STEP.LIKE);
       const proof = getHexProof(usersAdded, user3);
       await expect(
@@ -372,7 +360,7 @@ describe('SocialNetWork Contract', () => {
         .withArgs(ARTICLE_CID, user3);
     });
 
-    it('should revert like an article', async () => {
+    it('should revert like if already unliked', async () => {
       const socialNetwork = await deployAndExecuteUntilStep(STEP.UNLIKE);
       const proof = getHexProof(usersAdded, user3);
       await expect(
@@ -390,7 +378,7 @@ describe('SocialNetWork Contract', () => {
         .withArgs(ARTICLE_CID, user3);
     });
 
-    it('should revert AlreadyPinned', async () => {
+    it('should revert pin if already pinned', async () => {
       const socialNetwork = await deployAndExecuteUntilStep(STEP.PIN);
       const proof = getHexProof(usersAdded, user3);
       await expect(
@@ -406,7 +394,7 @@ describe('SocialNetWork Contract', () => {
         .withArgs(ARTICLE_CID, user3);
     });
 
-    it('should revert AlreadyUnpinned', async () => {
+    it('should revert pin if already unpinned', async () => {
       const socialNetwork = await deployAndExecuteUntilStep(STEP.UNPIN);
       const proof = getHexProof(usersAdded, user3);
       await expect(

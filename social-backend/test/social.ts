@@ -11,7 +11,7 @@ async function deployAndExecuteUntilStep() {
   return socialContract;
 }
 
-describe('SocialAccount', function () {
+describe('Social Contract', function () {
   let wallets: Signer[];
 
   beforeEach(async function () {
