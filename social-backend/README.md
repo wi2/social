@@ -133,31 +133,37 @@ Here are concise descriptions of each smart contract in your decentralized socia
    - Features: Stores the last article posted by each user.
    - Relationships: Designed to be inherited by `SocialNetWork`.
 
-6. **SocialNetWorkFollowers**:
+6. **SocialNetWorkComment**:
+
+   - Function: Manages comments adding and retrieval.
+   - Features: Stores the last comment added for a cid article.
+   - Relationships: Designed to be inherited by `SocialNetWork`.
+
+7. **SocialNetWorkFollowers**:
 
    - Function: Manages follower relationships between users.
    - Features: Enables users to follow or unfollow others, with custom checks for already followed/unfollowed statuses.
    - Relationships: Intended to be part of `SocialNetWork`.
 
-7. **SocialNetWorkLikes**:
+8. **SocialNetWorkLikes**:
 
    - Function: Handles liking and unliking articles.
    - Features: Tracks like status and count for each article.
    - Relationships: Part of the `SocialNetWork` contract.
 
-8. **SocialNetworkMessenger**:
+9. **SocialNetworkMessenger**:
 
    - Function: Manages messaging services within the network.
    - Features: Handles chat sessions, message encryption, and chat history.
    - Relationships: Extends `SocialBaseCommon`, connected to `SocialAccount`.
 
-9. **SocialNetWorkPins**:
+10. **SocialNetWorkPins**:
 
-   - Function: Provides functionality for pinning and unpinning articles.
-   - Features: Allows users to mark articles as pinned for easy access.
-   - Relationships: Part of the functionalities within `SocialNetWork`.
+- Function: Provides functionality for pinning and unpinning articles.
+- Features: Allows users to mark articles as pinned for easy access.
+- Relationships: Part of the functionalities within `SocialNetWork`.
 
-10. **SocialProfile**:
+11. **SocialProfile**:
 
 - Function: Manages user profiles within the network.
 - Features: Handles operations like profile creation and updates (pseudo, status).
