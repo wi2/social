@@ -14,9 +14,7 @@ import { JSON_FILES, jsonFiles } from '../constants/contract';
  * @returns {CustomLogType[]} Les événements du contrat surveillés.
  */
 export default function useWatchAll() {
-  //const [unwatch, setUnwatch] = useState<any>();
   const [data, setData] = useState<any>();
-  //  const contract = useConfigContractProject(contractName);
   const { isRefresh, refresh } = useRefresh();
 
   const client = getPublicClient();

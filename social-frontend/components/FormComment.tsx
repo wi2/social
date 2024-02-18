@@ -5,12 +5,10 @@ import { ipfsPin } from '../utils/ipfs';
 import { comment } from '../constants/ipfs';
 import { Address, useAccount } from 'wagmi';
 import { CommentTemplate } from '../constants/type';
-import { useRouter } from 'next/router';
 import useGetProfile from '../hooks/useGetProfile';
 import useComment from '../hooks/useComment';
 
 export default function FormComment({ cid }: { cid: Address }) {
-  const { query } = useRouter();
   const { address } = useAccount();
   const { isConnected } = useContract();
   const { setCid } = useComment(cid);

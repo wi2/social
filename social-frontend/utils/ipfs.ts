@@ -38,7 +38,7 @@ export async function ipfsGet(val: any) {
 
 export async function ipfsPin(name: string, body: any) {
   const options: PinataPinOptions | undefined = {
-    pinataMetadata: { name: 'test' },
+    pinataMetadata: { name: name || 'from-website' },
     pinataOptions: { cidVersion: 0 },
   };
 

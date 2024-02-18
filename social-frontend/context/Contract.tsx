@@ -71,7 +71,7 @@ export const ContractProvider = ({ children }: { children: ReactNode }) => {
     pinned: [],
     unpinned: [],
     articlesPosted: [],
-    comments: [],
+    commentPosted: [],
     messages: [],
     profiles: [],
   });
@@ -108,7 +108,7 @@ export const ContractProvider = ({ children }: { children: ReactNode }) => {
     )
   );
 
-  const Comment = useWatch<CustomLogCommentArgsType>(
+  const commentPosted = useWatch<CustomLogCommentArgsType>(
     jsonFiles[JSON_FILES.network].abi.find(
       ({ name, type }) => name === 'Comment' && type === 'event'
     )
@@ -192,9 +192,10 @@ export const ContractProvider = ({ children }: { children: ReactNode }) => {
   );
 
   const allComments = getComments([
-    ...Comment,
-    ...watchData.comments,
+    ...commentPosted,
+    ...watchData.commentPosted,
     ...(completeData.comments || []),
+    ...(completeData.allComments || []),
   ]);
 
   const comments = allComments.filter(
@@ -246,7 +247,7 @@ export const ContractProvider = ({ children }: { children: ReactNode }) => {
           newData.messages = data;
           break;
         case eventName === 'Comment':
-          newData.comments = data;
+          newData.commentPosted = data;
           break;
         default:
           break;
