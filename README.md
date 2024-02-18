@@ -28,14 +28,14 @@ For backend functionalities, smart contract interactions, and deployment, refer 
 
 The project utilizes modern technologies like Next.js, TypeScript, Solidity, and IPFS, hardhat ensuring a robust and efficient user experience.
 
-<img src="images/screen-1.png"  style="width:50%"/>
-<img src="images/screen-2.png"  style="width:50%"/>
-<img src="images/screen-3.png"  style="width:50%"/>
-<img src="images/screen-4.png"  style="width:50%"/>
-<img src="images/screen-5.png"  style="width:50%"/>
-<img src="images/screen-6.png"  style="width:50%"/>
-<img src="images/screen-7.png"  style="width:50%"/>
-<img src="images/screen-8.png"  style="width:50%"/>
+<img src="images/screen-1.png"  style="width:95%"/>
+<img src="images/screen-2.png"  style="width:95%"/>
+<img src="images/screen-3.png"  style="width:95%"/>
+<img src="images/screen-4.png"  style="width:95%"/>
+<img src="images/screen-5.png"  style="width:95%"/>
+<img src="images/screen-6.png"  style="width:95%"/>
+<img src="images/screen-7.png"  style="width:45%"/>
+<img src="images/screen-8.png"  style="width:45%"/>
 
 ## Author
 
