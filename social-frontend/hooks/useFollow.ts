@@ -49,5 +49,6 @@ export default function useFollow(_userFollow: Address | undefined) {
       setUserFollow(user);
       setFollow(active);
     },
+    userFollow,
   };
 }

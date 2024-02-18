@@ -23,7 +23,8 @@ export default function Layout({ children }: { children: ReactNode }) {
   const { theme } = useTheme();
   const isUser = useIsUser();
   const project = useGetProject();
-  const { setUserFollow, isLoading, isFetching } = useFollow(undefined);
+  const { setUserFollow, isLoading, isFetching, userFollow } =
+    useFollow(undefined);
 
   const { users, follows, profiles } = useContract();
   const myFollows = follows?.filter((flw) => flw?.args._me === address);
@@ -71,7 +72,7 @@ export default function Layout({ children }: { children: ReactNode }) {
                           </span>
                         </Link>
                         <span className="flex flex-row gap-3 items-center">
-                          {isLoading || isFetching ? (
+                          {userFollow === user && (isLoading || isFetching) ? (
                             <span className="inline-grid ">
                               <Loader />
                             </span>
