@@ -83,6 +83,7 @@ Try deploy project with script to create a project with multiple article and act
 
 ```shell
 npx hardhat node
+node scripts/pinata.js
 npx hardhat run scripts/deployPlus.ts --network localhost
 ```
 
@@ -90,6 +91,7 @@ or for mumbai polygon
 
 ```shell
 npx hardhat node
+node scripts/pinata.js
 npx hardhat run scripts/deployPlus.ts --network mumbai
 ```
 
