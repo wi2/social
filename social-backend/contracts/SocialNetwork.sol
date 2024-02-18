@@ -3,6 +3,7 @@ pragma solidity 0.8.22;
 
 import "./SocialBaseCommon.sol";
 import "./SocialNetWorkArticle.sol";
+import "./SocialNetWorkComment.sol";
 import "./SocialNetWorkLikes.sol";
 import "./SocialNetWorkFollowers.sol";
 import "./SocialNetWorkPins.sol";
@@ -14,6 +15,7 @@ import "./SocialNetWorkPins.sol";
 contract SocialNetWork is
     SocialBaseCommon,
     SocialNetWorkArticle,
+    SocialNetWorkComment,
     SocialNetWorkLikes,
     SocialNetWorkFollowers,
     SocialNetWorkPins
@@ -39,6 +41,16 @@ contract SocialNetWork is
         return _getLastArticleFrom(_user);
     }
 
+    /// @notice Retrieves the latest article posted by a specific user.
+    /// @param _cid The cid of artcile.
+    /// @return bytes32 The content identifier (CID) of the latest article.
+    function getLastCommentByArticle(
+        bytes32 _cid,
+        bytes32[] calldata _proof
+    ) external view onlyService onlyUser(_proof) returns (bytes32) {
+        return _getLastCommentByArticle(_cid);
+    }
+
     /// @notice Allows a user to post an article to the network.
     /// @param _cid The content identifier of the article being posted.
     /// @param _proof Merkle proof to verify the user's identity.
@@ -47,6 +59,18 @@ contract SocialNetWork is
         bytes32[] calldata _proof
     ) external onlyService onlyUser(_proof) {
         _postArticle(_cid);
+    }
+
+    /// @notice Allows a user to post an article to the network.
+    /// @param _articleCid The cid of the article
+    /// @param _cid The cid of comment
+    /// @param _proof Merkle proof to verify the user's identity.
+    function postComment(
+        bytes32 _articleCid,
+        bytes32 _cid,
+        bytes32[] calldata _proof
+    ) external onlyService onlyUser(_proof) {
+        _postComment(_articleCid, _cid);
     }
 
     /// @notice Allows a user to pin an article.

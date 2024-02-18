@@ -6,6 +6,7 @@ import { Hex, keccak256, toBytes } from 'viem';
 import { getAccountAdresses, getHexProof, getTree } from '../utils/common';
 
 const ARTICLE_CID = keccak256(toBytes('Example article content'));
+const COMMENT_CID = keccak256(toBytes('Example comment content'));
 
 // Steps for the test scenario
 const STEP = {
@@ -127,6 +128,21 @@ describe('SocialNetWork Contract', () => {
       ).revertedWithCustomError(socialNetwork, 'OnlyUser');
     });
 
+    it('should revert getLastCommentByArticle if not authorize(not user)', async () => {
+      const socialNetwork = await deployAndExecuteUntilStep(
+        STEP.CONTRACT_DEPLOYED
+      );
+
+      await expect(
+        socialNetwork
+          .connect(wallets[4])
+          .getLastCommentByArticle(
+            ARTICLE_CID,
+            getHexProof(usersAdded, notUser1)
+          )
+      ).revertedWithCustomError(socialNetwork, 'OnlyUser');
+    });
+
     it('should revert postArticle if not authorize(not user)', async () => {
       const socialNetwork = await deployAndExecuteUntilStep(
         STEP.CONTRACT_DEPLOYED
@@ -135,6 +151,21 @@ describe('SocialNetWork Contract', () => {
         socialNetwork
           .connect(wallets[4])
           .postArticle(ARTICLE_CID, getHexProof(usersAdded, notUser1))
+      ).revertedWithCustomError(socialNetwork, 'OnlyUser');
+    });
+
+    it('should revert postComment if not authorize(not user)', async () => {
+      const socialNetwork = await deployAndExecuteUntilStep(
+        STEP.CONTRACT_DEPLOYED
+      );
+      await expect(
+        socialNetwork
+          .connect(wallets[4])
+          .postComment(
+            ARTICLE_CID,
+            COMMENT_CID,
+            getHexProof(usersAdded, notUser1)
+          )
       ).revertedWithCustomError(socialNetwork, 'OnlyUser');
     });
 
@@ -211,6 +242,18 @@ describe('SocialNetWork Contract', () => {
       ).revertedWithCustomError(socialNetwork, 'OnlyService');
     });
 
+    it('should revert getLastCommentByArticle if service not active', async () => {
+      const socialNetwork = await deployAndExecuteUntilStep(
+        STEP.DISABLED_SERVICE
+      );
+
+      await expect(
+        socialNetwork
+          .connect(wallets[2])
+          .getLastCommentByArticle(ARTICLE_CID, getHexProof(usersAdded, user2))
+      ).revertedWithCustomError(socialNetwork, 'OnlyService');
+    });
+
     it('should revert postArticle if service not active', async () => {
       const socialNetwork = await deployAndExecuteUntilStep(
         STEP.DISABLED_SERVICE
@@ -219,6 +262,17 @@ describe('SocialNetWork Contract', () => {
         socialNetwork
           .connect(wallets[2])
           .postArticle(ARTICLE_CID, getHexProof(usersAdded, user2))
+      ).revertedWithCustomError(socialNetwork, 'OnlyService');
+    });
+
+    it('should revert postComment if service not active', async () => {
+      const socialNetwork = await deployAndExecuteUntilStep(
+        STEP.DISABLED_SERVICE
+      );
+      await expect(
+        socialNetwork
+          .connect(wallets[2])
+          .postComment(ARTICLE_CID, COMMENT_CID, getHexProof(usersAdded, user2))
       ).revertedWithCustomError(socialNetwork, 'OnlyService');
     });
 
@@ -312,6 +366,43 @@ describe('SocialNetWork Contract', () => {
         .connect(wallets[2])
         .getMyLastArticle();
       assert.equal(lastCid, ARTICLE_CID);
+    });
+  });
+
+  describe('Comment', () => {
+    it('should allow a user to add a comment', async () => {
+      const socialNetwork = await deployAndExecuteUntilStep(
+        STEP.CONTRACT_DEPLOYED
+      );
+      const cid = keccak256(toBytes('Example first article content'));
+
+      await expect(
+        socialNetwork
+          .connect(wallets[2])
+          .postComment(cid, COMMENT_CID, getHexProof(usersAdded, user2))
+      )
+        .to.emit(socialNetwork, 'Comment')
+        .withArgs(cid, COMMENT_CID);
+    });
+
+    it('should allow get last article from user', async () => {
+      const socialNetwork = await deployAndExecuteUntilStep(STEP.POST_CONTENT);
+      const lastCid = await socialNetwork
+        .connect(wallets[2])
+        .getLastArticleFrom(user2, getHexProof(usersAdded, user2));
+      assert.equal(lastCid, ARTICLE_CID);
+    });
+
+    it('should allow get last article from user', async () => {
+      const socialNetwork = await deployAndExecuteUntilStep(STEP.POST_CONTENT);
+      await socialNetwork
+        .connect(wallets[2])
+        .postComment(ARTICLE_CID, COMMENT_CID, getHexProof(usersAdded, user2));
+
+      const lastCid = await socialNetwork
+        .connect(wallets[2])
+        .getLastCommentByArticle(ARTICLE_CID, getHexProof(usersAdded, user2));
+      assert.equal(lastCid, COMMENT_CID);
     });
   });
 
