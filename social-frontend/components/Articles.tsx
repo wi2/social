@@ -38,9 +38,10 @@ export default function Articles() {
     });
   }
 
-  articlesSorted = articlesSorted?.filter((item) => item);
+  let cids = articlesSorted?.map((item) => item?.args._cid);
+  cids = cids?.filter((item, index) => item && cids?.indexOf(item) === index);
 
-  if (!articlesSorted?.length) {
+  if (!cids?.length) {
     if (!query._to) {
       return (
         <div className="hero">
@@ -98,8 +99,8 @@ export default function Articles() {
         </Link>
       </div>
       <div className="flex flex-col gap-4 pt-4 pb-4">
-        {articlesSorted?.map((article) => (
-          <Article cid={article?.args._cid} key={article?.args._cid} />
+        {cids?.map((articleCid) => (
+          <Article cid={articleCid} key={articleCid} />
         ))}
       </div>
     </>
