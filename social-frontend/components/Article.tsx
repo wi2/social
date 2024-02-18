@@ -37,6 +37,10 @@ export default function Article({ cid }: { cid: any }) {
     false;
   const nbLikes = allLikes?.filter((like) => like?.args._cid === cid).length;
 
+  const handleToggleComment = useCallback(() => {
+    setIsCommentDisplay(!isCommentDisplay);
+  }, [isCommentDisplay, setIsCommentDisplay]);
+
   const handleRetweet = useCallback(() => {
     async function main() {
       const now = new Date();
@@ -84,7 +88,7 @@ export default function Article({ cid }: { cid: any }) {
       setArticle(getContent);
     }
     main();
-  }, [cid, setArticle]);
+  }, [cid]);
 
   const comments = allComments?.filter(
     (comment) => comment?.args._cidArticle === cid
@@ -125,11 +129,9 @@ export default function Article({ cid }: { cid: any }) {
             )}
 
             <div
-              className="indicator tooltip"
+              className="indicator tooltip "
               data-tip={isCommentDisplay ? 'Hide comments' : 'Show comments'}
-              onClick={() => {
-                setIsCommentDisplay(!isCommentDisplay);
-              }}
+              onClick={handleToggleComment}
             >
               <Icons icon="comment" />
               <span className="badge badge-sm indicator-item">
@@ -191,19 +193,19 @@ export default function Article({ cid }: { cid: any }) {
         </div>
       </div>
 
-      {isCommentDisplay && (
-        <>
-          <div className="mr-4 -mt-4">
-            {comments?.map((comment) => (
+      <>
+        <div className="mr-4 -mt-4">
+          {comments
+            ?.slice(0, isCommentDisplay ? comments.length : 0)
+            ?.map((comment) => (
               <Comment
                 key={comment?.args._cid}
                 cid={comment?.args._cid as Address}
               />
             ))}
-            <FormComment cid={cid} />
-          </div>
-        </>
-      )}
+          {<FormComment cid={cid} />}
+        </div>
+      </>
     </>
   );
 }

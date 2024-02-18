@@ -30,6 +30,7 @@ import {
 } from '../utils/contract';
 import { Address, useAccount } from 'wagmi';
 import useWatchAll from '../hooks/useWatchAll';
+import useRefresh from '../hooks/useRefresh';
 
 type objectType = { [k: Address]: string };
 
@@ -76,15 +77,18 @@ export const ContractProvider = ({ children }: { children: ReactNode }) => {
     profiles: [],
   });
   const data = useWatchAll();
+  const { isRefresh, refresh } = useRefresh();
 
   const { address } = useAccount();
   const isConnected = useIsConnected();
   const isOwner = useIsOwner();
   // account
   const UsersCreated = useWatch<CustomLogUserArgsType>(
-    jsonFiles[JSON_FILES.account].abi.find(
-      ({ name, type }) => name === 'UsersCreated' && type === 'event'
-    )
+    isRefresh
+      ? jsonFiles[JSON_FILES.account].abi.find(
+          ({ name, type }) => name === 'UsersCreated' && type === 'event'
+        )
+      : null
   );
 
   // profile
@@ -96,57 +100,75 @@ export const ContractProvider = ({ children }: { children: ReactNode }) => {
 
   // messenger
   const MessageSended = useWatch<CustomLogMessageArgsType>(
-    jsonFiles[JSON_FILES.messenger].abi.find(
-      ({ name, type }) => name === 'MessageSended' && type === 'event'
-    )
+    isRefresh
+      ? jsonFiles[JSON_FILES.messenger].abi.find(
+          ({ name, type }) => name === 'MessageSended' && type === 'event'
+        )
+      : null
   );
 
   // network
   const articlesPosted = useWatch<CustomLogArticleArgsType>(
-    jsonFiles[JSON_FILES.network].abi.find(
-      ({ name, type }) => name === 'ArticlePosted' && type === 'event'
-    )
+    isRefresh
+      ? jsonFiles[JSON_FILES.network].abi.find(
+          ({ name, type }) => name === 'ArticlePosted' && type === 'event'
+        )
+      : null
   );
 
   const commentPosted = useWatch<CustomLogCommentArgsType>(
-    jsonFiles[JSON_FILES.network].abi.find(
-      ({ name, type }) => name === 'Comment' && type === 'event'
-    )
+    isRefresh
+      ? jsonFiles[JSON_FILES.network].abi.find(
+          ({ name, type }) => name === 'Comment' && type === 'event'
+        )
+      : null
   );
 
   const followed = useWatch<CustomLogFollowArgsType>(
-    jsonFiles[JSON_FILES.network].abi.find(
-      ({ name, type }) => name === 'Followed' && type === 'event'
-    )
+    isRefresh
+      ? jsonFiles[JSON_FILES.network].abi.find(
+          ({ name, type }) => name === 'Followed' && type === 'event'
+        )
+      : null
   );
 
   const unfollowed = useWatch<CustomLogFollowArgsType>(
-    jsonFiles[JSON_FILES.network].abi.find(
-      ({ name, type }) => name === 'Unfollowed' && type === 'event'
-    )
+    isRefresh
+      ? jsonFiles[JSON_FILES.network].abi.find(
+          ({ name, type }) => name === 'Unfollowed' && type === 'event'
+        )
+      : null
   );
 
   const liked = useWatch<CustomLogActionArgsType>(
-    jsonFiles[JSON_FILES.network].abi.find(
-      ({ name, type }) => name === 'Liked' && type === 'event'
-    )
+    isRefresh
+      ? jsonFiles[JSON_FILES.network].abi.find(
+          ({ name, type }) => name === 'Liked' && type === 'event'
+        )
+      : null
   );
 
   const unliked = useWatch<CustomLogActionArgsType>(
-    jsonFiles[JSON_FILES.network].abi.find(
-      ({ name, type }) => name === 'Unliked' && type === 'event'
-    )
+    isRefresh
+      ? jsonFiles[JSON_FILES.network].abi.find(
+          ({ name, type }) => name === 'Unliked' && type === 'event'
+        )
+      : null
   );
 
   const pinned = useWatch<CustomLogActionArgsType>(
-    jsonFiles[JSON_FILES.network].abi.find(
-      ({ name, type }) => name === 'Pinned' && type === 'event'
-    )
+    isRefresh
+      ? jsonFiles[JSON_FILES.network].abi.find(
+          ({ name, type }) => name === 'Pinned' && type === 'event'
+        )
+      : null
   );
   const unpinned = useWatch<CustomLogActionArgsType>(
-    jsonFiles[JSON_FILES.network].abi.find(
-      ({ name, type }) => name === 'Unpinned' && type === 'event'
-    )
+    isRefresh
+      ? jsonFiles[JSON_FILES.network].abi.find(
+          ({ name, type }) => name === 'Unpinned' && type === 'event'
+        )
+      : null
   );
 
   const messages = getMessages(
@@ -183,6 +205,7 @@ export const ContractProvider = ({ children }: { children: ReactNode }) => {
     ...articlesPosted,
     ...watchData.articlesPosted,
     ...(completeData.articles || []),
+    ...(completeData.allArticles || []),
   ]);
 
   const articles = allArticles.filter(
@@ -252,6 +275,7 @@ export const ContractProvider = ({ children }: { children: ReactNode }) => {
         default:
           break;
       }
+      refresh();
       setWatchData(newData);
     }
   }, [data?.[0]?.blockNumber, data?.[0]?.transactionHash, setWatchData]);

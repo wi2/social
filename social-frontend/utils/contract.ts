@@ -155,8 +155,9 @@ export function getArticles<T = CustomLogArticleArgsType>(
   getEventSorted(articlesPosted, []).forEach((item) => {
     const itemType = item as CustomLogType<CustomLogActionArgsType>;
     if (itemType) {
-      const { _cid } = itemType.args;
-      if (itemType.eventName === 'ArticlePosted') {
+      const _cid = itemType.args?._cid;
+
+      if (_cid && itemType.eventName === 'ArticlePosted') {
         finalMap.set(_cid, itemType);
       }
     }
@@ -171,8 +172,8 @@ export function getComments<T = CustomLogCommentArgsType>(
   getEventSorted(comments, []).forEach((item) => {
     const itemType = item as CustomLogType<CustomLogActionArgsType>;
     if (itemType) {
-      const { _cid } = itemType.args;
-      if (itemType.eventName === 'Comment') {
+      const _cid = itemType.args?._cid;
+      if (_cid && itemType.eventName === 'Comment') {
         finalMap.set(_cid, itemType);
       }
     }

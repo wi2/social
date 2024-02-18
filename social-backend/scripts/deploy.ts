@@ -9,7 +9,7 @@ async function main() {
   // eventual verification
   if (!network.name.includes('localhost') && process.env.POLYGONSCAN_API_KEY) {
     await Social.deploymentTransaction()?.wait(
-      network.name.includes('localhost') ? 1 : 6
+      network.name.includes('localhost') ? 1 : 10
     );
     console.log('Verifying...');
     await verify(Social.target, []);
