@@ -119,6 +119,11 @@ export type CustomLogArticleArgsType = {
   _cid: Address;
 };
 
+export type CustomLogCommentArgsType = {
+  _cidArticle: Address;
+  _cid: Address;
+};
+
 export type CustomLogUserArgsType = {
   _users: Address[];
 };
@@ -161,4 +166,16 @@ export type ArticleTemplate = {
   title: string;
   content: string;
   retweet?: RetweetTemplate;
+};
+
+export type MetadataCommentTemplate = {
+  historic: Address[];
+  timestamp: number;
+  cid?: Address;
+};
+
+export type CommentTemplate = {
+  metadata: MetadataCommentTemplate;
+  author: AuthorTemplate;
+  content: string;
 };

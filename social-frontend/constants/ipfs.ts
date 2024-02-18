@@ -21,11 +21,11 @@ export const article = {
   content: '',
 };
 
-const comment = {
+export const comment = {
   metadata: {
-    parent: '',
-    article: '', // cid article
-    timestamp: '',
+    historic: [], // liste of all CID comment from previous to oldest
+    cid: '', // cid article
+    timestamp: now.getTime(),
   },
 
   author: {

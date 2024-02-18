@@ -13,6 +13,7 @@ import { JSON_FILES, jsonFiles } from '../constants/contract';
 import {
   CustomLogActionArgsType,
   CustomLogArticleArgsType,
+  CustomLogCommentArgsType,
   CustomLogFollowArgsType,
   CustomLogMessageArgsType,
   CustomLogProfileArgsType,
@@ -21,6 +22,7 @@ import {
 } from '../constants/type';
 import {
   getArticles,
+  getComments,
   getFollowers,
   getLikes,
   getMessages,
@@ -39,6 +41,8 @@ interface ContractContextType {
   // network
   allArticles?: CustomLogType<CustomLogArticleArgsType>[];
   articles?: CustomLogType<CustomLogArticleArgsType>[];
+  allComments?: CustomLogType<CustomLogCommentArgsType>[];
+  comments?: CustomLogType<CustomLogCommentArgsType>[];
   follows?: CustomLogType<CustomLogFollowArgsType>[];
   followedArticles?: CustomLogType<CustomLogArticleArgsType>[];
   likes?: CustomLogType<CustomLogActionArgsType>[];
@@ -67,6 +71,7 @@ export const ContractProvider = ({ children }: { children: ReactNode }) => {
     pinned: [],
     unpinned: [],
     articlesPosted: [],
+    comments: [],
     messages: [],
     profiles: [],
   });
@@ -100,6 +105,12 @@ export const ContractProvider = ({ children }: { children: ReactNode }) => {
   const articlesPosted = useWatch<CustomLogArticleArgsType>(
     jsonFiles[JSON_FILES.network].abi.find(
       ({ name, type }) => name === 'ArticlePosted' && type === 'event'
+    )
+  );
+
+  const Comment = useWatch<CustomLogCommentArgsType>(
+    jsonFiles[JSON_FILES.network].abi.find(
+      ({ name, type }) => name === 'Comment' && type === 'event'
     )
   );
 
@@ -180,6 +191,18 @@ export const ContractProvider = ({ children }: { children: ReactNode }) => {
       address
   );
 
+  const allComments = getComments([
+    ...Comment,
+    ...watchData.comments,
+    ...(completeData.comments || []),
+  ]);
+
+  const comments = allComments.filter(
+    (item) =>
+      (item as CustomLogType<CustomLogArticleArgsType>)?.args._author ===
+      address
+  );
+
   const followedArticles = follows
     .map((follow) => follow.args._userFollow)
     .map((addr) =>
@@ -222,7 +245,9 @@ export const ContractProvider = ({ children }: { children: ReactNode }) => {
         case eventName === 'MessageSended':
           newData.messages = data;
           break;
-
+        case eventName === 'Comment':
+          newData.comments = data;
+          break;
         default:
           break;
       }
@@ -246,6 +271,8 @@ export const ContractProvider = ({ children }: { children: ReactNode }) => {
       users,
       allArticles,
       articles,
+      allComments,
+      comments,
       followedArticles,
       follows,
       likes,
@@ -259,8 +286,10 @@ export const ContractProvider = ({ children }: { children: ReactNode }) => {
     isConnected,
     isOwner,
     users.length,
+    allComments.length,
     allArticles.length,
     articles.length,
+    comments.length,
     followedArticles.length,
     follows.length,
     allLikes.length,

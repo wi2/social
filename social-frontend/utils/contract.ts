@@ -4,6 +4,7 @@ import {
   CustomError,
   CustomLogActionArgsType,
   CustomLogArticleArgsType,
+  CustomLogCommentArgsType,
   CustomLogFollowArgsType,
   CustomLogMessageArgsType,
   CustomLogType,
@@ -156,6 +157,22 @@ export function getArticles<T = CustomLogArticleArgsType>(
     if (itemType) {
       const { _cid } = itemType.args;
       if (itemType.eventName === 'ArticlePosted') {
+        finalMap.set(_cid, itemType);
+      }
+    }
+  });
+  return Array.from(finalMap.values());
+}
+
+export function getComments<T = CustomLogCommentArgsType>(
+  comments: CustomLogType<T>[]
+) {
+  const finalMap = new Map();
+  getEventSorted(comments, []).forEach((item) => {
+    const itemType = item as CustomLogType<CustomLogActionArgsType>;
+    if (itemType) {
+      const { _cid } = itemType.args;
+      if (itemType.eventName === 'Comment') {
         finalMap.set(_cid, itemType);
       }
     }

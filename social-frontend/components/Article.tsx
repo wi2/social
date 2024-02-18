@@ -13,11 +13,15 @@ import { Address } from 'viem';
 import { useAccount } from 'wagmi';
 import usePost from '../hooks/usePost';
 import useGetProfile from '../hooks/useGetProfile';
+import FormComment from './FormComment';
+import Comment from './Comment';
 
 export default function Article({ cid }: { cid: any }) {
+  const [isCommentDisplay, setIsCommentDisplay] = useState(false);
   const { address } = useAccount();
   const [article, setArticle] = useState<ArticleTemplate>();
-  const { likes, pins, follows, allLikes, articles, profiles } = useContract();
+  const { likes, pins, follows, allLikes, articles, profiles, allComments } =
+    useContract();
   const { setLike, isLoading: isLoadingLike } = useLike(cid);
   const { setPin, isLoading: isLoadingPin } = usePin(cid);
   const { setUserFollow, isLoading: isLoadingFollow } = useFollow(
@@ -82,91 +86,121 @@ export default function Article({ cid }: { cid: any }) {
     main();
   }, [cid, setArticle]);
 
+  const comments = allComments?.filter(
+    (comment) => comment?.args._cidArticle === cid
+  );
+
   return (
-    <div className="card card-compact bg-base-100 bg-opacity-80 shadow-xl rounded mr-4 ml-4">
-      <div className="card-body">
-        <h2 className="card-title">
-          <span className="flex-1">
-            {article?.retweet?.address && <Icons icon="retweet" />}
-            {article?.title || <Loader />}
-            <small className="text-xs flex-none opacity-30">
-              <br />
-              {cid}
+    <>
+      <div className="card card-compact bg-base-100 bg-opacity-80 shadow-xl rounded mr-4 ml-4">
+        <div className="card-body">
+          <h2 className="card-title">
+            <span className="flex-1">
+              {article?.retweet?.address && <Icons icon="retweet" />}
+              {article?.title || <Loader />}
+              <small className="text-xs flex-none opacity-30">
+                <br />
+                {cid}
+              </small>
+            </span>
+            <small className="text-sm flex-none text-accent">
+              by {article?.retweet?.author || article?.author.name}
             </small>
-          </span>
-          <small className="text-sm flex-none text-accent">
-            by {article?.retweet?.author || article?.author.name}
-          </small>
-        </h2>
-        <p>{article?.content || <Loader />}</p>
-      </div>
-      <div className="flex card-actions bg-base-200 bg-opacity-50 text-base-content text-xs rounded-none p-2 rounded-b items-center">
-        <div className="flex-1 opacity-50">
-          {dateFormat(article?.metadata.timestamp)?.toLocaleString()}
+          </h2>
+          <p>{article?.content || <Loader />}</p>
         </div>
-        <div className="flex gap-4 mr-4">
-          {(article?.author.address as Address) !== address && !isFollow && (
-            <div
-              onClick={handleRetweet}
-              className="tooltip"
-              data-tip="Retweet this article"
-            >
-              <Icons icon="retweet" />
-            </div>
-          )}
+        <div className="flex card-actions bg-base-200 bg-opacity-50 text-base-content text-xs rounded-none p-2 rounded-b items-center">
+          <div className="flex-1 opacity-50">
+            {dateFormat(article?.metadata.timestamp)?.toLocaleString()}
+          </div>
+          <div className="flex gap-4 mr-4">
+            {(article?.author.address as Address) !== address && !isFollow && (
+              <div
+                onClick={handleRetweet}
+                className="tooltip"
+                data-tip="Retweet this article"
+              >
+                <Icons icon="retweet" />
+              </div>
+            )}
 
-          {isLoadingFollow ? (
-            <span className="inline-grid ">
-              <Loader />
-            </span>
-          ) : (article?.author.address as Address) === address ? null : (
-            <span
-              className="tooltip"
-              data-tip={`${isFollow ? 'Unfollow' : 'Follow'} ${
-                profiles?.[`profile-${article?.author.address}`]
-              }`}
-            >
-              <Swap active={isFollow} onClick={handleFollow}>
-                <Icons icon="followed" />
-                <Icons icon="unfollowed" />
-              </Swap>
-            </span>
-          )}
-
-          {isLoadingPin ? (
-            <span className="inline-grid ">
-              <Loader />
-            </span>
-          ) : (article?.author.address as Address) !== address ? null : (
-            <span
-              className="tooltip"
-              data-tip={isPinned ? 'Unpin article' : 'Pin article'}
-            >
-              <Swap active={isPinned} onClick={handlePin}>
-                <Icons icon="pinned" />
-                <Icons icon="unpinned" />
-              </Swap>
-            </span>
-          )}
-
-          {isLoadingLike ? (
-            <span className="inline-grid">
-              <Loader />
-            </span>
-          ) : (
             <div
               className="indicator tooltip"
-              data-tip={isLiked ? 'Unlike article' : 'Like article'}
+              data-tip={isCommentDisplay ? 'Hide comments' : 'Show comments'}
+              onClick={() => {
+                setIsCommentDisplay(!isCommentDisplay);
+              }}
             >
-              <Swap active={isLiked} onClick={handleLike}>
-                <Icons icon="liked" />
-                <Icons icon="unliked" />
-              </Swap>
-              <span className="badge badge-sm indicator-item">{nbLikes}</span>
+              <Icons icon="comment" />
+              <span className="badge badge-sm indicator-item">
+                {comments?.length}
+              </span>
             </div>
-          )}
+
+            {isLoadingFollow ? (
+              <span className="inline-grid">
+                <Loader />
+              </span>
+            ) : (article?.author.address as Address) === address ? null : (
+              <span
+                className="tooltip"
+                data-tip={`${isFollow ? 'Unfollow' : 'Follow'} ${
+                  profiles?.[`profile-${article?.author.address}`]
+                }`}
+              >
+                <Swap active={isFollow} onClick={handleFollow}>
+                  <Icons icon="followed" />
+                  <Icons icon="unfollowed" />
+                </Swap>
+              </span>
+            )}
+
+            {isLoadingPin ? (
+              <span className="inline-grid ">
+                <Loader />
+              </span>
+            ) : (article?.author.address as Address) !== address ? null : (
+              <span
+                className="tooltip"
+                data-tip={isPinned ? 'Unpin article' : 'Pin article'}
+              >
+                <Swap active={isPinned} onClick={handlePin}>
+                  <Icons icon="pinned" />
+                  <Icons icon="unpinned" />
+                </Swap>
+              </span>
+            )}
+
+            {isLoadingLike ? (
+              <span className="inline-grid">
+                <Loader />
+              </span>
+            ) : (
+              <div
+                className="indicator tooltip"
+                data-tip={isLiked ? 'Unlike article' : 'Like article'}
+              >
+                <Swap active={isLiked} onClick={handleLike}>
+                  <Icons icon="liked" />
+                  <Icons icon="unliked" />
+                </Swap>
+                <span className="badge badge-sm indicator-item">{nbLikes}</span>
+              </div>
+            )}
+          </div>
         </div>
       </div>
-    </div>
+
+      {isCommentDisplay && (
+        <>
+          <div className="mr-4 -mt-4">
+            {comments?.map((comment) => (
+              <Comment cid={comment?.args._cid as Address} />
+            ))}
+            <FormComment cid={cid} />
+          </div>
+        </>
+      )}
+    </>
   );
 }
