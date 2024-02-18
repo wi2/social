@@ -105,7 +105,7 @@ export default function Article({ cid }: { cid: any }) {
           {dateFormat(article?.metadata.timestamp)?.toLocaleString()}
         </div>
         <div className="flex gap-4 mr-4">
-          {(article?.author.address as Address) !== address && (
+          {(article?.author.address as Address) !== address && !isFollow && (
             <div
               onClick={handleRetweet}
               className="tooltip"
