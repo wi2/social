@@ -3,7 +3,6 @@ pragma solidity 0.8.22;
 
 import "@openzeppelin/contracts/utils/cryptography/MerkleProof.sol";
 import "./SocialBaseCommon.sol";
-import "hardhat/console.sol";
 
 /// @author Michael GAETA
 /// @title Social Network Messenger
