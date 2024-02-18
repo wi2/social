@@ -51,7 +51,7 @@ export default function FormComment({ cid }: { cid: Address }) {
     <form className="flex flex pl-4 w-full" onSubmit={onSubmit}>
       <div className="flex-grow">
         <Textarea
-          className="rounded-none rounded-b h-24 bg-neutral text-neutral-content"
+          className="rounded-none rounded-b h-24 max-h-24 bg-neutral text-neutral-content"
           name="content"
           disabled={!isConnected}
         ></Textarea>
