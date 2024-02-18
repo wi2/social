@@ -195,7 +195,10 @@ export default function Article({ cid }: { cid: any }) {
         <>
           <div className="mr-4 -mt-4">
             {comments?.map((comment) => (
-              <Comment cid={comment?.args._cid as Address} />
+              <Comment
+                key={comment?.args._cid}
+                cid={comment?.args._cid as Address}
+              />
             ))}
             <FormComment cid={cid} />
           </div>
