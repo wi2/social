@@ -35,7 +35,7 @@ contract SocialNetWork is
     function getLastArticleFrom(
         address _user,
         bytes32[] calldata _proof
-    ) public view onlyService onlyUser(_proof) returns (bytes32) {
+    ) external view onlyService onlyUser(_proof) returns (bytes32) {
         return _getLastArticleFrom(_user);
     }
 
@@ -45,7 +45,7 @@ contract SocialNetWork is
     function postArticle(
         bytes32 _cid,
         bytes32[] calldata _proof
-    ) public onlyService onlyUser(_proof) {
+    ) external onlyService onlyUser(_proof) {
         _postArticle(_cid);
     }
 
@@ -55,7 +55,7 @@ contract SocialNetWork is
     function pin(
         bytes32 _cid,
         bytes32[] calldata _proof
-    ) public onlyService onlyUser(_proof) {
+    ) external onlyService onlyUser(_proof) {
         _pin(_cid);
     }
 
@@ -65,7 +65,7 @@ contract SocialNetWork is
     function unpin(
         bytes32 _cid,
         bytes32[] calldata _proof
-    ) public onlyService onlyUser(_proof) {
+    ) external onlyService onlyUser(_proof) {
         _unpin(_cid);
     }
 
@@ -75,7 +75,7 @@ contract SocialNetWork is
     function like(
         bytes32 _cid,
         bytes32[] calldata _proof
-    ) public onlyService onlyUser(_proof) {
+    ) external onlyService onlyUser(_proof) {
         _like(_cid);
     }
 
@@ -85,7 +85,7 @@ contract SocialNetWork is
     function unlike(
         bytes32 _cid,
         bytes32[] calldata _proof
-    ) public onlyService onlyUser(_proof) {
+    ) external onlyService onlyUser(_proof) {
         _unlike(_cid);
     }
 
@@ -95,7 +95,7 @@ contract SocialNetWork is
     function follow(
         address _user,
         bytes32[] calldata _proof
-    ) public onlyService onlyUser(_proof) {
+    ) external onlyService onlyUser(_proof) {
         _follow(_user);
     }
 
@@ -105,7 +105,7 @@ contract SocialNetWork is
     function unfollow(
         address _user,
         bytes32[] calldata _proof
-    ) public onlyService onlyUser(_proof) {
+    ) external onlyService onlyUser(_proof) {
         _unfollow(_user);
     }
 }
