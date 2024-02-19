@@ -2,6 +2,7 @@
 
 [Contract address](https://mumbai.polygonscan.com/address/0x59D1c242aB80aFa32a26bf286194b7890cd2C18E#code)
 [Demo](https://dsnmaker.on.fleek.co/)
+[Video de demo](https://www.loom.com/share/10d95a728c884039b521f3a1f4a17b2e?sid=31d7997a-0b9c-4e98-b3bb-a66ac81015ee)
 
 **dsnMaker**, a comprehensive platform designed to revolutionize social networking through decentralization. This project encapsulates both frontend and backend components, seamlessly integrating to deliver a decentralized social network experience.
 
