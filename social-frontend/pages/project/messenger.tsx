@@ -1,17 +1,18 @@
 import type { NextPage } from 'next';
 import Head from 'next/head';
 
+import { FormEvent, useCallback, useEffect, useRef } from 'react';
+import { useRouter } from 'next/router';
+import { useAccount } from 'wagmi';
+import { Address } from 'viem';
 import Layout from '../../components/Layout';
 import Content from '../../components/Content';
 import BubbleChat from '../../components/BubbleChat';
 import Textarea from '../../components/Textarea';
 import useContract from '../../context/Contract';
-import { FormEvent, useCallback, useEffect, useRef } from 'react';
 import { MessageTemplate } from '../../constants/type';
 import { messageTemplate } from '../../constants/ipfs';
-import { Address, useAccount } from 'wagmi';
 import { ipfsPin } from '../../utils/ipfs';
-import { useRouter } from 'next/router';
 import useMessage from '../../hooks/useMessage';
 import Authorize from '../../components/Authorize';
 

@@ -1,8 +1,8 @@
 import { useState } from 'react';
+import { Address } from 'viem';
 
 import useWrite from './useWrite';
 import useToasts from './useToasts';
-import { Address } from 'viem';
 import { JSON_FILES } from '../constants/contract';
 import useProof from './useProof';
 import { displayAdress } from '../utils/common';
@@ -21,12 +21,7 @@ export default function useComment(ArticleCid: Address) {
     setCid(undefined);
   };
 
-  const { isLoading, isSuccess, isFetching, isError } = useWrite(
-    {
-      functionName: 'postComment',
-      args: [ArticleCid, cid, proof],
-      enabled: cid !== undefined && ArticleCid !== undefined,
-    },
+  const { isLoading, isSuccess, isFetching, isError, write } = useWrite(
     onError,
     onSuccess,
     JSON_FILES.network
@@ -35,6 +30,10 @@ export default function useComment(ArticleCid: Address) {
   const wapperSetCid = (_cid: Address) => {
     if (_cid) {
       setCid(cidToHex(_cid));
+      write({
+        functionName: 'postComment',
+        args: [ArticleCid, cidToHex(_cid), proof],
+      });
     }
   };
 

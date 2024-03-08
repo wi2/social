@@ -1,8 +1,8 @@
 import { useState } from 'react';
+import { Address } from 'viem';
 
 import useWrite from './useWrite';
 import useToasts from './useToasts';
-import { Address } from 'viem';
 import useProof from './useProof';
 import { JSON_FILES } from '../constants/contract';
 import { displayAdress } from '../utils/common';
@@ -22,12 +22,7 @@ export default function useMessage(_to: Address) {
     setCid(undefined);
   };
 
-  const { isLoading, isSuccess, isFetching, isError } = useWrite(
-    {
-      functionName: 'sendMessage',
-      args: [cid, _to, proof],
-      enabled: cid !== undefined,
-    },
+  const { isLoading, isSuccess, isFetching, isError, write } = useWrite(
     onError,
     onSuccess,
     JSON_FILES.messenger
@@ -35,6 +30,10 @@ export default function useMessage(_to: Address) {
 
   const wrapperSetCid = (_cid: Address) => {
     setCid(cidToHex(_cid));
+    write({
+      functionName: 'sendMessage',
+      args: [cidToHex(_cid), _to, proof],
+    });
   };
 
   return {

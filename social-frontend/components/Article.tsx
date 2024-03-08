@@ -20,7 +20,7 @@ export default function Article({ cid }: { cid: any }) {
   const [isCommentDisplay, setIsCommentDisplay] = useState(false);
   const { address } = useAccount();
   const [article, setArticle] = useState<ArticleTemplate>();
-  const { likes, pins, follows, allLikes, articles, profiles, allComments } =
+  const { likes, allPins, follows, allLikes, articles, profiles, allComments } =
     useContract();
   const { setLike, isLoading: isLoadingLike } = useLike(cid);
   const { setPin, isLoading: isLoadingPin } = usePin(cid);
@@ -31,7 +31,7 @@ export default function Article({ cid }: { cid: any }) {
   const { setCid } = usePost();
 
   const isLiked = likes?.some((like) => like?.args._cid === cid) || false;
-  const isPinned = pins?.some((pin) => pin?.args._cid === cid) || false;
+  const isPinned = allPins?.some((pin) => pin?.args._cid === cid) || false;
   const isFollow =
     follows?.some((flw) => flw?.args._userFollow === article?.author.address) ||
     false;
@@ -61,14 +61,14 @@ export default function Article({ cid }: { cid: any }) {
 
       newArticle.metadata.timestamp = now.getTime();
       newArticle.author.address = address;
-      newArticle.author.name = profile.data.pseudo;
+      newArticle.author.name = profile.data?.pseudo;
 
       ipfsPin(newArticle.title, newArticle).then((_cid) => {
         setCid(_cid as Address);
       });
     }
     main();
-  }, [JSON.stringify(article), cid, setCid]);
+  }, [JSON.stringify(article), cid, setCid, profile.data?.pseudo, address]);
 
   const handleFollow = useCallback(() => {
     setUserFollow(article?.author.address as Address, !isFollow);
@@ -93,7 +93,10 @@ export default function Article({ cid }: { cid: any }) {
   const comments = allComments?.filter(
     (comment) => comment?.args._cidArticle === cid
   );
-
+  console.log(
+    allPins?.map((pin) => pin?.args._cid),
+    cid
+  );
   return (
     <>
       <div className="card card-compact bg-base-100 bg-opacity-80 shadow-xl rounded mr-4 ml-4">
@@ -101,7 +104,14 @@ export default function Article({ cid }: { cid: any }) {
           <h2 className="card-title">
             <span className="flex-1">
               {article?.retweet?.address && <Icons icon="retweet" />}
-              {article?.title || <Loader />}
+              <span className="flex gap-2">
+                {allPins?.map((pin) => pin?.args._cid).includes(cid) && (
+                  <span className="flex rounded-full bg-base-100 align-center w-7 h-7 items-center justify-center">
+                    <Icons icon="pinned" />
+                  </span>
+                )}
+                {article?.title || <Loader />}
+              </span>
               <small className="text-xs flex-none opacity-30">
                 <br />
                 {cid}

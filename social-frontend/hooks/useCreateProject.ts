@@ -1,11 +1,11 @@
 import { useState } from 'react';
+import { Address } from 'viem';
+import { useAccount } from 'wagmi';
 
 import useWrite from './useWrite';
 import useToasts from './useToasts';
 import { CreateProjectType } from '../constants/type';
 import { getTree } from '../utils/contract';
-import { Address } from 'viem';
-import { useAccount } from 'wagmi';
 
 export default function useCreateProject() {
   const { address } = useAccount();
@@ -28,19 +28,8 @@ export default function useCreateProject() {
   const uniqAddress = allAdresses.filter(
     (item, index) => allAdresses.indexOf(item) === index
   );
-  const enabled = Boolean(project?.name && project?.slug && uniqAddress.length);
 
-  const { isLoading, isSuccess, isFetching, isError } = useWrite(
-    {
-      functionName: 'create',
-      args: [
-        project?.name,
-        project?.slug,
-        uniqAddress,
-        getTree(uniqAddress as Address[]).getHexRoot(),
-      ],
-      enabled,
-    },
+  const { isLoading, isSuccess, isFetching, isError, write } = useWrite(
     onError,
     onSuccess
   );
@@ -50,6 +39,17 @@ export default function useCreateProject() {
     isSuccess,
     isError,
     isFetching,
-    setProject,
+    setProject: (_project: CreateProjectType) => {
+      setProject(_project);
+      write({
+        functionName: 'create',
+        args: [
+          _project?.name,
+          _project?.slug,
+          uniqAddress,
+          getTree(uniqAddress as Address[]).getHexRoot(),
+        ],
+      });
+    },
   };
 }

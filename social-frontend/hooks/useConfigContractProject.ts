@@ -5,6 +5,7 @@ import useGetProject from './useGetProject';
 
 /**
  * @notice Helper pour la configuration des hook de wagmi
+ * @param {JSON_FILES} contractName - nom du contrat pour la config.
  * @returns {Object} Objet de contrat configuré.
  */
 
@@ -15,9 +16,6 @@ export default function useConfigContractProject(contractName?: JSON_FILES) {
   return {
     address: project.data?.[contractName || ''] || socialConf.address,
     abi: jsonFiles[contractName || JSON_FILES.social].abi,
-    cacheOnBlock: false,
-    cacheTime: 2000,
-    staleTime: 2000,
     account: account.address,
   };
 }

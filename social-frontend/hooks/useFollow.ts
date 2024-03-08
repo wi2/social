@@ -1,8 +1,8 @@
 import { useState } from 'react';
+import { Address } from 'viem';
 
 import useWrite from './useWrite';
 import useToasts from './useToasts';
-import { Address } from 'viem';
 import useProof from './useProof';
 import { JSON_FILES } from '../constants/contract';
 import { displayAdress } from '../utils/common';
@@ -28,12 +28,7 @@ export default function useFollow(_userFollow: Address | undefined) {
     setUserFollow(undefined);
   };
 
-  const { isLoading, isSuccess, isFetching, isError } = useWrite(
-    {
-      functionName: isFollow ? 'follow' : 'unfollow',
-      args: [userFollow, proof],
-      enabled: isFollow !== undefined,
-    },
+  const { isLoading, isSuccess, isFetching, isError, write } = useWrite(
     onError,
     onSuccess,
     JSON_FILES.network
@@ -48,6 +43,10 @@ export default function useFollow(_userFollow: Address | undefined) {
     setUserFollow: (user: Address, active: boolean) => {
       setUserFollow(user);
       setFollow(active);
+      write({
+        functionName: active ? 'follow' : 'unfollow',
+        args: [user, proof],
+      });
     },
     userFollow,
   };

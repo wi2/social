@@ -13,11 +13,13 @@ export default function Articles() {
     useContract();
 
   let articlesSorted = query._to
-    ? allArticles?.filter((article) => article?.args._author === query._to)
+    ? allArticles
+        ?.filter((article) => article?.args._author === query._to)
+        .reverse()
     : getEventSorted<CustomLogArticleArgsType>(
         articles || [],
         followedArticles || []
-      ) || [];
+      ).reverse() || [];
 
   const choosePins = query._to ? allPins : pins;
 

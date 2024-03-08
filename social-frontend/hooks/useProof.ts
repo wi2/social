@@ -1,7 +1,8 @@
+import { useEffect, useState } from 'react';
 import { Address } from 'viem';
 import { useAccount } from 'wagmi';
+
 import { getHexProof } from '../utils/contract';
-import { useEffect, useState } from 'react';
 import useContract from '../context/Contract';
 
 export default function useProof() {

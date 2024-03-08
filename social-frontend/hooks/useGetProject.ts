@@ -1,6 +1,7 @@
-import { useContractRead } from 'wagmi';
-import useConfigContract from './useConfigContract';
+import { useReadContract } from 'wagmi';
 import { useRouter } from 'next/router';
+
+import useConfigContract from './useConfigContract';
 import useIsConnected from './useIsConnected';
 
 export default function useGetProject() {
@@ -8,10 +9,12 @@ export default function useGetProject() {
   const { query } = useRouter();
   const contract = useConfigContract();
 
-  return useContractRead({
+  return useReadContract({
     ...contract,
     functionName: 'getProject',
     args: [query._slug],
-    enabled: isConnected && Boolean(query._slug),
+    query: {
+      enabled: isConnected && Boolean(query._slug),
+    },
   }) as { data: any };
 }

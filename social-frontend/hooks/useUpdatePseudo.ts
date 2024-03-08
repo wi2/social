@@ -20,12 +20,7 @@ export default function useUpdatePseudo() {
     window.location.href = `/project?_slug=${query._slug}`;
   };
 
-  const { isLoading, isSuccess, isFetching, isError } = useWrite(
-    {
-      functionName: 'updatePseudo',
-      args: [pseudo, proof],
-      enabled: pseudo !== undefined,
-    },
+  const { isLoading, isSuccess, isFetching, isError, write } = useWrite(
     onError,
     onSuccess,
     JSON_FILES.profile
@@ -36,6 +31,11 @@ export default function useUpdatePseudo() {
     isSuccess,
     isError,
     isFetching,
-    setPseudo,
+    setPseudo: (_pseudo: string) => {
+      write({
+        functionName: 'updatePseudo',
+        args: [_pseudo, proof],
+      });
+    },
   };
 }

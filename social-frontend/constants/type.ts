@@ -10,17 +10,6 @@ export type OnError = (error: string) => void;
 
 export type addressType = `0x${string}` | undefined;
 
-export type ContractParams =
-  | {
-      functionName?: string;
-      args?: unknown[];
-      cacheTime?: number | undefined;
-      enabled?: boolean;
-      value?: any;
-      scopeKey?: string;
-    }
-  | undefined;
-
 export type CustomError = Error & { shortMessage?: string };
 
 export enum CustomToastType {

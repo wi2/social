@@ -1,10 +1,10 @@
-import { useAccount, useContractRead } from 'wagmi';
+import { useAccount, useReadContract } from 'wagmi';
+import { Address, isAddress } from 'viem';
 
 import useConfigContractProject from './useConfigContractProject';
 import { JSON_FILES } from '../constants/contract';
 import useProof from './useProof';
 import useContract from '../context/Contract';
-import { Address, isAddress } from 'viem';
 
 /**
  * @notice Vérifie si l'utilisateur actuel est le propriétaire du contrat.
@@ -17,10 +17,12 @@ export default function useIsUser() {
   const contract = useConfigContractProject(JSON_FILES.account);
   const { address } = useAccount();
 
-  return useContractRead({
+  return useReadContract({
     ...contract,
     functionName: 'isUser',
     args: [address, proof],
-    enabled: isAddress(address as Address) && Boolean((users || []).length > 0),
+    query: {
+      enabled: isAddress(address as Address) && (users || []).length > 0,
+    },
   });
 }

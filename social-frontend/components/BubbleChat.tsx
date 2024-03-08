@@ -1,8 +1,8 @@
 import { useEffect, useState } from 'react';
+import { useAccount } from 'wagmi';
 import { Address } from 'viem';
 import { ipfsGet } from '../utils/ipfs';
 import { MessageTemplate } from '../constants/type';
-import { useAccount } from 'wagmi';
 import Avatar from './Avatar';
 import { dateFormat } from '../utils/common';
 import Loader from './Loader';
