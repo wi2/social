@@ -1,13 +1,16 @@
 import { digest } from 'multiformats';
 import { CID } from 'multiformats/cid';
-import { fromHex } from 'viem';
+import { Address, fromHex } from 'viem';
 import pinataSDK, { PinataPinOptions } from '@pinata/sdk';
 
 const pinata = new pinataSDK({ pinataJWTKey: process.env.NEXT_PUBLIC_PINATA });
 
 const PINATA_URL = 'https://red-glamorous-bonobo-190.mypinata.cloud/ipfs/';
 
-function concatenate(resultConstructor: any, ...arrays: any) {
+function concatenate(
+  resultConstructor: Uint8ArrayConstructor,
+  ...arrays: (Uint8Array | Uint8ArrayConstructor)[]
+) {
   let totalLength = 0;
   for (const arr of arrays) {
     totalLength += arr.length;
@@ -15,13 +18,13 @@ function concatenate(resultConstructor: any, ...arrays: any) {
   const result = new resultConstructor(totalLength);
   let offset = 0;
   for (const arr of arrays) {
-    result.set(arr, offset);
+    result.set(arr as ArrayLike<number>, offset);
     offset += arr.length;
   }
   return result;
 }
 
-export async function ipfsGet(val: any) {
+export async function ipfsGet(val: Address) {
   if (!val) {
     return null;
   }

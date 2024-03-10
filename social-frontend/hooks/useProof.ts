@@ -17,5 +17,5 @@ export default function useProof() {
     setProof(prf);
   }, [address, allUsers?.length, setProof]);
 
-  return proof;
+  return proof as Address[];
 }

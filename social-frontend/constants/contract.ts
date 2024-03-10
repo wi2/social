@@ -1,20 +1,22 @@
 import { getDefaultConfig } from '@rainbow-me/rainbowkit';
 import { hardhat, polygonMumbai } from 'wagmi/chains';
 
-import socialJson from '../artifacts/Social.json';
-import socialAccountJson from '../artifacts/SocialAccount.json';
-import socialNetworkJson from '../artifacts/SocialNetwork.json';
-import socialMessenger from '../artifacts/SocialNetworkMessenger.json';
-import socialProfile from '../artifacts/SocialProfile.json';
+import {
+  socialAbi,
+  socialAccountAbi,
+  socialProfileAbi,
+  socialMessengerAbi,
+  socialNetworkAbi,
+} from './abi';
 
 const addrContract = process.env.NEXT_PUBLIC_CONTRACT_ADDRESS as `0x${string}`;
 
 export const socialConf = {
-  abi: socialJson.abi,
+  abi: socialAbi,
   address: addrContract,
 };
 
-export enum JSON_FILES {
+export enum ABIS {
   social = 'social',
   account = 'account',
   network = 'network',
@@ -22,12 +24,12 @@ export enum JSON_FILES {
   profile = 'profile',
 }
 
-export const jsonFiles = {
-  [JSON_FILES.social]: socialJson,
-  [JSON_FILES.account]: socialAccountJson,
-  [JSON_FILES.network]: socialNetworkJson,
-  [JSON_FILES.messenger]: socialMessenger,
-  [JSON_FILES.profile]: socialProfile,
+export const abis = {
+  [ABIS.social]: socialAbi,
+  [ABIS.account]: socialAccountAbi,
+  [ABIS.network]: socialNetworkAbi,
+  [ABIS.messenger]: socialMessengerAbi,
+  [ABIS.profile]: socialProfileAbi,
 };
 
 const projectId = process.env.NEXT_PUBLIC_RAINBOWKIT_PROJECT_ID as string;
@@ -56,10 +58,10 @@ export const wagmiConfig = getDefaultConfig({
 });
 
 const abiJSON = [
-  ...jsonFiles[JSON_FILES.account].abi,
-  ...jsonFiles[JSON_FILES.profile].abi,
-  ...jsonFiles[JSON_FILES.messenger].abi,
-  ...jsonFiles[JSON_FILES.network].abi,
+  ...abis[ABIS.account],
+  ...abis[ABIS.profile],
+  ...abis[ABIS.messenger],
+  ...abis[ABIS.network],
 ];
 
 export const abiEventJSON = abiJSON.filter((item) => item?.type === 'event');

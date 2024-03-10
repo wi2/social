@@ -13,7 +13,7 @@ export default function BubbleChat({ cid }: { cid: Address | undefined }) {
 
   useEffect(() => {
     async function main() {
-      const getContent = await ipfsGet(cid);
+      const getContent = await ipfsGet(cid as Address);
       setMessage(getContent);
     }
     main();

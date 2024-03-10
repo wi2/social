@@ -21,6 +21,7 @@ import {
   CustomLogArticleArgsType,
   CustomLogCommentArgsType,
   CustomLogFollowArgsType,
+  CustomLogInitialProfileArgsType,
   CustomLogMessageArgsType,
   CustomLogType,
 } from '../constants/type';
@@ -38,8 +39,8 @@ export function getErrorMsg(error: CustomError) {
 export async function getEvents<S>(
   toBlock: bigint,
   address: Address[],
-  cb: (logs: Log[]) => void,
-  allLogs: Log[] = []
+  cb: (logs: CustomLogType[]) => void,
+  allLogs: CustomLogType[] = []
 ) {
   const start = toBlock - RANGE_BLOCK;
   const fromBlock = start > 0 ? start : BigInt(0);
@@ -48,12 +49,12 @@ export async function getEvents<S>(
   }
   if (toBlock > BigInt(0)) {
     const client = getClient(wagmiConfig) as Client<Transport, Chain>;
-    const logs = await getLogs(client, {
+    const logs = (await getLogs(client, {
       events: abiEventJSON,
       address,
       fromBlock,
       toBlock,
-    });
+    })) as CustomLogType[];
     await getEvents(fromBlock, address, cb, [...logs, ...allLogs]);
   }
 }
@@ -78,7 +79,9 @@ export function getEventSorted<T>(
   const unique = [...first, ...second].reduce<CustomLogType<T>[]>(
     (accumulator, current) => {
       if (
-        !accumulator.find((item: any) => item.blockHash === current?.blockHash)
+        !accumulator.find(
+          (item: CustomLogType<T>) => item?.blockHash === current?.blockHash
+        )
       ) {
         accumulator.push(current);
       }
@@ -206,6 +209,18 @@ export function getComments<T = CustomLogCommentArgsType>(
     }
   });
   return Array.from(finalMap.values());
+}
+
+export function getProfiles<T = CustomLogInitialProfileArgsType>(
+  profiles: CustomLogType<T>[]
+) {
+  return profiles.reduce((acc, cur) => {
+    const args = cur?.args as CustomLogInitialProfileArgsType;
+    return {
+      ...acc,
+      [`profile-${args._user}`]: args._pseudo,
+    };
+  }, {});
 }
 
 export function cidToHex(_cid: Address) {

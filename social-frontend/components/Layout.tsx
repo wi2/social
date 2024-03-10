@@ -41,7 +41,7 @@ export default function Layout({ children }: { children: ReactNode }) {
     <div className={`w-full background-halo ${theme}`}>
       <Header />
 
-      {project.data?.name && isUser.data ? (
+      {project.data && isUser.data ? (
         <Drawer>
           <Drawer.Content>{children}</Drawer.Content>
           <Drawer.Side>
@@ -151,7 +151,7 @@ export default function Layout({ children }: { children: ReactNode }) {
                         >
                           <Avatar name={user?.args._userFollow} noTooltip />
                           <span className="pl-4">
-                            {profiles[`profile-${user?.args._userFollow}`] ||
+                            {profiles?.[`profile-${user?.args._userFollow}`] ||
                               displayAdress(user?.args._userFollow)}
                           </span>
                         </Link>

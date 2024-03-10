@@ -4,7 +4,7 @@ import { Address } from 'viem';
 import useWrite from './useWrite';
 import useToasts from './useToasts';
 import useProof from './useProof';
-import { JSON_FILES } from '../constants/contract';
+import { ABIS } from '../constants/contract';
 import { displayAdress } from '../utils/common';
 
 export default function useFollow(_userFollow: Address | undefined) {
@@ -31,7 +31,7 @@ export default function useFollow(_userFollow: Address | undefined) {
   const { isLoading, isSuccess, isFetching, isError, write } = useWrite(
     onError,
     onSuccess,
-    JSON_FILES.network
+    ABIS.network
   );
 
   return {

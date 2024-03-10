@@ -36,7 +36,7 @@ export default function FormPost() {
         }
         newArticle.metadata.timestamp = now.getTime();
         newArticle.author.address = address;
-        newArticle.author.name = profile.data?.pseudo;
+        newArticle.author.name = profile.data?.pseudo || '';
         newArticle.title = titleArticle.value;
         newArticle.content = content.value;
 

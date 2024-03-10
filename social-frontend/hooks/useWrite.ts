@@ -1,17 +1,22 @@
 import { useEffect } from 'react';
 import { useWaitForTransactionReceipt, useWriteContract } from 'wagmi';
+import {
+  ContractFunctionArgs,
+  ContractFunctionName,
+  AbiStateMutability,
+} from 'viem';
 
-import { CustomError, OnError, OnSuccess } from '../constants/type';
+import { AppAbiType, CustomError, OnError, OnSuccess } from '../constants/type';
 import useToasts from './useToasts';
 import { getErrorMsg } from '../utils/contract';
-import { JSON_FILES } from '../constants/contract';
+import { ABIS } from '../constants/contract';
 import useConfigContractProject from './useConfigContractProject';
 
 /**
  * @notice Gérer l'écriture de transactions sur le contrat.
  * @param {OnError} onError - Fonction appelée en cas d'erreur lors de l'opération d'écriture.
  * @param {OnSuccess} onSuccess - Fonction appelée en cas de succès lors de l'opération d'écriture.
- * @param {JSON_FILES} contractName - nom du contrat pour selectionner la config.
+ * @param {ABIS} contractName - nom du contrat pour selectionner la config.
  * @returns {Object} Objet contenant des informations sur l'état de l'opération d'écriture.
  *   - {boolean} isLoading - Indique si une opération d'écriture est en cours.
  *   - {boolean} isError - Indique s'il y a eu une erreur lors de l'opération d'écriture.
@@ -22,7 +27,7 @@ import useConfigContractProject from './useConfigContractProject';
 export default function useWrite(
   onError?: OnError,
   onSuccess?: OnSuccess,
-  contractName?: JSON_FILES
+  contractName?: ABIS
 ) {
   const contract = useConfigContractProject(contractName);
   const { toastError } = useToasts();
@@ -55,16 +60,25 @@ export default function useWrite(
     }
   }, [waitTransaction.isSuccess, onSuccess]);
 
+  const write = (params: {
+    functionName: ContractFunctionName<AppAbiType, 'nonpayable'>;
+    args?: ContractFunctionArgs<
+      AppAbiType,
+      AbiStateMutability,
+      ContractFunctionName<AppAbiType, 'nonpayable'>
+    >;
+  }) => {
+    writeContract.writeContract({
+      ...contract,
+      ...params,
+    });
+  };
+
   return {
     isLoading: waitTransaction.isLoading || writeContract.isPending,
     isError: waitTransaction.isError || writeContract.isError,
     isFetching: waitTransaction.isFetching,
     isSuccess: waitTransaction.isSuccess,
-    write: (params: any) => {
-      writeContract.writeContract({
-        ...contract,
-        ...params,
-      });
-    },
+    write,
   };
 }

@@ -4,6 +4,21 @@ export enum Theme {
 }
 
 import { Address, Log } from 'viem';
+import { ABIS } from './contract';
+import {
+  socialAbi,
+  socialAccountAbi,
+  socialMessengerAbi,
+  socialNetworkAbi,
+  socialProfileAbi,
+} from './abi';
+
+export type AppAbiType =
+  | typeof socialAccountAbi
+  | typeof socialMessengerAbi
+  | typeof socialNetworkAbi
+  | typeof socialProfileAbi
+  | typeof socialAbi;
 
 export type OnSuccess = () => void;
 export type OnError = (error: string) => void;
@@ -24,16 +39,19 @@ export type CustomToast = {
   content: string;
 };
 
-export type ProjectType = {
-  name: string;
-  owner: Address;
-  account: Address;
-  network: Address;
-  messenger: Address;
+export type ProjectTypeServices = {
+  [k in ABIS]: Address;
 };
 
-export type CustomLogType<S> =
-  | (Log & { args: S; eventName: string })
+export type ProfileType = { pseudo: string };
+
+export type ProjectType = ProjectTypeServices & {
+  name: string;
+  owner: Address;
+};
+
+export type CustomLogType<S = unknown> =
+  | (Log & { args: S; eventName: string; blockHash?: Address })
   | undefined;
 
 export type CreateProjectType = {
@@ -118,8 +136,12 @@ export type CustomLogUserArgsType = {
 };
 
 export type CustomLogProfileArgsType = {
-  _pseudo: string;
+  [k: `profile-${Address | string}`]: Address;
+};
+
+export type CustomLogInitialProfileArgsType = {
   _user: Address;
+  _pseudo: string;
 };
 
 export type CustomLogMessageArgsType = {

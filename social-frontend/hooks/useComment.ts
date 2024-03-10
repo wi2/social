@@ -3,7 +3,7 @@ import { Address } from 'viem';
 
 import useWrite from './useWrite';
 import useToasts from './useToasts';
-import { JSON_FILES } from '../constants/contract';
+import { ABIS } from '../constants/contract';
 import useProof from './useProof';
 import { displayAdress } from '../utils/common';
 import { cidToHex } from '../utils/contract';
@@ -24,7 +24,7 @@ export default function useComment(ArticleCid: Address) {
   const { isLoading, isSuccess, isFetching, isError, write } = useWrite(
     onError,
     onSuccess,
-    JSON_FILES.network
+    ABIS.network
   );
 
   const wapperSetCid = (_cid: Address) => {
@@ -32,7 +32,7 @@ export default function useComment(ArticleCid: Address) {
       setCid(cidToHex(_cid));
       write({
         functionName: 'postComment',
-        args: [ArticleCid, cidToHex(_cid), proof],
+        args: [ArticleCid, cidToHex(_cid) as Address, proof],
       });
     }
   };

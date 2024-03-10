@@ -1,9 +1,10 @@
 import { useState } from 'react';
+import { useRouter } from 'next/router';
+
 import useWrite from './useWrite';
 import useToasts from './useToasts';
-import { JSON_FILES } from '../constants/contract';
+import { ABIS } from '../constants/contract';
 import useProof from './useProof';
-import { useRouter } from 'next/router';
 
 export default function useUpdatePseudo() {
   const { query } = useRouter();
@@ -23,7 +24,7 @@ export default function useUpdatePseudo() {
   const { isLoading, isSuccess, isFetching, isError, write } = useWrite(
     onError,
     onSuccess,
-    JSON_FILES.profile
+    ABIS.profile
   );
 
   return {

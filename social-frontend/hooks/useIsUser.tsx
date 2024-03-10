@@ -1,8 +1,8 @@
 import { useAccount, useReadContract } from 'wagmi';
-import { Address, isAddress } from 'viem';
+import { Address, isAddress, zeroAddress } from 'viem';
 
 import useConfigContractProject from './useConfigContractProject';
-import { JSON_FILES } from '../constants/contract';
+import { ABIS } from '../constants/contract';
 import useProof from './useProof';
 import useContract from '../context/Contract';
 
@@ -14,13 +14,13 @@ export default function useIsUser() {
   const proof = useProof();
   const { users } = useContract();
 
-  const contract = useConfigContractProject(JSON_FILES.account);
+  const contract = useConfigContractProject(ABIS.account);
   const { address } = useAccount();
 
   return useReadContract({
     ...contract,
     functionName: 'isUser',
-    args: [address, proof],
+    args: [address || zeroAddress, proof || []],
     query: {
       enabled: isAddress(address as Address) && (users || []).length > 0,
     },

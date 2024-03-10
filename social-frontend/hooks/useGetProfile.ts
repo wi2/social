@@ -2,11 +2,11 @@ import { useAccount, useReadContract } from 'wagmi';
 import { Address, isAddress } from 'viem';
 
 import useConfigContractProject from './useConfigContractProject';
-import { JSON_FILES } from '../constants/contract';
+import { ABIS } from '../constants/contract';
 
 export default function useGetProfile() {
   const { address } = useAccount();
-  const contract = useConfigContractProject(JSON_FILES.profile);
+  const contract = useConfigContractProject(ABIS.profile);
 
   return useReadContract({
     ...contract,
@@ -14,5 +14,5 @@ export default function useGetProfile() {
     query: {
       enabled: Boolean(address) && isAddress(address as Address),
     },
-  }) as { data: any };
+  });
 }

@@ -12,9 +12,9 @@ export default function useGetProject() {
   return useReadContract({
     ...contract,
     functionName: 'getProject',
-    args: [query._slug],
+    args: [query._slug as string],
     query: {
       enabled: isConnected && Boolean(query._slug),
     },
-  }) as { data: any };
+  });
 }

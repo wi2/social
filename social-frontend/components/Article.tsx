@@ -16,7 +16,7 @@ import useGetProfile from '../hooks/useGetProfile';
 import FormComment from './FormComment';
 import Comment from './Comment';
 
-export default function Article({ cid }: { cid: any }) {
+export default function Article({ cid }: { cid: Address }) {
   const [isCommentDisplay, setIsCommentDisplay] = useState(false);
   const { address } = useAccount();
   const [article, setArticle] = useState<ArticleTemplate>();
@@ -61,7 +61,7 @@ export default function Article({ cid }: { cid: any }) {
 
       newArticle.metadata.timestamp = now.getTime();
       newArticle.author.address = address;
-      newArticle.author.name = profile.data?.pseudo;
+      newArticle.author.name = profile.data?.pseudo || '';
 
       ipfsPin(newArticle.title, newArticle).then((_cid) => {
         setCid(_cid as Address);
@@ -93,10 +93,7 @@ export default function Article({ cid }: { cid: any }) {
   const comments = allComments?.filter(
     (comment) => comment?.args._cidArticle === cid
   );
-  console.log(
-    allPins?.map((pin) => pin?.args._cid),
-    cid
-  );
+
   return (
     <>
       <div className="card card-compact bg-base-100 bg-opacity-80 shadow-xl rounded mr-4 ml-4">

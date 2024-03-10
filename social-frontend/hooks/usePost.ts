@@ -3,7 +3,7 @@ import { Address } from 'viem';
 
 import useWrite from './useWrite';
 import useToasts from './useToasts';
-import { JSON_FILES } from '../constants/contract';
+import { ABIS } from '../constants/contract';
 import useProof from './useProof';
 import { displayAdress } from '../utils/common';
 import { cidToHex } from '../utils/contract';
@@ -24,15 +24,16 @@ export default function usePost() {
   const { isLoading, isSuccess, isFetching, isError, write } = useWrite(
     onError,
     onSuccess,
-    JSON_FILES.network
+    ABIS.network
   );
 
   const wapperSetCid = (_cid: Address) => {
+    const newCid = cidToHex(_cid) as Address;
     if (_cid) {
-      setCid(cidToHex(_cid));
+      setCid(newCid);
       write({
         functionName: 'postArticle',
-        args: [cidToHex(_cid), proof],
+        args: [newCid, proof],
       });
     }
   };

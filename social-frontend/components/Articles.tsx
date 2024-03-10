@@ -71,7 +71,7 @@ export default function Articles() {
           <div className="hero-content flex-col lg:flex-row bg-primary-content bg-opacity-70 rounded-md">
             <div>
               <p className="py-6">
-                {profiles[`profile-${query._to}`] ||
+                {profiles?.[`profile-${query._to as Address}`] ||
                   displayAdress(query._to as Address)}{' '}
                 has not published any articles
               </p>
@@ -102,7 +102,7 @@ export default function Articles() {
       </div>
       <div className="flex flex-col gap-4 pt-4 pb-4">
         {cids?.map((articleCid) => (
-          <Article cid={articleCid} key={articleCid} />
+          <Article cid={articleCid as Address} key={articleCid} />
         ))}
       </div>
     </>

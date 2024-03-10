@@ -27,7 +27,7 @@ export default function useCreateProject() {
   allAdresses.push(address as string);
   const uniqAddress = allAdresses.filter(
     (item, index) => allAdresses.indexOf(item) === index
-  );
+  ) as Address[];
 
   const { isLoading, isSuccess, isFetching, isError, write } = useWrite(
     onError,
@@ -47,7 +47,7 @@ export default function useCreateProject() {
           _project?.name,
           _project?.slug,
           uniqAddress,
-          getTree(uniqAddress as Address[]).getHexRoot(),
+          getTree(uniqAddress).getHexRoot() as Address,
         ],
       });
     },

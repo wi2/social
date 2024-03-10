@@ -33,7 +33,7 @@ export default function FormComment({ cid }: { cid: Address }) {
         newComment.metadata.timestamp = now.getTime();
         newComment.metadata.cid = cid;
         newComment.author.address = address;
-        newComment.author.name = profile.data?.pseudo;
+        newComment.author.name = profile.data?.pseudo || '';
         newComment.content = content.value;
 
         ipfsPin(`comment-${cid}`, newComment).then((_cid) => {

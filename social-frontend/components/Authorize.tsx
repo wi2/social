@@ -49,7 +49,7 @@ export default function Authorize({ children }: { children: ReactNode }) {
       </NotConnected>
     );
   }
-  if (!profiles[`profile-${address}`]) {
+  if (!profiles?.[`profile-${address}`]) {
     return (
       <NotConnected>
         <div className="hero">

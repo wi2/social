@@ -11,7 +11,9 @@ import {
   CustomLogCommentArgsType,
   CustomLogFollowArgsType,
   CustomLogMessageArgsType,
+  CustomLogProfileArgsType,
   CustomLogType,
+  CustomLogUserArgsType,
 } from '../constants/type';
 import {
   getArticles,
@@ -20,9 +22,8 @@ import {
   getLikes,
   getMessages,
   getPins,
+  getProfiles,
 } from '../utils/contract';
-
-type objectType = { [k: Address]: string };
 
 interface ContractContextType {
   isConnected: boolean;
@@ -41,7 +42,7 @@ interface ContractContextType {
   pins?: CustomLogType<CustomLogActionArgsType>[];
   allPins?: CustomLogType<CustomLogActionArgsType>[];
   messages?: CustomLogType<CustomLogMessageArgsType>[];
-  profiles?: any;
+  profiles?: CustomLogProfileArgsType;
 }
 
 export const ContractContext = createContext<ContractContextType>({
@@ -59,7 +60,7 @@ export const ContractProvider = ({ children }: { children: ReactNode }) => {
   // account
   const UsersCreated = allLogs.filter(
     (log) => log?.eventName === 'UsersCreated'
-  );
+  ) as CustomLogType<CustomLogUserArgsType>[];
 
   // profile
   const UpdatePseudo = allLogs.filter(
@@ -113,13 +114,7 @@ export const ContractProvider = ({ children }: { children: ReactNode }) => {
   const users = UsersCreated.map((user) => user?.args._users).flat();
 
   const allProfiles = [...UpdatePseudo];
-  const profiles = allProfiles.reduce(
-    (acc: objectType, cur: any) => ({
-      ...acc,
-      [`profile-${cur?.args._user}`]: cur?.args._pseudo,
-    }),
-    {}
-  );
+  const profiles = getProfiles(allProfiles);
 
   return (
     <ContractContext.Provider
