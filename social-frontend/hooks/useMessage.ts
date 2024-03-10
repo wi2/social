@@ -1,10 +1,10 @@
 import { useState } from 'react';
+import { Address } from 'viem';
 
 import useWrite from './useWrite';
 import useToasts from './useToasts';
-import { Address } from 'viem';
 import useProof from './useProof';
-import { JSON_FILES } from '../constants/contract';
+import { ABIS } from '../constants/contract';
 import { displayAdress } from '../utils/common';
 import { cidToHex } from '../utils/contract';
 
@@ -22,19 +22,19 @@ export default function useMessage(_to: Address) {
     setCid(undefined);
   };
 
-  const { isLoading, isSuccess, isFetching, isError } = useWrite(
-    {
-      functionName: 'sendMessage',
-      args: [cid, _to, proof],
-      enabled: cid !== undefined,
-    },
+  const { isLoading, isSuccess, isFetching, isError, write } = useWrite(
     onError,
     onSuccess,
-    JSON_FILES.messenger
+    ABIS.messenger
   );
 
   const wrapperSetCid = (_cid: Address) => {
-    setCid(cidToHex(_cid));
+    const newCid = cidToHex(_cid) as Address;
+    setCid(newCid);
+    write({
+      functionName: 'sendMessage',
+      args: [newCid, _to, proof],
+    });
   };
 
   return {

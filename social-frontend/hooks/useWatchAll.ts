@@ -1,50 +1,44 @@
 import { useEffect, useState } from 'react';
-import { getPublicClient } from '@wagmi/core';
+import { watchContractEvent } from '@wagmi/core';
+import { signal, effect } from '@preact/signals-core';
 
-import useRefresh from './useRefresh';
-import { JSON_FILES, jsonFiles } from '../constants/contract';
+import { abiEventJSON, wagmiConfig } from '../constants/contract';
+import { CustomLogType } from '../constants/type';
 
 /**
  * @notice Hook personnalisé pour surveiller les événements du contrat.
  * @dev Ce hook est utilisé pour surveiller les événements du contrat en utilisant
  * le hook `useContractEvent` de la bibliothèque "wagmi".  Il récupère les événements
  * du contrat à l'aide de la fonction `getEvents` et les met à jour dans l'état local.
- * @param {string} eventName - Le nom de l'événement à surveiller.
- * @param {any} abiJSON - L'ABI JSON du contrat.
  * @returns {CustomLogType[]} Les événements du contrat surveillés.
  */
+
 export default function useWatchAll() {
-  const [data, setData] = useState<any>();
-  const { isRefresh, refresh } = useRefresh();
+  const [historic, setHistoric] = useState<CustomLogType[]>([]);
+  const [data, setData] = useState<CustomLogType[]>([]);
+  const logs = signal<CustomLogType[]>([]);
 
-  const client = getPublicClient();
-
-  const unwatch = isRefresh
-    ? client.watchContractEvent({
-        abi: [
-          ...jsonFiles[JSON_FILES.network].abi,
-          ...jsonFiles[JSON_FILES.messenger].abi,
-          ...jsonFiles[JSON_FILES.account].abi,
-          ...jsonFiles[JSON_FILES.profile].abi,
-        ],
-        onLogs: (l) => {
-          setData(l);
-          refresh();
-        },
-      })
-    : undefined;
-
-  useEffect(() => {
-    if (!isRefresh) {
-      unwatch?.();
+  effect(() => {
+    if (logs.value.length) {
+      setData(logs.value);
     }
-  }, [isRefresh]);
+  });
 
   useEffect(() => {
+    setHistoric([...historic, ...data]);
+  }, [data, setHistoric]);
+
+  useEffect(() => {
+    const unwatch = watchContractEvent(wagmiConfig, {
+      abi: abiEventJSON,
+      onLogs: (l) => {
+        logs.value = l as CustomLogType[];
+      },
+    });
     return () => {
       unwatch?.();
     };
   }, []);
 
-  return data;
+  return historic;
 }

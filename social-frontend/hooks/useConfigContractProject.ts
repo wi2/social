@@ -1,23 +1,46 @@
 import { useAccount } from 'wagmi';
 
-import { JSON_FILES, jsonFiles, socialConf } from '../constants/contract';
+import { ABIS, abis, socialConf } from '../constants/contract';
 import useGetProject from './useGetProject';
+import {
+  socialAbi,
+  socialAccountAbi,
+  socialMessengerAbi,
+  socialNetworkAbi,
+  socialProfileAbi,
+} from '../constants/abi';
 
 /**
  * @notice Helper pour la configuration des hook de wagmi
+ * @param {ABIS} contractName - nom du contrat pour la config.
  * @returns {Object} Objet de contrat configuré.
  */
 
-export default function useConfigContractProject(contractName?: JSON_FILES) {
+export default function useConfigContractProject(contractName?: ABIS) {
   const account = useAccount();
   const project = useGetProject();
 
+  type CUSTOM_ABIS =
+    | ABIS.account
+    | ABIS.messenger
+    | ABIS.network
+    | ABIS.profile;
+
+  const name = contractName || ABIS.network;
+  const address = project.data
+    ? project.data[name as CUSTOM_ABIS]
+    : socialConf.address;
+
+  type tt =
+    | typeof socialAccountAbi
+    | typeof socialMessengerAbi
+    | typeof socialNetworkAbi
+    | typeof socialProfileAbi
+    | typeof socialAbi;
+
   return {
-    address: project.data?.[contractName || ''] || socialConf.address,
-    abi: jsonFiles[contractName || JSON_FILES.social].abi,
-    cacheOnBlock: false,
-    cacheTime: 2000,
-    staleTime: 2000,
+    address,
+    abi: abis[contractName || ABIS.social],
     account: account.address,
   };
 }

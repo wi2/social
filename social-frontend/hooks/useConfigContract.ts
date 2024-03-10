@@ -11,9 +11,6 @@ export default function useConfigContract() {
 
   return {
     ...socialConf,
-    cacheOnBlock: true,
-    cacheTime: 2000,
-    staleTime: 2000,
     account: account.address,
   };
 }

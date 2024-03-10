@@ -14,7 +14,7 @@ export default function Comment({ cid }: { cid: Address }) {
       setComment(c);
     }
     main();
-  }, [setComment]);
+  }, [cid, setComment]);
 
   return (
     <div className="card card-compact bg-base-300 bg-opacity-50 shadow-xl rounded-none -mt-1 ml-4">

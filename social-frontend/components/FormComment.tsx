@@ -1,18 +1,19 @@
-import useContract from '../context/Contract';
 import { FormEvent, useCallback } from 'react';
+import { useAccount } from 'wagmi';
+import { Address } from 'viem';
+
+import useContract from '../context/Contract';
 import Textarea from './Textarea';
-import { ipfsPin } from '../utils/ipfs';
-import { comment } from '../constants/ipfs';
-import { Address, useAccount } from 'wagmi';
 import { CommentTemplate } from '../constants/type';
+import { comment } from '../constants/ipfs';
 import useGetProfile from '../hooks/useGetProfile';
 import useComment from '../hooks/useComment';
+import { ipfsPin } from '../utils/ipfs';
 
 export default function FormComment({ cid }: { cid: Address }) {
   const { address } = useAccount();
-  const { isConnected } = useContract();
+  const { isConnected, allComments } = useContract();
   const { setCid } = useComment(cid);
-  const { allComments } = useContract();
   const profile = useGetProfile();
 
   const onSubmit = useCallback(
@@ -32,17 +33,17 @@ export default function FormComment({ cid }: { cid: Address }) {
         newComment.metadata.timestamp = now.getTime();
         newComment.metadata.cid = cid;
         newComment.author.address = address;
-        newComment.author.name = profile.data.pseudo;
+        newComment.author.name = profile.data?.pseudo || '';
         newComment.content = content.value;
 
-        ipfsPin(`comment-${cid}`, newComment).then((cid) => {
-          setCid(cid as Address);
+        ipfsPin(`comment-${cid}`, newComment).then((_cid) => {
+          setCid(_cid as Address);
           content.value = '';
         });
       }
       main();
     },
-    [allComments?.length, setCid, address]
+    [allComments?.length, cid, setCid, address, profile.data?.pseudo]
   );
 
   return (

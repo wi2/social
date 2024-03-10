@@ -1,10 +1,10 @@
 import { useState } from 'react';
+import { Address } from 'viem';
 
 import useWrite from './useWrite';
 import useToasts from './useToasts';
-import { Address } from 'viem';
 import useProof from './useProof';
-import { JSON_FILES } from '../constants/contract';
+import { ABIS } from '../constants/contract';
 import { displayAdress } from '../utils/common';
 
 export default function usePin(_cid: Address) {
@@ -21,15 +21,10 @@ export default function usePin(_cid: Address) {
     setPin(undefined);
   };
 
-  const { isLoading, isSuccess, isFetching, isError } = useWrite(
-    {
-      functionName: pin ? 'pin' : 'unpin',
-      args: [_cid, proof],
-      enabled: pin !== undefined,
-    },
+  const { isLoading, isSuccess, isFetching, isError, write } = useWrite(
     onError,
     onSuccess,
-    JSON_FILES.network
+    ABIS.network
   );
 
   return {
@@ -37,6 +32,12 @@ export default function usePin(_cid: Address) {
     isSuccess,
     isError,
     isFetching,
-    setPin,
+    setPin: (_pin: boolean) => {
+      setPin(_pin);
+      write({
+        functionName: _pin ? 'pin' : 'unpin',
+        args: [_cid, proof],
+      });
+    },
   };
 }

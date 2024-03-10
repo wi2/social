@@ -1,18 +1,16 @@
-import { FormEvent, ReactNode, useCallback, useEffect, useState } from 'react';
-import useIsUser from '../hooks/useIsUser';
-import Input from './Input';
-import useIsConnected from '../hooks/useIsConnected';
-import Loader from './Loader';
-import useUpdatePseudo from '../hooks/useUpdatePseudo';
-import { useAccount } from 'wagmi';
-import useContract from '../context/Contract';
-import NotConnected from './NotConnected';
+import { FormEvent, ReactNode, useCallback } from 'react';
 import Link from 'next/link';
+import { useAccount } from 'wagmi';
+
+import Input from './Input';
+import Loader from './Loader';
+import NotConnected from './NotConnected';
+import useIsUser from '../hooks/useIsUser';
+import useUpdatePseudo from '../hooks/useUpdatePseudo';
+import useContract from '../context/Contract';
 
 export default function Authorize({ children }: { children: ReactNode }) {
-  const [isReady, setReady] = useState(false);
   const { address, isConnecting } = useAccount();
-  const isConnected = useIsConnected();
   const isUser = useIsUser();
   const { setPseudo } = useUpdatePseudo();
   const { profiles } = useContract();
@@ -26,66 +24,58 @@ export default function Authorize({ children }: { children: ReactNode }) {
     [setPseudo]
   );
 
-  useEffect(() => {
-    setTimeout(() => {
-      setReady(true);
-    }, 200);
-  }, []);
-
-  if (!isConnected && !isConnecting && isReady) {
-    return <NotConnected />;
-  }
-
-  if (
-    !isConnected ||
-    isUser.isLoading ||
-    isUser.isFetching ||
-    !isUser.isSuccess ||
-    !isReady
-  ) {
+  if (isConnecting || isUser.isLoading) {
     return <Loader />;
   }
 
-  if (!isUser.data && isReady) {
+  if (!isUser.data) {
     return (
-      <div className="hero">
-        <div className="hero-content flex-col lg:flex-row bg-primary-content bg-opacity-70 rounded-md">
-          <div>
-            <h1 className="text-4xl font-bold">You are not Authorize.</h1>
-            <p className="py-6">
-              This account user is not authorize to access.
-              <br />
-              Are you sure to connect with the good account?
-            </p>
-            <Link href="/" className="btn btn-primary">
-              Back to homepage
-            </Link>
+      <NotConnected>
+        <div className="hero">
+          <div className="hero-content flex-col lg:flex-row bg-primary-content bg-opacity-70 rounded-md">
+            <div>
+              <h1 className="text-4xl font-bold">You are not Authorize.</h1>
+              <p className="py-6">
+                This account user is not authorize to access.
+                <br />
+                Are you sure to connect with the good account?
+              </p>
+              <Link href="/" className="btn btn-primary">
+                Back to homepage
+              </Link>
+            </div>
           </div>
         </div>
-      </div>
+      </NotConnected>
     );
   }
-  if (!profiles[`profile-${address}`] && isReady) {
+  if (!profiles?.[`profile-${address}`]) {
     return (
-      <div className="hero">
-        <div className="hero-content flex-col lg:flex-row bg-primary-content bg-opacity-70 rounded-md">
-          <div>
-            <h1 className="text-4xl font-bold">Give us your pseudo</h1>
+      <NotConnected>
+        <div className="hero">
+          <div className="hero-content flex-col lg:flex-row bg-primary-content bg-opacity-70 rounded-md">
+            <div>
+              <h1 className="text-4xl font-bold">Give us your pseudo</h1>
 
-            <form onSubmit={onSubmit}>
-              <label className="flex p-2">
-                Pleave save your pseudo to activate your account
-              </label>
-              <div className="flex flex-row">
-                <Input name="pseudo" placeholder="pseudo" />
-                <button className="btn btn-primary">Update</button>
-              </div>
-            </form>
+              <form onSubmit={onSubmit}>
+                <label className="flex p-2">
+                  Pleave save your pseudo to activate your account
+                </label>
+                <div className="flex flex-row">
+                  <Input name="pseudo" placeholder="pseudo" />
+                  <button className="btn btn-primary">Update</button>
+                </div>
+              </form>
+            </div>
           </div>
         </div>
-      </div>
+      </NotConnected>
     );
   }
 
-  return <div className="relative">{children}</div>;
+  return (
+    <NotConnected>
+      <div className="relative">{children}</div>
+    </NotConnected>
+  );
 }

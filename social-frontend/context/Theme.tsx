@@ -1,4 +1,5 @@
 import {
+  ReactNode,
   createContext,
   useCallback,
   useContext,
@@ -14,7 +15,7 @@ interface ThemeContextType {
 
 export const ThemeContext = createContext<ThemeContextType>({});
 
-export const ThemeProvider = ({ children }: any) => {
+export const ThemeProvider = ({ children }: { children: ReactNode }) => {
   const [theme, setTheme] = useState(Theme.dark);
   const [isMounted, setIsMounted] = useState(false);
 

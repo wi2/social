@@ -20,7 +20,7 @@ export default function Board() {
   const nbLikes = allLikes?.filter((like) => like?.args._me === address).length;
   const nbPins = allPins?.filter((pin) => pin?.args._me === address).length;
   const nbFollows = follows?.filter((flw) => flw?.args._me === address).length;
-  const isAdmin = data.owner === address;
+  const isAdmin = data?.owner === address;
 
   const onSubmit = useCallback(
     (e: FormEvent<HTMLFormElement>) => {

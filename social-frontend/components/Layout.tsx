@@ -1,4 +1,8 @@
 import { ReactNode, useCallback } from 'react';
+import Link from 'next/link';
+import { useRouter } from 'next/router';
+import { Address } from 'viem';
+import { useAccount } from 'wagmi';
 import Footer from './Footer';
 import Header from './Header';
 import Drawer from './Drawer';
@@ -8,14 +12,11 @@ import useContract from '../context/Contract';
 import useGetProject from '../hooks/useGetProject';
 import { displayAdress } from '../utils/common';
 import Accordion from './Accordion';
-import { useRouter } from 'next/router';
 import useIsUser from '../hooks/useIsUser';
 import Swap from './Swap';
-import { Address, useAccount } from 'wagmi';
 import Icons from './Icons';
 import useFollow from '../hooks/useFollow';
 import Loader from './Loader';
-import Link from 'next/link';
 
 export default function Layout({ children }: { children: ReactNode }) {
   const { query } = useRouter();
@@ -40,7 +41,7 @@ export default function Layout({ children }: { children: ReactNode }) {
     <div className={`w-full background-halo ${theme}`}>
       <Header />
 
-      {project.data?.name && isUser.data ? (
+      {project.data && isUser.data ? (
         <Drawer>
           <Drawer.Content>{children}</Drawer.Content>
           <Drawer.Side>
@@ -150,7 +151,7 @@ export default function Layout({ children }: { children: ReactNode }) {
                         >
                           <Avatar name={user?.args._userFollow} noTooltip />
                           <span className="pl-4">
-                            {profiles[`profile-${user?.args._userFollow}`] ||
+                            {profiles?.[`profile-${user?.args._userFollow}`] ||
                               displayAdress(user?.args._userFollow)}
                           </span>
                         </Link>

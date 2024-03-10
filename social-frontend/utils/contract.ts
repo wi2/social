@@ -1,16 +1,30 @@
-import { Address, fromBytes, isAddress, keccak256, zeroAddress } from 'viem';
 import MerkleTree from 'merkletreejs';
+import base58 from 'bs58';
+import { getLogs } from 'viem/actions';
+import { getClient } from '@wagmi/core';
+import {
+  Address,
+  Chain,
+  Client,
+  Log,
+  Transport,
+  fromBytes,
+  isAddress,
+  keccak256,
+  zeroAddress,
+} from 'viem';
+
+import { RANGE_BLOCK, abiEventJSON, wagmiConfig } from '../constants/contract';
 import {
   CustomError,
   CustomLogActionArgsType,
   CustomLogArticleArgsType,
   CustomLogCommentArgsType,
   CustomLogFollowArgsType,
+  CustomLogInitialProfileArgsType,
   CustomLogMessageArgsType,
   CustomLogType,
 } from '../constants/type';
-import { P } from '@wagmi/core/dist/index-e744bbc2';
-import base58 from 'bs58';
 
 export function getErrorMsg(error: CustomError) {
   const cause = error.cause as { reason: string };
@@ -22,13 +36,27 @@ export function getErrorMsg(error: CustomError) {
   );
 }
 
-export async function getEvents<S>(client: P, event: any, cb: any) {
-  const logs = (await client.getLogs({
-    event,
-    fromBlock: BigInt(0),
-    toBlock: 'latest', // Pas besoin valeur par défaut
-  })) as CustomLogType<S>[];
-  cb(logs);
+export async function getEvents<S>(
+  toBlock: bigint,
+  address: Address[],
+  cb: (logs: CustomLogType[]) => void,
+  allLogs: CustomLogType[] = []
+) {
+  const start = toBlock - RANGE_BLOCK;
+  const fromBlock = start > 0 ? start : BigInt(0);
+  if (allLogs.length > 0) {
+    cb(allLogs);
+  }
+  if (toBlock > BigInt(0)) {
+    const client = getClient(wagmiConfig) as Client<Transport, Chain>;
+    const logs = (await getLogs(client, {
+      events: abiEventJSON,
+      address,
+      fromBlock,
+      toBlock,
+    })) as CustomLogType[];
+    await getEvents(fromBlock, address, cb, [...logs, ...allLogs]);
+  }
 }
 
 export function getTree(users: Address[]) {
@@ -51,7 +79,9 @@ export function getEventSorted<T>(
   const unique = [...first, ...second].reduce<CustomLogType<T>[]>(
     (accumulator, current) => {
       if (
-        !accumulator.find((item: any) => item.blockHash === current?.blockHash)
+        !accumulator.find(
+          (item: CustomLogType<T>) => item?.blockHash === current?.blockHash
+        )
       ) {
         accumulator.push(current);
       }
@@ -179,6 +209,18 @@ export function getComments<T = CustomLogCommentArgsType>(
     }
   });
   return Array.from(finalMap.values());
+}
+
+export function getProfiles<T = CustomLogInitialProfileArgsType>(
+  profiles: CustomLogType<T>[]
+) {
+  return profiles.reduce((acc, cur) => {
+    const args = cur?.args as CustomLogInitialProfileArgsType;
+    return {
+      ...acc,
+      [`profile-${args._user}`]: args._pseudo,
+    };
+  }, {});
 }
 
 export function cidToHex(_cid: Address) {

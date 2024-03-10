@@ -1,17 +1,16 @@
-import Head from 'next/head';
-
 import useContract from '../context/Contract';
 import { FormEvent, useCallback } from 'react';
 import Input from './Input';
 import Textarea from './Textarea';
 import { ipfsPin } from '../utils/ipfs';
 import { article } from '../constants/ipfs';
-import { Address, useAccount } from 'wagmi';
+import { useAccount } from 'wagmi';
 import usePost from '../hooks/usePost';
 import { ArticleTemplate } from '../constants/type';
 import { useRouter } from 'next/router';
 import useGetProfile from '../hooks/useGetProfile';
 import Link from 'next/link';
+import { Address } from 'viem';
 
 export default function FormPost() {
   const { query } = useRouter();
@@ -37,7 +36,7 @@ export default function FormPost() {
         }
         newArticle.metadata.timestamp = now.getTime();
         newArticle.author.address = address;
-        newArticle.author.name = profile.data.pseudo;
+        newArticle.author.name = profile.data?.pseudo || '';
         newArticle.title = titleArticle.value;
         newArticle.content = content.value;
 
@@ -49,7 +48,7 @@ export default function FormPost() {
       }
       main();
     },
-    [articles?.length, setCid, address]
+    [articles?.length, setCid, address, profile.data?.pseudo]
   );
 
   return (
